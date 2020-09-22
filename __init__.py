@@ -40,7 +40,7 @@ def get_search():
         db = get_db()
         results = db.run("match (d:Disease) "
                     "where d.diseaseName =~ $disease "
-                    "return d", {"disease": q}
+                    "return d", {"disease": "(?i).*" + q + ".*"}
         )
         return Response(json.dumps([serialize_disease(record['d']) for record in results]),
                         mimetype="application/json")

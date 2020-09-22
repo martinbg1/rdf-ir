@@ -22,7 +22,7 @@
             $.get("/search?q=" + encodeURIComponent(query),
             function (data) {
                 if(!data) return;
-                $("#data").text(JSON.stringify(data))
+                $("#data").text(JSON.stringify(data));
             }, "json");
             return false;
         }

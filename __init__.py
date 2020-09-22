@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, g, Response, jsonify
+from flask import Flask, g, Response, jsonify, render_template, request
 from neo4j import GraphDatabase, basic_auth
 
 
@@ -9,7 +9,7 @@ app = Flask(__name__)
 url = os.getenv("NEO4J_URL","bolt://localhost")
 password = os.getenv("NEO4J_PASSWORD", "test")
 
-driver = GraphDatabase.driver(url,auth=basic_auth("neo4j", password),encrypted=False)
+driver = GraphDatabase.driver(url,auth=basic_auth("neo4j", '123'),encrypted=False)
 
 def get_db():
     if not hasattr(g, 'neo4j_db'):
@@ -17,10 +17,10 @@ def get_db():
     return g.neo4j_db
 
 
-# a simple page that says hello
-@app.route('/')
-def hello():
-    return 'Hello!'
+# render index
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 
 def serialize_disease(disease):
@@ -44,3 +44,5 @@ def get_search():
         )
         return Response(json.dumps([serialize_disease(record['d']) for record in results]),
                         mimetype="application/json")
+    else:
+        return 'No data'

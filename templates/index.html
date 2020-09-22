@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
+{% block body %}
+<h1>Search for diseases</h1>
+<form role="search" class="search-container" id="search">
+    <input type="text" placeholder="Search.." name="search">
+    <button type="submit"><i class="fa fa-search"></i></button>
+</form>
+<div>
+    <p id="data">No data</p>
+</div>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function search() {
+            var query=$("#search").find("input[name=search]").val();
+            console.log(query)
+            $.get("/search?q=" + encodeURIComponent(query),
+            function (data) {
+                if(!data) return;
+                $("#data").text(JSON.stringify(data))
+            }, "json");
+            return false;
+        }
+        $("#search").submit(search);
+        search();
+    })
+</script>
+{% endblock %} 

@@ -18,7 +18,7 @@ def get_db():
 
 
 # render index
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
     return render_template('index.html')
 
@@ -28,6 +28,14 @@ def serialize_disease(disease):
         'name': disease['name'],
         'description': disease['description'],
         'altNames':disease['altNames']
+    }
+
+
+def serialize_symptom(symptom):
+    return {
+        'name': symptom['name'],
+        'description': symptom['description'],
+        'altNames': symptom['altNames']
     }
 
 
@@ -47,3 +55,13 @@ def get_search():
                         mimetype="application/json")
     else:
         return 'No data'
+
+
+@app.route('/symptom/<disease>')
+def get_symptom(disease):
+    db = get_db()
+    results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
+                "where d.name = $disease "
+                "return s", {"disease": disease})
+    return Response(json.dumps([serialize_symptom(record['s']) for record in results]),
+                        mimetype="application/json")

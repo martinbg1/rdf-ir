@@ -4,3 +4,9 @@ body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+.grid-container {
+    display: grid;
+    column-gap: 50px;
+    grid-template-columns: 800px 500px;
+}

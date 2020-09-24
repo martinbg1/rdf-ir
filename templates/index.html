@@ -22,11 +22,14 @@
             $.get("/search?q=" + encodeURIComponent(query),
             function (data) {
                 if(!data) return;
-                var $list = $("#data").empty();       
+                //var $list = $("#data").empty();       
+                //data.forEach(function (disease) {
+                //            $list.append($("<li style='list-style-type: none'>" + "<b> Name: </b>" + disease.name + " <b> Description: </b>" + disease.description + " " + '<b> alias: </b>' + disease.altNames +"</li>"));
+                //        });
+                $("#data").empty();
                 data.forEach(function (disease) {
-                            $list.append($("<li style='list-style-type: none'>" + "<b> Name: </b>" + disease.name + " <b> Description: </b>" + disease.description + " " + '<b> alias: </b>' + disease.altNames +"</li>"));
-                        });
-               // $("#data").text(JSON.stringify(data));
+                    $("#data").append('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+'</div>');
+                });
             }, "json");
             return false;
         }

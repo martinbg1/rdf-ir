@@ -25,8 +25,9 @@ def index():
 
 def serialize_disease(disease):
     return {
-        'name': disease['diseaseName'],
-        'description': disease['diseaseDescription'],
+        'name': disease['name'],
+        'description': disease['description'],
+        'altNames':disease['altNames']
     }
 
 
@@ -39,7 +40,7 @@ def get_search():
     if q:
         db = get_db()
         results = db.run("match (d:Disease) "
-                    "where d.diseaseName =~ $disease "
+                    "where d.name =~ $disease "
                     "return d", {"disease": "(?i).*" + q + ".*"}
         )
         return Response(json.dumps([serialize_disease(record['d']) for record in results]),

@@ -27,6 +27,7 @@ def serialize_disease(disease):
     return {
         'name': disease['name'],
         'description': disease['description'],
+        'altNames':disease['altNames']
     }
 
 

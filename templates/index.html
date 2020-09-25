@@ -24,7 +24,7 @@
     $(function () {
         function showSymptom(disease) {
             $("#symptom-text").empty()
-            $.get("symptom/" + encodeURIComponent(disease), 
+            $.get("symptom?d=" + encodeURIComponent(disease), 
             function (data) {
                 if(!data) return
                 let symp = []

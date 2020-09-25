@@ -53,15 +53,65 @@ def get_search():
         )
         return Response(json.dumps([serialize_disease(record['d']) for record in results]),
                         mimetype="application/json")
-    else:
-        return 'No data'
+    return 'No data'
 
 
-@app.route('/symptom/<disease>')
-def get_symptom(disease):
-    db = get_db()
-    results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
-                "where d.name = $disease "
-                "return s", {"disease": disease})
-    return Response(json.dumps([serialize_symptom(record['s']) for record in results]),
+@app.route('/symptom/')
+def get_symptom():
+    try:
+        disease = request.args["d"]
+    except KeyError:
+        return render_template('index.html')
+    if disease:
+        print(disease)
+        db = get_db()
+        results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
+                    "where d.name = $disease "
+                    "return s", {"disease": disease})
+        return Response(json.dumps([serialize_symptom(record['s']) for record in results]),
+                            mimetype="application/json")
+    return 'No symptoms' 
+
+@app.route('/search')
+def get_disease_symptom():
+    try:
+        q = request.args["q"]
+    except KeyError:
+        return render_template('index.html')
+    if q:
+        db = get_db()
+        results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
+                    "where d.name =~ $disease "
+                    "return d, s", {"disease": "(?i).*" + q + ".*"}
+
+        )
+        print(results.single())
+        return Response(json.dumps([serialize_symptom(record['d']) for record in results]),
                         mimetype="application/json")
+    else:
+        return 'no data'
+
+
+"""
+Alternativ til den andre søkefunksjonen. Her finner man disease og symptoms til disease i en spørring
+i steden for å splitte det opp i to spørringer.
+TODO: Finne ut hvordan man serialiserer resultatet.
+"""
+@app.route('/searchAlt')
+def get_search_alt():
+    try:
+        q = request.args["q"]
+    except KeyError:
+        return render_template('index.html')
+    if q:
+        db = get_db()
+        results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
+                    "where d.name =~ $disease "
+                    "return d, s", {"disease": "(?i).*" + q + ".*"}
+
+        )
+        # return Response(json.dumps([serialize_disease(record['d']) for record in results]),
+        #                 mimetype="application/json")
+
+    return 'No data'
+

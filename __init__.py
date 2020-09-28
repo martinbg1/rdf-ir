@@ -25,9 +25,10 @@ def index():
 
 def serialize_disease(disease):
     return {
-        'name': disease['name'],
-        'description': disease['description'],
-        'altNames':disease['altNames']
+        'name': disease["node"]['name'],
+        'description': disease["node"]['description'],
+        'altNames':disease["node"]['altNames'],
+        'score':disease['score']
     }
 
 
@@ -47,11 +48,12 @@ def get_search():
         return render_template('index.html')
     if q:
         db = get_db()
-        results = db.run("match (d:Disease) "
-                    "where d.name =~ $disease "
-                    "return d", {"disease": "(?i).*" + q + ".*"}
+        #db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
+        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias',$disease ) "
+         "YIELD node,score " 
+         "RETURN node,score ", {"disease":q}
         )
-        return Response(json.dumps([serialize_disease(record['d']) for record in results]),
+        return Response(json.dumps([serialize_disease(record) for record in results]),
                         mimetype="application/json")
     return 'No data'
 

@@ -49,7 +49,7 @@
                 $("#disease-data").empty();
                 $("#symptom-text").empty()
                 data.forEach(function (disease) {
-                    $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+'</div>').appendTo("#disease-data")
+                    $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
                             .click(function() { showSymptom(disease.name)});
                 });
             }, "json");

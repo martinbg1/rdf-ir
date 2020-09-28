@@ -48,11 +48,13 @@ def get_search():
         return render_template('index.html')
     if q:
         db = get_db()
+        print(q)
         #db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
-        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias',$disease ) "
+        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +"^3 OR altNames:" + q + "^2') "
          "YIELD node,score " 
-         "RETURN node,score ", {"disease":q}
+         "RETURN node,score "
         )
+        
         return Response(json.dumps([serialize_disease(record) for record in results]),
                         mimetype="application/json")
     return 'No data'
@@ -65,7 +67,7 @@ def get_symptom():
     except KeyError:
         return render_template('index.html')
     if disease:
-        print(disease)
+        #print(disease)
         db = get_db()
         results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
                     "where d.name = $disease "
@@ -74,24 +76,24 @@ def get_symptom():
                             mimetype="application/json")
     return 'No symptoms' 
 
-@app.route('/search')
-def get_disease_symptom():
-    try:
-        q = request.args["q"]
-    except KeyError:
-        return render_template('index.html')
-    if q:
-        db = get_db()
-        results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
-                    "where d.name =~ $disease "
-                    "return d, s", {"disease": "(?i).*" + q + ".*"}
+#@app.route('/search')
+#def get_disease_symptom():
+#    try:
+#        q = request.args["q"]
+#    except KeyError:
+#        return render_template('index.html')
+#    if q:
+#        db = get_db()
+#        results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
+#                    "where d.name =~ $disease "
+#                    "return d, s", {"disease": "(?i).*" + q + ".*"}
 
-        )
-        print(results.single())
-        return Response(json.dumps([serialize_symptom(record['d']) for record in results]),
-                        mimetype="application/json")
-    else:
-        return 'no data'
+#        )
+#        print(results.single())
+#        return Response(json.dumps([serialize_symptom(record['d']) for record in results]),
+#                        mimetype="application/json")
+#    else:
+#        return 'no data'
 
 
 """

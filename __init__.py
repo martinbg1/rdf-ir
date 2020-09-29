@@ -39,6 +39,12 @@ def serialize_symptom(symptom):
         'altNames': symptom['altNames']
     }
 
+def serialize_drug(drug):
+    return {
+        'name': drug['name'],
+        'altNames': drug['altNames']
+    }
+
 
 @app.route('/search')
 def get_search():
@@ -75,6 +81,22 @@ def get_symptom():
         return Response(json.dumps([serialize_symptom(record['s']) for record in results]),
                             mimetype="application/json")
     return 'No symptoms' 
+
+@app.route('/drug/')
+def get_drug():
+    try:
+        disease = request.args["d"]
+    except KeyError:
+        return render_template('index.html')
+    if disease:
+        #print(disease)
+        db = get_db()
+        results = db.run("match (d:Disease)-[:usesDrug]->(dr:Drug) "
+                    "where d.name = $disease "
+                    "return dr", {"disease": disease})
+        return Response(json.dumps([serialize_drug(record['dr']) for record in results]),
+                            mimetype="application/json")
+    return 'No drugs'
 
 #@app.route('/search')
 #def get_disease_symptom():

@@ -55,10 +55,11 @@ def get_search():
     if q:
         db = get_db()
         print(q)
-        #db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
-        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +"^3 OR altNames:" + q + "^2') "
+        # db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
+        # call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease'],['name','description','altNames'], {analyzer: "english"})
+        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +"^3 OR altNames:" + q + "^2 OR description:" + q + "') "
          "YIELD node,score " 
-         "RETURN node,score "
+         "RETURN node,score limit 20"
         )
         
         return Response(json.dumps([serialize_disease(record) for record in results]),

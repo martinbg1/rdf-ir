@@ -3,6 +3,7 @@ package example;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.UserFunction;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class TF_IDF {
@@ -41,7 +42,11 @@ public class TF_IDF {
         return result / doc.size();
     }
 
-
+    /**
+     * UserFunction to calculate inverse document frequency for terms
+     * @param documents
+     * @return
+     */
     @UserFunction
     public Map<String, Double> idf(
             @Name("documents") List<String> documents) {
@@ -61,6 +66,13 @@ public class TF_IDF {
         return inverseDocFreqMap;
     }
 
+
+    /**
+     * Helper function to calculate inverse document frequency for a single term
+     * @param docs
+     * @param term
+     * @return
+     */
     public double idf(List<String[]> docs, String term) {
         double n = 0;
 
@@ -72,7 +84,44 @@ public class TF_IDF {
                 }
             }
         }
-        double i = 10 / 3;
         return Math.log(docs.size() / n);
+    }
+
+
+    /**
+     * Funciton to calculate tf-idf score
+     * @param documents
+     * @return
+     */
+    @UserFunction
+    public List<Map<String, Map<String, Double>>> tf_idf(
+            @Name("documents") List<String> documents) {
+
+        ArrayList<Map<String, Map<String, Double>>> result = new ArrayList<>();
+        List<String[]> parsedDocuments = new ArrayList<>();
+
+        for (String doc : documents) {
+            parsedDocuments.add(doc.split(", ", 0));
+        }
+
+        for (String[] doc : parsedDocuments) {
+            Map<String, Map<String, Double>> docResult = new HashMap<>();
+            for (String term : doc) {
+                Map<String, Double> tf_idf = new HashMap<>();
+
+                // calculate tf and idf values
+                Double tf = tf(Arrays.asList(doc), term);
+                Double idf = idf(parsedDocuments, term);
+
+                // Add values to terms in the document
+                tf_idf.put("tf", tf);
+                tf_idf.put("idf", idf);
+                tf_idf.put("tf_idf", tf*idf);
+                docResult.put(term, tf_idf);
+            }
+            // Add all term values for the document
+            result.add(docResult);
+        }
+        return result;
     }
 }

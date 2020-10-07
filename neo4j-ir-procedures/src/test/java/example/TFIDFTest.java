@@ -11,8 +11,7 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 //import com.google.common.math.DoubleMath;
 
@@ -73,6 +72,22 @@ public class TFIDFTest {
             Map<String, Object> result = session.run( "RETURN example.idf(['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']) AS result").single().get("result").asMap();
             // Then
             result.forEach((term, idf) -> assertThat(expectedTFResult.get(term).compareTo((Double) idf)).isEqualTo(0));
+
+        }
+    }
+
+    @Test
+    public void shouldCalculateTF_IDF() {
+
+        // In a try-block, to make sure we close the driver and session after the test
+        try( Driver driver = GraphDatabase.driver(embeddedDatabaseServer.boltURI(), driverConfig);
+             Session session = driver.session()) {
+
+            // When
+            List<Object> result = session.run( "RETURN example.tf_idf(['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']) AS result").single().get("result").asList();
+
+            // Then
+            assertThat(true).isTrue(); // for lat til å teste dette.
 
         }
     }

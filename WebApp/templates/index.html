@@ -5,11 +5,16 @@
 {% endblock %}
 
 {% block body %}
-<h1>Search for diseases</h1>
-<form role="search" id="search">
-    <input type="text" placeholder="Search.." name="search">
-    <button type="submit"><i class="fa fa-search"></i></button>
-</form>
+<div class="header">
+    <h1>Search for diseases</h1>
+</div>
+<div class="search">
+    <form role="search" id="search">
+        <input type="text" placeholder="Search.." name="search">
+        <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+</div>
+
 <div class="grid-container">
     <div id="disease-data">
         <p id="data-para">No data</p>

@@ -20,16 +20,16 @@ public class getNodes{
 
     @Procedure(value ="example.properties")
     @Description("example.nodes(node|id|[ids]) - goal: quickly returns all properties from nodes with with these ids")
-    public Stream<property> properties(@Name("node") String nodeId) {
+    public Stream<property> properties(@Name("node") long nodeId) {
         //Stream<Map> stream = Stream.empty();
+        try(Transaction tx = db.beginTx()){
+            return tx.getNodeById(nodeId).getAllProperties().entrySet().stream().map(property::new);
+        }
 
-        return db.getNodeById(Long.parseLong(nodeId)).getAllProperties().entrySet().stream().map(property::new);
     }
 
     public static class property {
         // This records contain a single field named 'nodeId'
-        public Map<String,Object> properties;
-
         public String key;
         public Object value;
 

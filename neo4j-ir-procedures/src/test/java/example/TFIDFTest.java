@@ -1,63 +1,58 @@
 package example;
 
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilders;
 
-import java.util.*;
-
-//import com.google.common.math.DoubleMath;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
+
 public class TFIDFTest {
 
-    private static final Config driverConfig = Config.build().withoutEncryption().toConfig();
-    private ServerControls embeddedDatabaseServer;
+    private static Neo4j embeddedDatabaseServer;
 
     @BeforeAll
-    void initializeNeo4j() {
+    static void initializeNeo4j() {
 
-        this.embeddedDatabaseServer = TestServerBuilders
-                .newInProcessBuilder()
-                .withFunction(TF_IDF.class)
-                .newServer();
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withFunction(TF_IDF.class)
+                .withDisabledServer()
+                .build();
+    }
+
+    @AfterAll
+    static void stopNeo4j() {
+
+        embeddedDatabaseServer.close();
     }
 
     @Test
     public void shouldCalculateTermFrequency() {
 
-        // In a try-block, to make sure we close the driver and session after the test
-        try( Driver driver = GraphDatabase.driver(embeddedDatabaseServer.boltURI(), driverConfig);
-             Session session = driver.session()) {
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
 
             HashMap<String, Double> expectedTFResult = new HashMap<>();
             expectedTFResult.put("lol", 0.25);
             expectedTFResult.put("lul", 0.25);
             expectedTFResult.put("hei", 0.5);
 
-            // When
-            Map<String, Object> result = session.run( "RETURN example.tf('hei, lul, lol, hei') AS result").single().get("result").asMap();
+            Object result = tx.execute( "RETURN example.tf('hei, lul, lol, hei') AS result").next().get("result");
 
-            // Then
-            assertThat( result).isEqualTo(expectedTFResult);
+            assertThat(result).isEqualTo(expectedTFResult);
         }
     }
 
     @Test
     public void shouldCalculateInverseDocumentFrequency() {
 
-        // In a try-block, to make sure we close the driver and session after the test
-        try( Driver driver = GraphDatabase.driver(embeddedDatabaseServer.boltURI(), driverConfig);
-             Session session = driver.session()) {
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
 
             HashMap<String, Double> expectedTFResult = new HashMap<>();
             expectedTFResult.put("kek", 0.4054651081081644);
@@ -68,9 +63,11 @@ public class TFIDFTest {
             expectedTFResult.put("hei", 0.4054651081081644);
             expectedTFResult.put("muffins", 1.0986122886681098);
 
-            // When
-            Map<String, Object> result = session.run( "RETURN example.idf(['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']) AS result").single().get("result").asMap();
-            // Then
+            @SuppressWarnings("unchecked") // (:
+            Map<String, Object> result = (Map<String, Object>) tx.execute( "RETURN example.idf(['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']) AS result")
+                    .next().get("result");
+
+            // loops through all terms and asserts equality
             result.forEach((term, idf) -> assertThat(expectedTFResult.get(term).compareTo((Double) idf)).isEqualTo(0));
 
         }
@@ -79,16 +76,14 @@ public class TFIDFTest {
     @Test
     public void shouldCalculateTF_IDF() {
 
-        // In a try-block, to make sure we close the driver and session after the test
-        try( Driver driver = GraphDatabase.driver(embeddedDatabaseServer.boltURI(), driverConfig);
-             Session session = driver.session()) {
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
 
-            // When
-            List<Object> result = session.run( "RETURN example.tf_idf(['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']) AS result").single().get("result").asList();
+            @SuppressWarnings("unchecked") // (:
+            List<Map<String, Map<String, Double>>> result = (List<Map<String, Map<String, Double>>>) tx.execute( "RETURN example.tf_idf(['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']) AS result")
+                    .next().get("result");
 
-            // Then
-            assertThat(true).isTrue(); // for lat til å teste dette.
-
+            // check if result makes sense
+            result.forEach(doc -> doc.forEach((term, score) -> System.out.printf("%s: %s%n", term, score.entrySet())));
         }
     }
 }

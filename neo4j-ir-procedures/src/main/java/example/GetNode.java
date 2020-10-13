@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 
-public class getNodes{
+public class GetNode {
 
     @Context
     public GraphDatabaseService db;

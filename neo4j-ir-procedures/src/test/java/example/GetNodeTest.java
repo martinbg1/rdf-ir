@@ -20,7 +20,7 @@ public class GetNodeTest {
     @BeforeAll
     static void initializeNeo4j() {
 
-        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(getNodes.class)
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(GetNode.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture("CREATE (d:Disease {name:'covid', desc:'blabla', altNames:'name,name,name'}) RETURN id(d)")
                 .build();
@@ -33,7 +33,7 @@ public class GetNodeTest {
     }
 
     @Test
-    void testSomething() {
+    void shouldFindProps() {
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String,Object> params = new HashMap<>();

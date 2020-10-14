@@ -1,13 +1,40 @@
 package example;
 
+import org.neo4j.graphdb.Node;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.UserFunction;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.Stream;
+
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.procedure.Description;
+import org.neo4j.procedure.Name;
+import org.neo4j.procedure.Procedure;
+
+import javax.ws.rs.core.Context;
+
 
 public class TF_IDF {
 
+
+    @Context
+    public GraphDatabaseService db;
+
+    @Procedure
+    @Description("example.tfidfscores() - return the tf-idf score for nodes")
+    public Stream<score> tfidfscores(){
+        try(Transaction tx = db.beginTx()){
+            var result = tx.execute("MATCH (d:Disease) RETURN d.name, d.altNames");
+            return tx.noe();
+        }
+    }
+
+    public static class score{
+
+    }
 
     /**
      * UserFunction to calculate term frequency for terms
@@ -109,6 +136,7 @@ public class TF_IDF {
             for (String term : doc) {
                 Map<String, Double> tf_idf = new HashMap<>();
 
+                // calculate tf and idf values
                 // calculate tf and idf values
                 Double tf = tf(Arrays.asList(doc), term);
                 Double idf = idf(parsedDocuments, term);

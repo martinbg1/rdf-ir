@@ -1,9 +1,11 @@
 package example;
 
+import org.neo4j.cypher.internal.compiler.planner.logical.steps.SystemOutCostLogger;
 import org.neo4j.graphdb.Node;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.UserFunction;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Stream;
@@ -16,6 +18,8 @@ import org.neo4j.procedure.Procedure;
 
 import javax.ws.rs.core.Context;
 
+import keywords.*;
+
 
 public class TF_IDF {
 
@@ -23,17 +27,29 @@ public class TF_IDF {
     @Context
     public GraphDatabaseService db;
 
-    @Procedure
-    @Description("example.tfidfscores() - return the tf-idf score for nodes")
-    public Stream<score> tfidfscores(){
-        try(Transaction tx = db.beginTx()){
-            var result = tx.execute("MATCH (d:Disease) RETURN d.name, d.altNames");
-            return tx.noe();
-        }
+    @Procedure(value ="example.tfidfscores")
+    @Description("example.tfidfscores(altnames) - return the tf-idf score for nodes")
+    public Stream<Map<String, Map<String, Double>>> tfidfscores(@Name("inputString") String inputString) throws IOException {
+        //try(Transaction tx = db.beginTx()){
+            //var result = tx.execute("MATCH (d:Disease) RETURN d.altNames as result" ).next().get("result");
+            List<String> keywordsList = new ArrayList<String>();
+            keywordsList.add(KeywordsExtractor.getKeywordsList(inputString).toString());
+            List<Map<String, Map<String, Double>>> result = tf_idf(keywordsList);
+            return result.stream();
+        //}
+//        List<CardKeyword> keywordsList = KeywordsExtractor.getKeywordsList(inputString);
+//        List<Map<String, Map<String, Double>>> result = tf_idf(keywordsList);
+//        return result.stream();
     }
 
     public static class score{
+        public String key;
+        public Object value;
 
+        public score(Map.Entry<String, Object> entity) {
+            this.key = entity.getKey();
+            this.value = entity.getValue();
+        }
     }
 
     /**
@@ -41,7 +57,6 @@ public class TF_IDF {
      * @param altnames
      * @return
      */
-    @UserFunction
     public Map<String,Double> tf(
             @Name("altnames") String altnames) {
         Map<String, Double> termFreq = new HashMap<>();
@@ -74,7 +89,7 @@ public class TF_IDF {
      * @param documents
      * @return
      */
-    @UserFunction
+
     public Map<String, Double> idf(
             @Name("documents") List<String> documents) {
 
@@ -120,7 +135,7 @@ public class TF_IDF {
      * @param documents
      * @return
      */
-    @UserFunction
+
     public List<Map<String, Map<String, Double>>> tf_idf(
             @Name("documents") List<String> documents) {
 

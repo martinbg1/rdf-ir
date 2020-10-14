@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * Keyword card with stem form, terms dictionary and frequency rank
  */
-class CardKeyword implements Comparable<CardKeyword> {
+public class CardKeyword implements Comparable<CardKeyword> {
 
     /**
      * Stem form of the keyword

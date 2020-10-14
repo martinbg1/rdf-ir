@@ -45,13 +45,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <!-- Used to send cypher statements to our procedure. -->
-      <groupId>org.neo4j.driver</groupId>
-      <artifactId>neo4j-java-driver</artifactId>
-      <version>${neo4j-java-driver.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -79,6 +72,19 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <!-- Used to send cypher statements to our procedure. -->
+      <groupId>org.neo4j.driver</groupId>
+      <artifactId>neo4j-java-driver</artifactId>
+      <version>${neo4j-java-driver.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>	8.6.2</version>
+    </dependency>
   </dependencies>
 
   <build>

@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.neo4j.example</groupId>
-  <artifactId>procedure-template</artifactId>
+  <artifactId>neo4j-ir-procedures</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>jar</packaging>
-  <name>Neo4j Procedure Template</name>
-  <description>A template project for building a Neo4j Procedure</description>
+  <name>Neo4j IR Procedures</name>
+  <description>A project building Neo4j IR procedures</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -4,11 +4,11 @@ package example;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.neo4j.graphdb.Result;
 import org.neo4j.harness.Neo4j;
 import org.neo4j.harness.Neo4jBuilders;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,9 +21,9 @@ public class TFIDFTest {
 
     @BeforeAll
     static void initializeNeo4j() {
-
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(TF_IDF.class)
-                .withDisabledServer()
+                .withDisabledServer() // Don't need Neos HTTP server
+                .withFixture("CREATE (d:Disease {name:'covid', desc:'blabla', altNames:'name,name,name'}) RETURN id(d)")
                 .build();
     }
 
@@ -33,58 +33,28 @@ public class TFIDFTest {
         embeddedDatabaseServer.close();
     }
 
-//    @Test
-//    public void shouldCalculateTermFrequency() {
-//
-//        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
-//
-//            HashMap<String, Double> expectedTFResult = new HashMap<>();
-//            expectedTFResult.put("lol", 0.25);
-//            expectedTFResult.put("lul", 0.25);
-//            expectedTFResult.put("hei", 0.5);
-//
-//            Object result = tx.execute( "RETURN example.tf('hei, lul, lol, hei') AS result").next().get("result");
-//
-//            assertThat(result).isEqualTo(expectedTFResult);
-//        }
-//    }
-
-//    @Test
-//    public void shouldCalculateInverseDocumentFrequency() {
-//
-//        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
-//
-//            HashMap<String, Double> expectedTFResult = new HashMap<>();
-//            expectedTFResult.put("kek", 0.4054651081081644);
-//            expectedTFResult.put("bolle", 0.4054651081081644);
-//            expectedTFResult.put("lul", 1.0986122886681098);
-//            expectedTFResult.put("kake", 1.0986122886681098);
-//            expectedTFResult.put("lol", 0.4054651081081644);
-//            expectedTFResult.put("hei", 0.4054651081081644);
-//            expectedTFResult.put("muffins", 1.0986122886681098);
-//
-//            @SuppressWarnings("unchecked") // (:
-//            Map<String, Object> result = (Map<String, Object>) tx.execute( "RETURN example.idf(['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']) AS result")
-//                    .next().get("result");
-//
-//            // loops through all terms and asserts equality
-//            result.forEach((term, idf) -> assertThat(expectedTFResult.get(term).compareTo((Double) idf)).isEqualTo(0));
-//
-//        }
-//    }
 
     @Test
     public void shouldCalculateTF_IDF() {
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String,Object> params = new HashMap<>();
-            // ['hei, lul, lol, hei', 'hei, kek, bolle, hei, lol', 'kake, muffins, bolle, kek']
-            params.put("altNames", 0);
-            @SuppressWarnings("unchecked") // (:
-            List<Map<String, Map<String, Double>>> result = (List<Map<String, Map<String, Double>>>) tx.execute( "CALL example.tfidfscores($ altNames )",params);
-
+            String text = "Cake is a form of sweet food made from flour, sugar, and other ingredients, that is usually baked. " +
+                    "In their oldest forms, cakes were modifications of bread, but cakes now cover a wide range of preparations that can be simple or elaborate, " +
+                    "and that share features with other desserts such as pastries, meringues, custards, and pies.\n" +
+                    "\n" +
+                    "The most commonly used cake ingredients include flour, sugar, eggs, butter or oil or margarine, a liquid, and leavening agents, " +
+                    "such as baking soda or baking powder. Common additional ingredients and flavourings include dried, candied, or fresh fruit, nuts, cocoa, " +
+                    "and extracts such as vanilla, with numerous substitutions for the primary ingredients." +
+                    " Cakes can also be filled with fruit preserves, nuts or dessert sauces (like pastry cream), iced with buttercream or other icings," +
+                    " and decorated with marzipan, piped borders, or candied fruit.";
+            params.put("text", text);
+            Result result =  tx.execute( "CALL example.tfidfscore( $text )",params);
+            System.out.println(result.resultAsString());
             // check if result makes sense
-            result.forEach(doc -> doc.forEach((term, score) -> System.out.printf("%s: %s%n", term, score.entrySet())));
+
+//            result.forEach(doc -> System.out.println(doc.))
+            assertThat(true).isTrue();
         }
     }
 }

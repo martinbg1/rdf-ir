@@ -24,8 +24,12 @@ public class TF_IDF {
     @Description("example.tfidfscores(altnames) - return the tf-idf score for nodes")
     public Stream<EntityField> tfidfscore(@Name("fetch") String input) throws IOException {
         try(Transaction tx = db.beginTx()){
-            String altNames = tx.execute(input).resultAsString();
-            Document doc = new Document(altNames);
+//            String altNames = tx.execute(input).next().get("d.altNames").toString();
+//            String altNames = tx.execute(input).next().entrySet().stream().iterator().next().getValue().toString();
+            ArrayList<String> values = new ArrayList<>();
+            tx.execute(input).next().forEach((k,v)->values.add(v.toString()));
+            System.out.println(values.toString());
+            Document doc = new Document(values.toString());
             List<Document> docCollection = new ArrayList<>();
             docCollection.add(doc);
             idf(docCollection);

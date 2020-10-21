@@ -1,6 +1,7 @@
 package example;
 
 import keywords.Document;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
@@ -21,15 +22,17 @@ public class TF_IDF {
 
     @Procedure(value = "example.tfidfscore")
     @Description("example.tfidfscores(altnames) - return the tf-idf score for nodes")
-    public Stream<EntityField> tfidfscore(@Name("node") String input) throws IOException {
-        Document doc = new Document(input);
-        List<Document> docCollection = new ArrayList<>();
-        docCollection.add(doc);
-        idf(docCollection);
-        Map<String, Double> result = new HashMap<>();
-        doc.keywords.forEach(k -> result.put(k.getStem(), k.getTfIdf()));
-        return result.entrySet().stream().map(EntityField::new);
-
+    public Stream<EntityField> tfidfscore(@Name("fetch") String input) throws IOException {
+        try(Transaction tx = db.beginTx()){
+            String altNames = tx.execute(input).resultAsString();
+            Document doc = new Document(altNames);
+            List<Document> docCollection = new ArrayList<>();
+            docCollection.add(doc);
+            idf(docCollection);
+            Map<String, Double> result = new HashMap<>();
+            doc.keywords.forEach(k -> result.put(k.getStem(), k.getTfIdf()));
+            return result.entrySet().stream().map(EntityField::new);
+        }
 
     }
 

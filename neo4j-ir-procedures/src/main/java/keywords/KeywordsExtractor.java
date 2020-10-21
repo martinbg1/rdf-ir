@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * Keywords extractor functionality handler
  */
-class KeywordsExtractor {
+public class KeywordsExtractor {
 
     /**
      * Get list of keywords with stem form, frequency rank, and terms dictionary
@@ -26,7 +26,7 @@ class KeywordsExtractor {
      * @return List<CardKeyword>, which contains keywords cards
      * @throws IOException
      */
-    static List<CardKeyword> getKeywordsList(String fullText) throws IOException {
+    public static List<CardKeyword> getKeywordsList(String fullText) throws IOException {
 
         TokenStream tokenStream = null;
 

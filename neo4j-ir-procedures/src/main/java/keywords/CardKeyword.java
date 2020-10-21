@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * Keyword card with stem form, terms dictionary and frequency rank
  */
-class CardKeyword implements Comparable<CardKeyword> {
+public class CardKeyword implements Comparable<CardKeyword> {
 
     /**
      * Stem form of the keyword
@@ -22,6 +22,10 @@ class CardKeyword implements Comparable<CardKeyword> {
      * Frequency rank
      */
     private int frequency;
+    /**
+     * idf score
+     */
+    private Double idf = null;
 
     /**
      * Build keyword card with stem form
@@ -106,5 +110,30 @@ class CardKeyword implements Comparable<CardKeyword> {
      */
     public int getFrequency() {
         return this.frequency;
+    }
+
+    /**
+     * Get idf score
+     *
+     * @return double, which contains stem idf score
+     */
+    public double getIdf() {
+        return this.idf;
+    }
+
+    /**
+     * Get tf-idf score
+     *
+     * @return double, which contains stem tf-idf score
+     */
+    public double getTfIdf() {
+        return this.idf * this.frequency;
+    }
+
+    /**
+     * Set idf score
+     */
+    public void setIdf(Double idf) {
+        this.idf = idf;
     }
 }

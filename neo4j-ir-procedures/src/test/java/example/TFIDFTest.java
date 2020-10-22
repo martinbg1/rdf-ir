@@ -23,7 +23,7 @@ public class TFIDFTest {
     static void initializeNeo4j() {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(TF_IDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
-                .withFixture("CREATE (d:Disease {name:'covid', desc:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name'})")
+                .withFixture("CREATE (d1:Disease {name:'covid', desc:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids'}) CREATE (d2:Disease {name:'influenza', desc:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})")
                 .build();
     }
 
@@ -49,7 +49,8 @@ public class TFIDFTest {
                     " Cakes can also be filled with fruit preserves, nuts or dessert sauces (like pastry cream), iced with buttercream or other icings," +
                     " and decorated with marzipan, piped borders, or candied fruit.";
             params.put("text", text);
-            String covid = "MATCH (d:Disease) where d.name='covid' return d.altNames, d.desc";
+//            String covid = "MATCH (d:Disease) where d.name='covid' return d.altNames, d.desc";
+            String covid = "MATCH (d:Disease) return d.altNames, d.desc";
             params.put("covid", covid);
             Result testresult = tx.execute(covid);
 //            System.out.println(testresult.resultAsString());

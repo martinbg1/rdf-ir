@@ -1,6 +1,7 @@
 package example;
 
 import keywords.Document;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.procedure.*;
 
@@ -13,6 +14,7 @@ import org.neo4j.procedure.Name;
 
 import keywords.CardKeyword;
 
+import javax.print.Doc;
 
 
 public class TF_IDF {
@@ -24,17 +26,19 @@ public class TF_IDF {
     @Description("example.tfidfscores(altnames) - return the tf-idf score for nodes")
     public Stream<EntityField> tfidfscore(@Name("fetch") String input) throws IOException {
         try(Transaction tx = db.beginTx()){
-//            String altNames = tx.execute(input).next().get("d.altNames").toString();
-//            String altNames = tx.execute(input).next().entrySet().stream().iterator().next().getValue().toString();
-            ArrayList<String> values = new ArrayList<>();
-            tx.execute(input).next().forEach((k,v)->values.add(v.toString()));
-            System.out.println(values.toString());
-            Document doc = new Document(values.toString());
-            List<Document> docCollection = new ArrayList<>();
-            docCollection.add(doc);
+            ArrayList<Document> docCollection = new ArrayList<>();
+            Result res = tx.execute(input);
+            while (res.hasNext()) {
+                ArrayList<String> temp = new ArrayList<>();
+                res.next().forEach((k,v)->temp.add(v.toString()));
+                Document doc = new Document(temp.toString());
+                docCollection.add(doc);
+            }
+
             idf(docCollection);
-            Map<String, Double> result = new HashMap<>();
-            doc.keywords.forEach(k -> result.put(k.getStem(), k.getTfIdf()));
+            Map<CardKeyword, Double> result = new HashMap<>();
+            docCollection.forEach(doc -> doc.keywords.forEach(k -> result.put(k, k.getTfIdf())));
+            System.out.println(result.size());
             return result.entrySet().stream().map(EntityField::new);
         }
 
@@ -42,10 +46,10 @@ public class TF_IDF {
 
     public static class EntityField {
         public String stem;
-        public Object tfidf;
+        public Double tfidf;
 
-        public EntityField(Map.Entry<String, Double> entity) {
-            this.stem = entity.getKey();
+        public EntityField(Map.Entry<CardKeyword, Double> entity) {
+            this.stem = entity.getKey().getStem();
             this.tfidf = entity.getValue();
         }
     }
@@ -62,7 +66,7 @@ public class TF_IDF {
                         wordCount++;
                     }
                 }
-                double idf = 1 + Math.log(size / wordCount);
+                double idf = Math.log(size / wordCount) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
                 keyword.setIdf(idf);
             }
         }

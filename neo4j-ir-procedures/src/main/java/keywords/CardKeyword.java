@@ -127,7 +127,8 @@ public class CardKeyword implements Comparable<CardKeyword> {
      * @return double, which contains stem tf-idf score
      */
     public double getTfIdf() {
-        return this.idf * this.frequency;
+        double tfidf = this.frequency * this.idf;
+        return tfidf;
     }
 
     /**

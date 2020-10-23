@@ -1,15 +1,13 @@
 package example;
 
 import keywords.Document;
-import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.procedure.Name;
 
 import keywords.CardKeyword;
@@ -22,7 +20,7 @@ public class TF_IDF {
     @Context
     public GraphDatabaseService db;
 
-    @Procedure(value = "example.tfidfscore")
+    @Procedure(value = "example.tfidfscore", mode = Mode.WRITE)
     @Description("example.tfidfscores(altnames) - return the tf-idf score for nodes")
     public Stream<EntityField> tfidfscore(@Name("fetch") String input) throws IOException {
         try(Transaction tx = db.beginTx()){
@@ -36,12 +34,30 @@ public class TF_IDF {
             }
 
             idf(docCollection);
+            // finish result
             Map<CardKeyword, Double> result = new HashMap<>();
             docCollection.forEach(doc -> doc.keywords.forEach(k -> result.put(k, k.getTfIdf())));
-            System.out.println(result.size());
+
+            // start of write operation
+            Iterator<Node> nodes = tx.getAllNodes().stream().iterator();
+            nodes.forEachRemaining(n -> writeTFIDF(n, tx, docCollection));
+            tx.commit();
             return result.entrySet().stream().map(EntityField::new);
         }
 
+    }
+
+    public void writeTFIDF(Node node, Transaction tx, List<Document> docCollection) {
+        Document doc = docCollection.get((int) node.getId());
+
+        Map<String, Double> tfidfValues = new HashMap<>();
+        // prepare the values
+        doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getTfIdf()));
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", node.getId());
+        params.put("tfidf", tfidfValues.toString());
+
+        tx.execute("MATCH (n) WHERE ID(n)=$id SET n.tfidf=$tfidf", params);
     }
 
     public static class EntityField {

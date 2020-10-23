@@ -38,7 +38,7 @@ public class TFIDFTest {
     public void shouldCalculateTF_IDF() {
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
-            Map<String,Object> params = new HashMap<>();
+            Map<String, Object> params = new HashMap<>();
             String text = "Cake is a form of sweet food made from flour, sugar, and other ingredients, that is usually baked. " +
                     "In their oldest forms, cakes were modifications of bread, but cakes now cover a wide range of preparations that can be simple or elaborate, " +
                     "and that share features with other desserts such as pastries, meringues, custards, and pies.\n" +
@@ -50,16 +50,28 @@ public class TFIDFTest {
                     " and decorated with marzipan, piped borders, or candied fruit.";
             params.put("text", text);
 //            String covid = "MATCH (d:Disease) where d.name='covid' return d.altNames, d.desc";
+
+//            Result testresult = tx.execute(covid);
+//            System.out.println(testresult.resultAsString());
+            tx.execute("CREATE (d1:Disease {name:'lul', desc:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
+            tx.commit();
+        }
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
+            Map<String, Object> params = new HashMap<>();
             String covid = "MATCH (d:Disease) return d.altNames, d.desc";
             params.put("covid", covid);
-            Result testresult = tx.execute(covid);
-//            System.out.println(testresult.resultAsString());
             Result result =  tx.execute( "CALL example.tfidfscore( $covid )",params);
             System.out.println(result.resultAsString());
+            
             // check if result makes sense
 
-//            result.forEach(doc -> System.out.println(doc.))
             assertThat(true).isTrue();
         }
+
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
+            Result res = tx.execute("MATCH (n) return n");
+            System.out.println(res.resultAsString());
+        }
+
     }
 }

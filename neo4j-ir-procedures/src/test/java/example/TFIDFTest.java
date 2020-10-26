@@ -58,7 +58,7 @@ public class TFIDFTest {
         }
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
-            String covid = "MATCH (d:Disease) return d.altNames, d.desc";
+            String covid = "MATCH (d) return d, d.altNames, d.desc limit 2";
             params.put("covid", covid);
             Result result =  tx.execute( "CALL example.tfidfscore( $covid )",params);
             System.out.println(result.resultAsString());

@@ -26,6 +26,10 @@ public class TF_IDF {
         try(Transaction tx = db.beginTx()){
             ArrayList<Document> docCollection = new ArrayList<>();
             Result res = tx.execute(input);
+//            System.out.println("res 1: " +res.resultAsString());
+//            Iterator<Node> n_column = res.columnAs("d");
+//            System.out.println("ID: " + n_column.next().getId());
+
             while (res.hasNext()) {
                 ArrayList<String> temp = new ArrayList<>();
                 res.next().forEach((k,v)->temp.add(v.toString()));
@@ -38,9 +42,13 @@ public class TF_IDF {
             Map<CardKeyword, Double> result = new HashMap<>();
             docCollection.forEach(doc -> doc.keywords.forEach(k -> result.put(k, k.getTfIdf())));
 
+            // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
+            Result res1 = tx.execute(input);
             // start of write operation
-            Iterator<Node> nodes = tx.getAllNodes().stream().iterator();
-            nodes.forEachRemaining(n -> writeTFIDF(n, tx, docCollection));
+            Iterator<Node> n_column = res1.columnAs("d");
+            while(n_column.hasNext()){
+                n_column.forEachRemaining(n -> writeTFIDF(n, tx, docCollection));
+            }
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
         }

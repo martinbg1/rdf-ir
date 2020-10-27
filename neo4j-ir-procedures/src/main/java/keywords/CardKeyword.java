@@ -25,7 +25,7 @@ public class CardKeyword implements Comparable<CardKeyword> {
     /**
      * idf score
      */
-    private Double idf = null;
+    private Double idf;
 
     /**
      * Build keyword card with stem form

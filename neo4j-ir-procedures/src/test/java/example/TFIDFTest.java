@@ -23,7 +23,7 @@ public class TFIDFTest {
     static void initializeNeo4j() {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(TF_IDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
-                .withFixture("CREATE (d1:Disease {name:'covid', desc:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids'}) CREATE (d2:Disease {name:'influenza', desc:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})")
+                .withFixture("CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids'}) CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})")
                 .build();
     }
 
@@ -53,12 +53,12 @@ public class TFIDFTest {
 
 //            Result testresult = tx.execute(covid);
 //            System.out.println(testresult.resultAsString());
-            tx.execute("CREATE (d1:Disease {name:'lul', desc:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
+            tx.execute("CREATE (d1:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
             tx.commit();
         }
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
-            String covid = "MATCH (d) return d, d.altNames, d.desc limit 2";
+            String covid = "MATCH (d) return d, d.altNames, d.description";
             params.put("covid", covid);
             Result result =  tx.execute( "CALL example.tfidfscore( $covid )",params);
             System.out.println(result.resultAsString());

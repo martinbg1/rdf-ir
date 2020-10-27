@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 import static example.TF_IDF.idf;
@@ -47,12 +49,13 @@ public class KeywordsExtractorTest {
     @Test
     void shouldCalculateIdf() throws IOException {
         String text2 = "yes i love baking very much. Cake is my favourite. I love the sugar in the cakes.";
-        ArrayList<Document> documents = new ArrayList<>();
+        Map<Long, Document> documents = new HashMap<>();
         Document doc1 = new Document(text);
         Document doc2 = new Document(text2);
-        documents.add(doc1);
-        documents.add(doc2);
+        documents.put((long) 123, doc1);
+        documents.put((long) 321, doc2);
         idf(documents);
-        doc1.keywords.forEach(k -> System.out.println(k.getIdf()));
+        doc1.keywords.forEach(k -> System.out.println(k.getStem() + "\t" + k.getIdf()));
+//        doc1.keywords.forEach(k -> System.out.println(k.getIdf()));
     }
 }

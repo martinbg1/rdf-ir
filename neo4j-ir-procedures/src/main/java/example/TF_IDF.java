@@ -27,7 +27,6 @@ public class TF_IDF {
             Map<Long, Document> docCollection = new HashedMap();
             Result res = tx.execute(input);
             Iterator<Node> d_column = res.columnAs("d");
-//            System.out.println(res.resultAs.columnAs("d.altNames");
             while (d_column.hasNext()) {
                 ArrayList<String> temp = new ArrayList<>();
                 Node node = d_column.next();
@@ -58,14 +57,10 @@ public class TF_IDF {
     }
 
     public void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection) {
-        System.out.println(docCollection);
-        System.out.println(node.getId());
         Document doc = docCollection.get(node.getId());
 
         Map<String, Double> tfidfValues = new HashMap<>();
         // prepare the values
-        System.out.println();
-        doc.keywords.forEach(k -> System.out.println(k.getStem()));
         doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getIdf()));
         Map<String, Object> params = new HashMap<>();
         params.put("id", node.getId());

@@ -60,6 +60,7 @@ public class TFIDFTest {
             Map<String, Object> params = new HashMap<>();
             String covid = "MATCH (d) return d, d.altNames, d.description";
             params.put("covid", covid);
+
             Result result =  tx.execute( "CALL example.tfidfscore( $covid )",params);
             System.out.println(result.resultAsString());
             

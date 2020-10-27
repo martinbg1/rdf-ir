@@ -25,6 +25,7 @@ public class TF_IDF {
     public Stream<EntityField> tfidfscore(@Name("fetch") String input) throws IOException {
         try(Transaction tx = db.beginTx()){
             Map<Long, Document> docCollection = new HashedMap();
+            tx.execute("CREATE (n:TFIDF)");
             Result res = tx.execute(input);
             Iterator<Node> d_column = res.columnAs("d");
 //            System.out.println(res.resultAs.columnAs("d.altNames");
@@ -35,7 +36,6 @@ public class TF_IDF {
 
                 Document doc = new Document(temp.toString());
                 docCollection.put(node.getId(), doc);
-
             }
 
 
@@ -58,20 +58,20 @@ public class TF_IDF {
     }
 
     public void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection) {
-        System.out.println(docCollection);
-        System.out.println(node.getId());
+//        System.out.println(docCollection);
+//        System.out.println(node.getId());
         Document doc = docCollection.get(node.getId());
 
         Map<String, Double> tfidfValues = new HashMap<>();
         // prepare the values
-        System.out.println();
-        doc.keywords.forEach(k -> System.out.println(k.getStem()));
+//        doc.keywords.forEach(k -> System.out.println(k.getStem()));
         doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getIdf()));
         Map<String, Object> params = new HashMap<>();
         params.put("id", node.getId());
         params.put("tfidf", tfidfValues.toString());
+        tx.execute("MATCH (n:TFIDF) SET n._"+node.getId() +"=$tfidf",params);
 
-        tx.execute("MATCH (n) WHERE ID(n)=$id SET n.tfidf=$tfidf", params);
+//        tx.execute("MATCH (n) WHERE ID(n)=$id SET n.tfidf=$tfidf", params);
     }
 
     public static class EntityField {

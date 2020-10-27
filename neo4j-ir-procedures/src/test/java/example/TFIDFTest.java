@@ -23,7 +23,7 @@ public class TFIDFTest {
     static void initializeNeo4j() {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(TF_IDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
-                .withFixture("CREATE (d:Disease {name:'covid', desc:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name'})")
+                .withFixture("CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids'}) CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})")
                 .build();
     }
 
@@ -38,7 +38,7 @@ public class TFIDFTest {
     public void shouldCalculateTF_IDF() {
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
-            Map<String,Object> params = new HashMap<>();
+            Map<String, Object> params = new HashMap<>();
             String text = "Cake is a form of sweet food made from flour, sugar, and other ingredients, that is usually baked. " +
                     "In their oldest forms, cakes were modifications of bread, but cakes now cover a wide range of preparations that can be simple or elaborate, " +
                     "and that share features with other desserts such as pastries, meringues, custards, and pies.\n" +
@@ -49,16 +49,29 @@ public class TFIDFTest {
                     " Cakes can also be filled with fruit preserves, nuts or dessert sauces (like pastry cream), iced with buttercream or other icings," +
                     " and decorated with marzipan, piped borders, or candied fruit.";
             params.put("text", text);
-            String covid = "MATCH (d:Disease) where d.name='covid' return d.altNames, d.desc";
-            params.put("covid", covid);
-            Result testresult = tx.execute(covid);
+//            String covid = "MATCH (d:Disease) where d.name='covid' return d.altNames, d.desc";
+
+//            Result testresult = tx.execute(covid);
 //            System.out.println(testresult.resultAsString());
+            tx.execute("CREATE (d1:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
+            tx.commit();
+        }
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
+            Map<String, Object> params = new HashMap<>();
+            String covid = "MATCH (d) return d, d.altNames, d.description";
+            params.put("covid", covid);
             Result result =  tx.execute( "CALL example.tfidfscore( $covid )",params);
             System.out.println(result.resultAsString());
+            
             // check if result makes sense
 
-//            result.forEach(doc -> System.out.println(doc.))
             assertThat(true).isTrue();
         }
+
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
+            Result res = tx.execute("MATCH (n) return n");
+            System.out.println(res.resultAsString());
+        }
+
     }
 }

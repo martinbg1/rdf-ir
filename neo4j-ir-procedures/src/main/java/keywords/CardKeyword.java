@@ -25,7 +25,7 @@ public class CardKeyword implements Comparable<CardKeyword> {
     /**
      * idf score
      */
-    private Double idf = null;
+    private Double idf;
 
     /**
      * Build keyword card with stem form
@@ -127,7 +127,8 @@ public class CardKeyword implements Comparable<CardKeyword> {
      * @return double, which contains stem tf-idf score
      */
     public double getTfIdf() {
-        return this.idf * this.frequency;
+        double tfidf = this.frequency * this.idf;
+        return tfidf;
     }
 
     /**

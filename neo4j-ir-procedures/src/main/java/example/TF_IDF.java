@@ -77,7 +77,9 @@ public class TF_IDF {
         Document doc = docCollection.get(node.getId());
 
         Map<String, Double> tfidfValues = new HashMap<>();
+        // prepare the values
         doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getTfIdf()));
+
         Map<String, Object> params = new HashMap<>();
         params.put("id", node.getId());
         params.put("tfidf", tfidfValues.toString());

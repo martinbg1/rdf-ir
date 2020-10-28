@@ -73,7 +73,7 @@ public class TF_IDF {
 
     }
 
-    public void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection) {
+    private static void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection) {
         Document doc = docCollection.get(node.getId());
 
         Map<String, Double> tfidfValues = new HashMap<>();

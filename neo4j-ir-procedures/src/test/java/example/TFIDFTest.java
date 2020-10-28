@@ -23,7 +23,10 @@ public class TFIDFTest {
     static void initializeNeo4j() {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(TF_IDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
-                .withFixture("CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids'}) CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})")
+                .withFixture(
+                        "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
+                        "CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
+                        "CREATE (i:TFIDF {shouldBeDeleted:'procedure should be deleting this field'})")
                 .build();
     }
 

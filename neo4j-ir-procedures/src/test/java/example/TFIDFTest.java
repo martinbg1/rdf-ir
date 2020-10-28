@@ -26,7 +26,10 @@ public class TFIDFTest {
                 .withFixture(
                         "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
                         "CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
-                        "CREATE (i:TFIDF {shouldBeDeleted:'procedure should be deleting this field'})")
+                         "CREATE (i:TFIDF {_0:'{covid=1.7548875021634687, kake=1.5849625007211563, mass=1.5849625007211563, name=0.0, godt=0.5849625007211562, tekst=1.5849625007211563, blabla=1.5849625007211563, hei=0.0, er=1.5849625007211563}'," +
+                                "_1:'{influenza=6.339850002884625, lol=0.5849625007211562, name=0.0, veldig=1.5849625007211563, godt=0.5849625007211562, hei=0.0}'" +
+                                ",_3:'{covid=1.1699250014423124, lul=3.1699250014423126, lel=1.5849625007211563, ahaha=1.5849625007211563, name=0.0, lol=1.1699250014423124, automobil=1.5849625007211563, hei=0.0}'})")
+//                        "CREATE (i:TFIDF {shouldBeDeleted:'procedure should be deleting this field'})")
                 .build();
     }
 

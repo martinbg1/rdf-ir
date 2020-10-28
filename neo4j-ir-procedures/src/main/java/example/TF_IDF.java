@@ -76,14 +76,20 @@ public class TF_IDF {
     private static void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection) {
         Document doc = docCollection.get(node.getId());
 
-        Map<String, Double> tfidfValues = new HashMap<>();
+        Vector<Double> tfidfValues = new Vector<>();
+        HashMap<String, Double> idfMap = new HashMap();
         // prepare the values
-        doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getTfIdf()));
+        doc.keywords.forEach(k -> tfidfValues.add(k.getTfIdf()));
+        doc.keywords.forEach(k -> idfMap.put(k.getStem(),k.getIdf()));
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", node.getId());
         params.put("tfidf", tfidfValues.toString());
-        tx.execute("MATCH (n:TFIDF) SET n._"+node.getId() +"=$tfidf",params);
+        params.put("idf", idfMap.toString());
+        params.put("array", new String[]{tfidfValues.toString(),idfMap.toString()});
+//        tx.execute("MATCH (n:TFIDF) SET n._"+node.getId() +"=$tfidf",params);
+        tx.execute("MATCH (n:TFIDF) SET n._"+node.getId() +"=$array",params);
+//        tx.execute("MATCH (n:TFIDF) SET n._"+node.getId() +"_idf" +"=$idf",params);
 
     }
 

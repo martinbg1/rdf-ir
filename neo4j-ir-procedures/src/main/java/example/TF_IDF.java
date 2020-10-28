@@ -25,19 +25,31 @@ public class TF_IDF {
     public Stream<EntityField> tfidfscore(@Name("fetch") String input) throws IOException {
         try(Transaction tx = db.beginTx()){
             Map<Long, Document> docCollection = new HashedMap();
+
+            // Delete old index and initialize new
+            tx.execute("MATCH (n:TFIDF) detach delete n");
+            tx.execute("CREATE (n:TFIDF)");
+
+
+            // Retrieve nodes to index
             Result res = tx.execute(input);
             Iterator<Node> d_column = res.columnAs("d");
-//            System.out.println(res.resultAs.columnAs("d.altNames");
+
+            // process terms
             while (d_column.hasNext()) {
                 ArrayList<String> temp = new ArrayList<>();
                 Node node = d_column.next();
-                node.getAllProperties().forEach((k, v) -> temp.add((String) v));
+                if (!node.getLabels().toString().equals("[TFIDF]")) {
+                    node.getAllProperties().forEach((k, v) -> {
+                        if (!k.equals("uri")) {
+                            temp.add((String) v);
+                        }
+                    });
 
-                Document doc = new Document(temp.toString());
-                docCollection.put(node.getId(), doc);
-
+                    Document doc = new Document(temp.toString());
+                    docCollection.put(node.getId(), doc);
+                }
             }
-
 
             idf(docCollection);
             // finish result
@@ -49,7 +61,11 @@ public class TF_IDF {
             // start of write operation
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
-                n_column.forEachRemaining(n -> writeTFIDF(n, tx, docCollection));
+                n_column.forEachRemaining(n -> {
+                    if (!n.getLabels().toString().equals("[TFIDF]")) {
+                        writeTFIDF(n, tx, docCollection);
+                    }
+                });
             }
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
@@ -58,20 +74,17 @@ public class TF_IDF {
     }
 
     public void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection) {
-        System.out.println(docCollection);
-        System.out.println(node.getId());
         Document doc = docCollection.get(node.getId());
 
         Map<String, Double> tfidfValues = new HashMap<>();
         // prepare the values
-        System.out.println();
-        doc.keywords.forEach(k -> System.out.println(k.getStem()));
-        doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getIdf()));
+        doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getTfIdf()));
+
         Map<String, Object> params = new HashMap<>();
         params.put("id", node.getId());
         params.put("tfidf", tfidfValues.toString());
+        tx.execute("MATCH (n:TFIDF) SET n._"+node.getId() +"=$tfidf",params);
 
-        tx.execute("MATCH (n) WHERE ID(n)=$id SET n.tfidf=$tfidf", params);
     }
 
     public static class EntityField {
@@ -94,7 +107,7 @@ public class TF_IDF {
                 docs.forEach((k2, d2) -> {
                     Map<String, Integer> tempMap = d2.getWordCountMap();
                     if (tempMap.containsKey(keyword.getStem())) {
-                        wordCount.getAndSet((double) (wordCount.get() + 1));
+                        wordCount.getAndSet(wordCount.get() + 1);
                     }
                 });
                 double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm

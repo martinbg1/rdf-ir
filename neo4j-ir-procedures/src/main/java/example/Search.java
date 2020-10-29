@@ -1,15 +1,11 @@
 package example;
 
-import javassist.compiler.ast.Keyword;
-import keywords.CardKeyword;
 import keywords.Document;
-import keywords.KeywordsExtractor;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -21,41 +17,63 @@ public class Search {
     @Procedure
     @Description("example.tfidfSearch(query) - returns TF-IDF query result")
     public Stream<ResultNode> TfIdfSearch(@Name("fetch") String query) throws IOException {
-        Map<Node, Double> result = new HashMap<>();
+        Map<Node, Double> result = new LinkedHashMap<>();
+
         try(Transaction tx = db.beginTx()){
-            ResourceIterator<Object> res = tx.execute("MATCH (n) return n").columnAs("n");
-            List<CardKeyword> queryKeywords = KeywordsExtractor.getKeywordsList(query);
-            queryKeywords.forEach(k -> System.out.println(k.getStem()));
-            res.forEachRemaining(n -> result.put((Node) n, 4.0));
+            ResourceIterator<Object> res = tx.execute("MATCH (n) WHERE NOT n:Vectors AND NOT n:Corpus AND not n:IDF return n").columnAs("n");
+            Document qDoc = new Document(query);
 
-            ResourceIterator<Node> index = tx.execute("MATCH (n:TFIDF) return n").columnAs("n");
-            Map<String, Map<String, String[]>> indexMap = new HashedMap();
-//            index.next().getAllProperties().forEach((k,v) -> indexMap.put(k, (Map<String, String[]>) v));
-            String[] test = (String[]) index.next().getProperty("_0");
-            System.out.println(test[0]);
-//            index.next().getAllProperties().forEach((k, v) -> {
-//                try {
-//                    indexMap.put(k, stringToHashMap((String) v));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            });
-//            System.out.println(indexMap.get("_0").get("covid"));
+            ResourceIterator<Node> vectorNode = tx.execute("MATCH (n:Vectors) return n").columnAs("n");
+            Map<Long, double[]> vectors = new HashedMap();
+            vectorNode.next().getAllProperties().forEach((k, v) -> vectors.put(Long.parseLong(k.substring(1)), (double[]) v));
+
+            ResourceIterator<Node> corpusNode = tx.execute("MATCH (n:Corpus) return n").columnAs("n");
+            String[] corpus = (String[]) corpusNode.next().getProperty("corpus");
+
+
+            ResourceIterator<Node> idfNode = tx.execute("MATCH (n:IDF) return n").columnAs("n");
+            double[] idf = (double[]) idfNode.next().getProperty("idf");
+
+            setQueryIdf(qDoc, corpus, idf);
+            setQueryVector(qDoc, corpus);
+
+
+            res.forEachRemaining(n -> result.put((Node) n, cosineSimilarity(qDoc.getVector(), vectors.get(((Node) n).getId()))));
         }
-        return result.entrySet().stream().map(ResultNode::new);
+        return result.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(ResultNode::new);
 
     }
 
-    private static Map<String, Double> stringToHashMap(String str) throws IOException {
 
-        Properties props = new Properties();
-        props.load(new StringReader(str.substring(1, str.length() - 1).replace(", ", "\n")));
-        Map<String, Double> map = new HashMap();
-        for (Map.Entry<Object, Object> e : props.entrySet()) {
-            map.put((String)e.getKey(), Double.parseDouble((String) e.getValue()));
+    public static void setQueryIdf(Document query, String[] corpus, double[] idf) {
+
+        // idf[n] corresponds to term corpus[n]
+        for (int i = 0; i < corpus.length; i++) {
+            for (int j = 0; j < query.keywords.size(); j++) {
+//                System.out.println("corpus: " + corpus[i] + "\t" + "query: " + (query.keywords.get(j).getStem()));
+                if (corpus[i].equals(query.keywords.get(j).getStem())) {
+                    query.keywords.get(j).setIdf(idf[i]);
+                }
+            }
         }
-        return map;
     }
+
+    // TODO gjør Document.setVector mer generell slik at den kan bli brukt her
+    public static void setQueryVector(Document query, String[] corpus) {
+        query.initializeVector(corpus.length);
+        for (int i = 0; i < corpus.length; i++) {
+            double vectorValue = 0.0;
+            for (int j = 0; j < query.keywords.size(); j++) {
+                if (corpus[i].equals(query.keywords.get(j).getStem())) {
+                    vectorValue = query.keywords.get(j).getTfIdf();
+                }
+            }
+            query.setQueryValue(vectorValue, i);
+        }
+    }
+
 
     public static class ResultNode {
         public String node;
@@ -67,4 +85,15 @@ public class Search {
         }
     }
 
+    public static double cosineSimilarity(double[] vectorA, double[] vectorB) {
+        double dotProduct = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
+        for (int i = 0; i < vectorA.length; i++) {
+            dotProduct += vectorA[i] * vectorB[i];
+            normA += Math.pow(vectorA[i], 2);
+            normB += Math.pow(vectorB[i], 2);
+        }
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
 }

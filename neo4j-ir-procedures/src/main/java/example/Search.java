@@ -18,6 +18,7 @@ public class Search {
     @Description("example.tfidfSearch(query) - returns TF-IDF query result")
     public Stream<ResultNode> TfIdfSearch(@Name("fetch") String query) throws IOException {
         Map<Node, Double> result = new LinkedHashMap<>();
+        List<Map.Entry<Node, Double>> entries = new ArrayList<>();
 
         try(Transaction tx = db.beginTx()){
             ResourceIterator<Object> res = tx.execute("MATCH (n) WHERE NOT n:Vectors AND NOT n:Corpus AND not n:IDF return n").columnAs("n");
@@ -39,10 +40,18 @@ public class Search {
 
 
             res.forEachRemaining(n -> result.put((Node) n, cosineSimilarity(qDoc.getVector(), vectors.get(((Node) n).getId()))));
+
+            // TODO sorter motsatt vei
+            result.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .forEach(entries::add);
+
+
         }
-        return result.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .map(ResultNode::new);
+        if (entries.size() < 5) {
+            return entries.stream().map(ResultNode::new);
+        }
+        return entries.subList(entries.size() - 5, entries.size()).stream().map(ResultNode::new);
 
     }
 
@@ -52,7 +61,6 @@ public class Search {
         // idf[n] corresponds to term corpus[n]
         for (int i = 0; i < corpus.length; i++) {
             for (int j = 0; j < query.keywords.size(); j++) {
-//                System.out.println("corpus: " + corpus[i] + "\t" + "query: " + (query.keywords.get(j).getStem()));
                 if (corpus[i].equals(query.keywords.get(j).getStem())) {
                     query.keywords.get(j).setIdf(idf[i]);
                 }

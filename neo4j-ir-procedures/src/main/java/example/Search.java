@@ -40,19 +40,17 @@ public class Search {
 
 
             res.forEachRemaining(n -> result.put((Node) n, cosineSimilarity(qDoc.getVector(), vectors.get(((Node) n).getId()))));
-
-            // TODO sorter motsatt vei
-            result.entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue())
-                    .forEach(entries::add);
-
-
         }
-        if (entries.size() < 5) {
-            return entries.stream().map(ResultNode::new);
-        }
-        return entries.subList(entries.size() - 5, entries.size()).stream().map(ResultNode::new);
 
+        // Convert to ArrayList and sort by value
+        List<Map.Entry<Node, Double>> sortedResult = new ArrayList<>(result.entrySet());
+        sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+
+        // Return top 5 results if possible
+        if (sortedResult.size() < 5) {
+            return sortedResult.stream().map(ResultNode::new);
+        }
+        return sortedResult.subList(sortedResult.size() -5, sortedResult.size()).stream().map(ResultNode::new);
     }
 
 

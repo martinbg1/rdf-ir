@@ -25,13 +25,15 @@ public class BM25 {
     @Description("example.bm25Search(query) - returns bm25 query result")
     public Stream<ResultNode> bm25Search(@Name("fetch") String query) throws IOException{
         Map<Node, Double> result = new LinkedHashMap<>();
+        // Query document
         Document qDoc = new Document(query);
 
         try(Transaction tx = db.beginTx()) {
-            // get all nodes that are not vectors, corpus or idf
+            // get all indexNodes with (terms, idf, tf og dl)
             ResourceIterator<Object> res = tx.execute("MATCH (n:indexNode) return n").columnAs("n");
 
-
+            // TODO endre return av indexnode til å bruke 'name' node isteden
+            // fill result with a node and its corresponding BM25 score
             res.forEachRemaining(n -> result.put((Node) n, bm25Score(
                     (String[])((Node) n).getProperty("terms"),
                     (double[])((Node) n).getProperty("idf"),
@@ -39,6 +41,8 @@ public class BM25 {
                     (int)((Node) n).getProperty("dl"),
                     qDoc)));
         }
+        // TODO gjøre om sort til en funksjon som kan importeres, unødvendig repeat av kode.
+        // Sort result list based on BM25 score
         List<Map.Entry<Node, Double>> sortedResult = new ArrayList<>(result.entrySet());
         sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
@@ -46,6 +50,7 @@ public class BM25 {
         if (sortedResult.size() < 5) {
             return sortedResult.stream().map(BM25.ResultNode::new);
         }
+        // return the
         return sortedResult.subList(sortedResult.size() -5, sortedResult.size()).stream().map(BM25.ResultNode::new);
     }
 
@@ -62,27 +67,33 @@ public class BM25 {
     // math for bm25
     // take in documents and query, return their bm25 score
     public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, Document query){
-        // raw term frequency, should be between 1.2 and 2.0
-        // smaller value = each term occurrence counts for less
+        // raw term frequency, should be between 1.2 and 2.0, smaller value = each term occurrence counts for less
         double k1 = 1.2;
+
         // scale term weight by document length, usually 0.75
         double b = 0.75;
+
+        // TODO make average document length dynamic
         // average document length
         double adl = 12;
+
+        // Map with term (String) as key and index of term (Integer) as value
         Map<String, Integer> termPosition = new HashedMap();
 
+        // Fill termPosition with terms and their corresponding index
         for (int i = 0; i < docTerms.length; i++) {
             termPosition.put(docTerms[i],i);
         }
 
-        List<String> docTermList = Arrays.asList(docTerms);
-
+        // BM25 score
         double sum = 0.0;
+
+        // calculate the BM25 score for every document
         for(CardKeyword kw : query.keywords){
-            if(Arrays.stream(docTerms).anyMatch(kw.getStem()::equals)){
-                double tempidf = idf[termPosition.get(kw.getStem())];
-                int temptf = tf[termPosition.get(kw.getStem())];
-                sum += tempidf*(temptf*(k1+1)/temptf+k1*(1-b+(b*(dl/adl))));
+            if(Arrays.asList(docTerms).contains(kw.getStem())){
+                double tempIdf = idf[termPosition.get(kw.getStem())];
+                int tempTf = tf[termPosition.get(kw.getStem())];
+                sum += tempIdf*(tempTf*(k1+1)/tempTf+k1*(1-b+(b*(dl/adl))));
             }
         }
 

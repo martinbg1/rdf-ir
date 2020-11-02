@@ -88,12 +88,26 @@ public class TF_IDF {
 
         doc.setVector(corpus);
 
+        List<String> terms= new ArrayList<>();
+        doc.keywords.forEach((k) ->terms.add(k.getStem()));
+
+        List<Double> idf = new ArrayList<>();
+        doc.keywords.forEach((k) ->idf.add(k.getIdf()));
+
+        List<Integer> tf = new ArrayList<>();
+        doc.keywords.forEach((k) ->tf.add(k.getFrequency()));
+
 
         HashMap<String, Object> paramsVector = new HashMap();
         paramsVector.put("vector", doc.getVector());
+        paramsVector.put("documentLength", doc.keywords.size());
+        paramsVector.put("terms", terms.toArray());
+        paramsVector.put("idf", idf.toArray());
+        paramsVector.put("tf", tf.toArray());
+        paramsVector.put("name", node.getId());
 
-        tx.execute("MATCH (n:Vectors) SET n._"+node.getId() +"=$vector", paramsVector);
-
+//        tx.execute("MATCH (n:Vectors) SET n._"+node.getId() +"=$vector", paramsVector);
+        tx.execute("CREATE (n:indexNode {name: $name, vector: $vector, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", paramsVector);
     }
 
     public static class EntityField {

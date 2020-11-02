@@ -39,8 +39,14 @@ public class BM25 {
                     (int)((Node) n).getProperty("dl"),
                     qDoc)));
         }
+        List<Map.Entry<Node, Double>> sortedResult = new ArrayList<>(result.entrySet());
+        sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
-        return result.entrySet().stream().map(BM25.ResultNode::new);
+        // Return top 5 results if possible
+        if (sortedResult.size() < 5) {
+            return sortedResult.stream().map(BM25.ResultNode::new);
+        }
+        return sortedResult.subList(sortedResult.size() -5, sortedResult.size()).stream().map(BM25.ResultNode::new);
     }
 
     // Node returned as a Stream by procedure with node and bm25 score

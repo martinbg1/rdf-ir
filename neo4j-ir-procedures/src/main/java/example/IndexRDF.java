@@ -15,7 +15,7 @@ import org.neo4j.procedure.Name;
 
 import keywords.CardKeyword;
 
-import static dbUtil.indexWriter.writeIndex;
+import static dbUtil.indexWriter.writeIndexNode;
 
 
 public class IndexRDF {
@@ -23,7 +23,7 @@ public class IndexRDF {
     @Context
     public GraphDatabaseService db;
 
-    @Procedure(value = "example.tfidfscore", mode = Mode.WRITE)
+    @Procedure(value = "example.indexRDF", mode = Mode.WRITE)
     @Description("example.indexRDF(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
         try(Transaction tx = db.beginTx()){
@@ -69,7 +69,7 @@ public class IndexRDF {
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
                     if (!n.getLabels().toString().equals("[Corpus]") && !n.getLabels().toString().equals("[IDF]")) {
-                        writeIndex(n, tx, docCollection, corpus);
+                        writeIndexNode(n, tx, docCollection);
                     }
                 });
             }
@@ -77,38 +77,15 @@ public class IndexRDF {
             HashMap<String, Object> paramsCorpus = new HashMap<>();
             paramsCorpus.put("corpus", corpus.getBoW().toArray());
             paramsCorpus.put("idf", corpus.getIdf());
-//            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", paramsCorpus);
-//            tx.execute("MATCH (n:IDF) SET n.idf=$idf", paramsCorpus);
+            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", paramsCorpus);
+            tx.execute("MATCH (n:IDF) SET n.idf=$idf", paramsCorpus);
+
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
         }
 
     }
 
-    private static void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection, Corpus corpus) {
-        Document doc = docCollection.get(node.getId());
-
-
-        List<String> terms= new ArrayList<>();
-        doc.keywords.forEach((k) ->terms.add(k.getStem()));
-
-        List<Double> idf = new ArrayList<>();
-        doc.keywords.forEach((k) ->idf.add(k.getIdf()));
-
-        List<Integer> tf = new ArrayList<>();
-        doc.keywords.forEach((k) ->tf.add(k.getFrequency()));
-
-
-        HashMap<String, Object> params = new HashMap();
-//        params.put("vector", doc.getVector());
-        params.put("documentLength", doc.keywords.size());
-        params.put("terms", terms.toArray());
-        params.put("idf", idf.toArray());
-        params.put("tf", tf.toArray());
-        params.put("name", node.getId());
-
-        tx.execute("CREATE (n:indexNode {name: $name, vector: $vector, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", params);
-    }
 
     public static class EntityField {
         public String stem;

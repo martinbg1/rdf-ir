@@ -1,6 +1,5 @@
 package dbUtil;
 
-import keywords.Corpus;
 import keywords.Document;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -12,7 +11,15 @@ import java.util.Map;
 
 public class indexWriter {
 
-    public static void writeIndex(Node node, Transaction tx, Map<Long, Document> docCollection, Corpus corpus) {
+    /**
+     *
+     * Write indexNode to database
+     *
+     * @param node - Node to index
+     * @param tx - transaction to write
+     * @param docCollection - Collection of all documents. Used to retrieve node document
+     */
+    public static void writeIndexNode(Node node, Transaction tx, Map<Long, Document> docCollection) {
         Document doc = docCollection.get(node.getId());
 
 
@@ -34,7 +41,7 @@ public class indexWriter {
         params.put("tf", tf.toArray());
         params.put("name", node.getId());
 
-        tx.execute("CREATE (n:indexNode {name: $name, vector: $vector, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", params);
+        tx.execute("CREATE (n:indexNode {name: $name, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", params);
     }
 
 }

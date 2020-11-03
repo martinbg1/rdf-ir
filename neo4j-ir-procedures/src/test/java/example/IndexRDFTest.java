@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 
-public class TFIDFTest {
+public class IndexRDFTest {
 
     private static Neo4j embeddedDatabaseServer;
 
@@ -26,7 +26,7 @@ public class TFIDFTest {
                 .withFixture(
                         "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
                         "CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
-                        "CREATE (i:TFIDF {shouldBeDeleted:'procedure should be deleting this field'})")
+                        "CREATE (d3:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})")
                 .build();
     }
 
@@ -64,7 +64,7 @@ public class TFIDFTest {
             String covid = "MATCH (d) return d, d.altNames, d.description";
             params.put("covid", covid);
 
-            Result result =  tx.execute( "CALL example.tfidfscore( $covid )",params);
+            Result result =  tx.execute( "CALL example.indexRDF( $covid )",params);
             System.out.println(result.resultAsString());
             
             // check if result makes sense

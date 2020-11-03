@@ -48,11 +48,6 @@ public class BM25Test {
 
     @Test
     public void shouldReturnQueryResult() {
-//        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
-//            tx.execute("CREATE (q:Disease {q:'influenza veldig blabla hei godt'})");
-//            tx.commit();
-//        }
-
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
             String query = "hei lul influenza";

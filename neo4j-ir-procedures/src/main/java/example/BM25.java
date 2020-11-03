@@ -60,11 +60,11 @@ public class BM25 {
                 topRes = sortedResult;
             }
             // loop through top results and query result Node
-            for(Map.Entry<Long, Double> noe : topRes){
+            for(Map.Entry<Long, Double> entry : topRes){
                 HashMap<String, Object> params = new HashMap();
-                params.put("nodeId", noe.getKey());
+                params.put("nodeId", entry.getKey());
                 Node tempnode = (Node)(tx1.execute("MATCH (n) WHERE ID(n) =$nodeId return n", params).columnAs("n").next());
-                nodeMap.put(tempnode, noe.getValue());
+                nodeMap.put(tempnode, entry.getValue());
             }
         }
         return nodeMap.entrySet().stream().map(ResultNode::new);

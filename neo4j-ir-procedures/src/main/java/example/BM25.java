@@ -41,30 +41,34 @@ public class BM25 {
                     (int)((Node) n).getProperty("dl"),
                     qDoc)));
         }
-        // TODO gjøre om sort til en funksjon som kan importeres, unødvendig repeat av kode.
+
         // Sort result list based on BM25 score
         List<Map.Entry<Long, Double>> sortedResult = new ArrayList<>(result.entrySet());
         sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
-        Map<Node, Double> nodemap = new LinkedHashMap<>();
+
+        // to store result node and bm25 score
+        Map<Node, Double> nodeMap = new LinkedHashMap<>();
+        // to store top n results
+        List<Map.Entry<Long, Double>> topRes;
+
+
         try(Transaction tx1 = db.beginTx()){
-            if (sortedResult.size() < 5) {
-                return sortedResult.stream().map(BM25.ResultNode::new);
+            // return top 5 results if possible
+            if (sortedResult.size() > 5) {
+                topRes = sortedResult.subList(0, 5);
+            } else {
+                topRes = sortedResult;
             }
-            List<Map.Entry<Long, Double>> topRes = sortedResult.subList(0, 2);
+            // loop through top results and query result Node
             for(Map.Entry<Long, Double> noe : topRes){
                 HashMap<String, Object> params = new HashMap();
                 params.put("nodeId", noe.getKey());
                 Node tempnode = (Node)(tx1.execute("MATCH (n) WHERE ID(n) =$nodeId return n", params).columnAs("n").next());
-                nodemap.put(tempnode, noe.getValue());
+                nodeMap.put(tempnode, noe.getValue());
             }
         }
-        return nodemap.entrySet().stream().map(ResultNode::new);
+        return nodeMap.entrySet().stream().map(ResultNode::new);
 
-        // Return top 5 results if possible
-        // return the
-        List<Map.Entry<Long, Double>> topRes = sortedResult.subList(0, 5);
-        Map<Node, Double> nodes = new HashedMap();
-        return sortedResult.subList(0,5).stream().map(ResultNode::new);
     }
 
     // Node returned as a Stream by procedure with node and bm25 score

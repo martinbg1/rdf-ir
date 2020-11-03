@@ -34,7 +34,6 @@ public class indexWriter {
 
 
         HashMap<String, Object> params = new HashMap();
-//        params.put("vector", doc.getVector());
         params.put("documentLength", doc.keywords.size());
         params.put("terms", terms.toArray());
         params.put("idf", idf.toArray());

@@ -1,6 +1,6 @@
 package example;
 
-import Result.ResultNode;
+import result.ResultNode;
 import keywords.CardKeyword;
 import keywords.Document;
 import org.apache.commons.collections.map.HashedMap;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static Result.ResultUtil.sortResult;
+import static result.ResultUtil.sortResult;
 
 
 public class BM25 {

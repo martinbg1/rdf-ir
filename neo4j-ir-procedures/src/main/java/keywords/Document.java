@@ -1,7 +1,6 @@
 package keywords;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,17 +24,6 @@ public class Document {
     }
 
     public void setVector(double[] vector) {
-//        List<String> BoW = corpus.getBoW();
-//        this.vector = new double[BoW.size()];
-//        for (int i = 0; i < BoW.size(); i++) {
-//            double vectorValue = 0.0;
-//            for (int j = 0; j < this.keywords.size(); j++) {
-//                if (BoW.get(i).equals(this.keywords.get(j).getStem())) {
-//                    vectorValue = this.keywords.get(j).getTfIdf();
-//                }
-//            }
-//            this.vector[i] = vectorValue;
-//        }
         this.vector = vector;
     }
 

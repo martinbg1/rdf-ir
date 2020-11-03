@@ -1,6 +1,6 @@
 package example;
 
-import Result.ResultNode;
+import result.ResultNode;
 import keywords.Document;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static Result.ResultUtil.sortResult;
+import static result.ResultUtil.sortResult;
 
 public class VectorModel {
     @Context
@@ -47,7 +47,7 @@ public class VectorModel {
             }
         }
 
-        Map<Node, Double> nodeMap = sortResult(result, db, 5);
+        Map<Node, Double> nodeMap = sortResult(result, db, 10);
         return nodeMap.entrySet().stream().map(ResultNode::new);
 
     }
@@ -103,6 +103,11 @@ public class VectorModel {
             normA += Math.pow(vectorA[i], 2);
             normB += Math.pow(vectorB[i], 2);
         }
-        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+        double denominator = (Math.sqrt(normA) * Math.sqrt(normB));
+
+        if (denominator == 0.0) {
+            return 0.0;
+        }
+        return dotProduct / denominator;
     }
 }

@@ -24,7 +24,7 @@ public class BM25 {
     @Procedure
     @Description("example.bm25Search(query) - returns bm25 query result")
     public Stream<ResultNode> bm25Search(@Name("fetch") String query) throws IOException{
-        Map<Node, Double> result = new LinkedHashMap<>();
+        Map<Long, Double> result = new LinkedHashMap<>();
         // Query document
         Document qDoc = new Document(query);
 
@@ -34,7 +34,7 @@ public class BM25 {
 
             // TODO endre return av indexnode til å bruke 'name' node isteden
             // fill result with a node and its corresponding BM25 score
-            res.forEachRemaining(n -> result.put((Node) n, bm25Score(
+            res.forEachRemaining(n -> result.put((Long)((Node) n).getProperty("name"), bm25Score(
                     (String[])((Node) n).getProperty("terms"),
                     (double[])((Node) n).getProperty("idf"),
                     (int[])((Node) n).getProperty("tf"),
@@ -43,15 +43,28 @@ public class BM25 {
         }
         // TODO gjøre om sort til en funksjon som kan importeres, unødvendig repeat av kode.
         // Sort result list based on BM25 score
-        List<Map.Entry<Node, Double>> sortedResult = new ArrayList<>(result.entrySet());
+        List<Map.Entry<Long, Double>> sortedResult = new ArrayList<>(result.entrySet());
         sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+        Map<Node, Double> nodemap = new LinkedHashMap<>();
+        try(Transaction tx1 = db.beginTx()){
+            if (sortedResult.size() < 5) {
+                return sortedResult.stream().map(BM25.ResultNode::new);
+            }
+            List<Map.Entry<Long, Double>> topRes = sortedResult.subList(0, 2);
+            for(Map.Entry<Long, Double> noe : topRes){
+                HashMap<String, Object> params = new HashMap();
+                params.put("nodeId", noe.getKey());
+                Node tempnode = (Node)(tx1.execute("MATCH (n) WHERE ID(n) =$nodeId return n", params).columnAs("n").next());
+                nodemap.put(tempnode, noe.getValue());
+            }
+        }
+        return nodemap.entrySet().stream().map(ResultNode::new);
 
         // Return top 5 results if possible
-        if (sortedResult.size() < 5) {
-            return sortedResult.stream().map(BM25.ResultNode::new);
-        }
         // return the
-        return sortedResult.subList(0, 5).stream().map(BM25.ResultNode::new);
+        List<Map.Entry<Long, Double>> topRes = sortedResult.subList(0, 5);
+        Map<Node, Double> nodes = new HashedMap();
+        return sortedResult.subList(0,5).stream().map(ResultNode::new);
     }
 
     // Node returned as a Stream by procedure with node and bm25 score

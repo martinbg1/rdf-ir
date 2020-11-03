@@ -21,7 +21,7 @@ public class TFIDFTest {
 
     @BeforeAll
     static void initializeNeo4j() {
-        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(TF_IDF.class)
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(IndexRDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
                         "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +

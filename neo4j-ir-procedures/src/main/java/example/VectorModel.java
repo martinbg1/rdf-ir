@@ -9,14 +9,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class Search {
+public class VectorModel {
     @Context
     public GraphDatabaseService db;
 
 
     @Procedure
-    @Description("example.tfidfSearch(query) - returns TF-IDF query result")
-    public Stream<ResultNode> TfIdfSearch(@Name("fetch") String query) throws IOException {
+    @Description("example.vectorModelSearch(query) - returns TF-IDF query result")
+    public Stream<ResultNode> vectorModelSearch(@Name("fetch") String query) throws IOException {
         Map<Node, Double> result = new LinkedHashMap<>();
         List<Map.Entry<Node, Double>> entries = new ArrayList<>();
 

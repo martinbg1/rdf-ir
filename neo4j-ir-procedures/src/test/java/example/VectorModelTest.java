@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 
-public class SearchTest {
+public class VectorModelTest {
 
     private static Neo4j embeddedDatabaseServer;
 
@@ -23,7 +23,7 @@ public class SearchTest {
     static void initializeNeo4j() {
 
 
-        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(Search.class).withProcedure(TF_IDF.class)
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(VectorModel.class).withProcedure(IndexRDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
                         "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
@@ -39,7 +39,7 @@ public class SearchTest {
             Map<String, Object> params = new HashMap<>();
             String covid = "MATCH (d) return d";
             params.put("q", covid);
-            Result result =  tx.execute( "CALL example.tfidfscore( $q )",params);
+            Result result =  tx.execute( "CALL example.indexRDF( $q )",params);
         }
     }
 
@@ -62,7 +62,7 @@ public class SearchTest {
             String query = "hei lul influenza";
             params.put("query", query);
 
-            Result result =  tx.execute( "CALL example.TfIdfSearch( $query )",params);
+            Result result =  tx.execute( "CALL example.vectorModelSearch( $query )",params);
             System.out.println(result.resultAsString());
 
             Result res = tx.execute("MATCH (n) return n");

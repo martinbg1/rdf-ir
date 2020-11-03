@@ -1,13 +1,15 @@
 package example;
 
+import Result.ResultNode;
 import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static Result.ResultUtil.sortResult;
 
 public class VectorModel {
     @Context
@@ -18,7 +20,6 @@ public class VectorModel {
     @Description("example.vectorModelSearch(query) - returns TF-IDF query result")
     public Stream<ResultNode> vectorModelSearch(@Name("fetch") String query) throws IOException {
         Map<Long, Double> result = new LinkedHashMap<>();
-        List<Map.Entry<Node, Double>> entries = new ArrayList<>();
         Document queryDoc = new Document(query);
 
         try (Transaction tx = db.beginTx()) {
@@ -28,36 +29,27 @@ public class VectorModel {
             ResourceIterator<Node> corpusNode = tx.execute("MATCH (n:Corpus) return n").columnAs("n");
             String[] corpus = (String[]) corpusNode.next().getProperty("corpus");
 
-
             ResourceIterator<Node> idfNode = tx.execute("MATCH (n:IDF) return n").columnAs("n");
             double[] idf = (double[]) idfNode.next().getProperty("idf");
 
             setQueryIdf(queryDoc, corpus, idf);
             setQueryVector(queryDoc, corpus);
 
-
-//            res.forEachRemaining(n -> result.put((Node) n, 4.0));
             while (res.hasNext()) {
                 Node tempNode = (Node) res.next();
-                String[] indexTerms = (String[]) ((Node) tempNode).getProperty("terms");
-                int[] indexTF = (int[]) ((Node) tempNode).getProperty("tf");
-                double[] indexIDF = (double[]) ((Node) tempNode).getProperty("idf");
-                Long nodeID = (Long) ((Node) tempNode).getProperty("name");
+                String[] indexTerms = (String[]) tempNode.getProperty("terms");
+                int[] indexTF = (int[]) tempNode.getProperty("tf");
+                double[] indexIDF = (double[]) tempNode.getProperty("idf");
+                Long nodeID = (Long) tempNode.getProperty("name");
                 double[] documentVector = setDocumentVector(queryDoc, indexTerms, indexTF, indexIDF);
 
                 result.put(nodeID, cosineSimilarity(queryDoc.getVector(), documentVector));
             }
         }
 
-        // Convert to ArrayList and sort by value
-        List<Map.Entry<Long, Double>> sortedResult = new ArrayList<>(result.entrySet());
-        sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+        Map<Node, Double> nodeMap = sortResult(result, db, 5);
+        return nodeMap.entrySet().stream().map(ResultNode::new);
 
-        // Return top 5 results if possible
-        if (sortedResult.size() < 5) {
-            return sortedResult.stream().map(ResultNode::new);
-        }
-        return sortedResult.subList(sortedResult.size() - 5, sortedResult.size()).stream().map(ResultNode::new);
     }
 
 
@@ -98,20 +90,9 @@ public class VectorModel {
                 documentVector[i] = vectorValue;
             }
         }
-        System.out.println(Arrays.toString(documentVector));
         return documentVector;
     }
 
-
-    public static class ResultNode {
-        public Long node;
-        public Double score;
-
-        public ResultNode(Map.Entry<Long, Double> entity) {
-            this.node = entity.getKey();
-            this.score = entity.getValue();
-        }
-    }
 
     public static double cosineSimilarity(double[] vectorA, double[] vectorB) {
         double dotProduct = 0.0;

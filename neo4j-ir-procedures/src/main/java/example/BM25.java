@@ -1,5 +1,6 @@
 package example;
 
+import Result.ResultNode;
 import keywords.CardKeyword;
 import keywords.Document;
 import org.apache.commons.collections.map.HashedMap;
@@ -15,6 +16,8 @@ import org.neo4j.procedure.Procedure;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static Result.ResultUtil.sortResult;
 
 
 public class BM25 {
@@ -42,44 +45,10 @@ public class BM25 {
                     qDoc)));
         }
 
-        // Sort result list based on BM25 score
-        List<Map.Entry<Long, Double>> sortedResult = new ArrayList<>(result.entrySet());
-        sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
-
-        // to store result node and bm25 score
-        Map<Node, Double> nodeMap = new LinkedHashMap<>();
-        // to store top n results
-        List<Map.Entry<Long, Double>> topRes;
-
-
-        try(Transaction tx1 = db.beginTx()){
-            // return top 5 results if possible
-            if (sortedResult.size() > 5) {
-                topRes = sortedResult.subList(0, 5);
-            } else {
-                topRes = sortedResult;
-            }
-            // loop through top results and query result Node
-            for(Map.Entry<Long, Double> entry : topRes){
-                HashMap<String, Object> params = new HashMap();
-                params.put("nodeId", entry.getKey());
-                Node tempnode = (Node)(tx1.execute("MATCH (n) WHERE ID(n) =$nodeId return n", params).columnAs("n").next());
-                nodeMap.put(tempnode, entry.getValue());
-            }
-        }
+        Map<Node, Double> nodeMap = sortResult(result, db, 5);
         return nodeMap.entrySet().stream().map(ResultNode::new);
-
     }
 
-    // Node returned as a Stream by procedure with node and bm25 score
-    public static class ResultNode {
-        public String node;
-        public Double score;
-        public ResultNode(Map.Entry<Node,Double> entity){
-            this.node = entity.getKey().toString();
-            this.score = entity.getValue();
-        }
-    }
 
     // math for bm25
     // take in documents and query, return their bm25 score

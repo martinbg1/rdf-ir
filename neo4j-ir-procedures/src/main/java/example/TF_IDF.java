@@ -28,10 +28,11 @@ public class TF_IDF {
             Map<Long, Document> docCollection = new HashedMap();
 
             // Delete old index and initialize new
-            tx.execute("MATCH (n:TFIDF) detach delete n");
-            tx.execute("CREATE (n:Vectors)");
-            tx.execute("CREATE (n:Corpus)");
-            tx.execute("CREATE (n:IDF)");
+//            tx.execute("MATCH (n:TFIDF) detach delete n");
+//            tx.execute("CREATE (n:Vectors)");
+//            tx.execute("CREATE (n:Corpus)");
+//            tx.execute("CREATE (n:IDF)");
+            tx.execute("MATCH (n:indexNode) detach delete n ");
 
 
             // Retrieve nodes to index
@@ -72,11 +73,11 @@ public class TF_IDF {
                 });
             }
 
-            HashMap<String, Object> paramsCorpus = new HashMap<>();
-            paramsCorpus.put("corpus", corpus.getBoW().toArray());
-            paramsCorpus.put("idf", corpus.getIdf());
-            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", paramsCorpus);
-            tx.execute("MATCH (n:IDF) SET n.idf=$idf", paramsCorpus);
+//            HashMap<String, Object> paramsCorpus = new HashMap<>();
+//            paramsCorpus.put("corpus", corpus.getBoW().toArray());
+//            paramsCorpus.put("idf", corpus.getIdf());
+//            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", paramsCorpus);
+//            tx.execute("MATCH (n:IDF) SET n.idf=$idf", paramsCorpus);
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
         }

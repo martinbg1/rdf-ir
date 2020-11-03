@@ -51,7 +51,7 @@ public class BM25 {
             return sortedResult.stream().map(BM25.ResultNode::new);
         }
         // return the
-        return sortedResult.subList(sortedResult.size() -5, sortedResult.size()).stream().map(BM25.ResultNode::new);
+        return sortedResult.subList(0, 5).stream().map(BM25.ResultNode::new);
     }
 
     // Node returned as a Stream by procedure with node and bm25 score

@@ -87,7 +87,7 @@ public class TF_IDF {
     private static void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection, Corpus corpus) {
         Document doc = docCollection.get(node.getId());
 
-        doc.setVector(corpus);
+//        doc.setVector(corpus);
 
         List<String> terms= new ArrayList<>();
         doc.keywords.forEach((k) ->terms.add(k.getStem()));

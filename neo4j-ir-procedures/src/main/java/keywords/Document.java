@@ -39,7 +39,7 @@ public class Document {
     }
 
     public double[] getVector()  {
-        return this.vector;
+        return new double[] {};
     }
 
     public void initializeVector(int size) {

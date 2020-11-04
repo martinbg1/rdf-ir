@@ -36,6 +36,10 @@ public class CardKeyword implements Comparable<CardKeyword> {
         this.stem = stem;
     }
 
+    public boolean equals(CardKeyword kw){
+        return this.getStem().equals(kw.getStem());
+    }
+
     /**
      * Add term to the dictionary and update its frequency rank
      *

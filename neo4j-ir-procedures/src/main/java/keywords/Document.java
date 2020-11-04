@@ -38,5 +38,13 @@ public class Document {
     public void setVectorValue(double vectorValue, int index) {
         this.vector[index] = vectorValue;
     }
+
+    public String[] toStringArray(){
+        String[] str = new String[this.keywords.size()];
+        for (int i = 0; i < this.keywords.size(); i++) {
+            str[i] = this.keywords.get(i).getStem();
+        }
+        return str;
+    }
 }
 

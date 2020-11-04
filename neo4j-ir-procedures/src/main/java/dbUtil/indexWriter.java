@@ -42,4 +42,51 @@ public class indexWriter {
 
         tx.execute("CREATE (n:indexNode {name: $name, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", params);
     }
+
+
+    public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, ArrayList<Document>> docCollection) {
+        ArrayList<Document> doc = docCollection.get(node.getId());
+
+
+        List<String[]> terms= new ArrayList<>();
+        List<String> fieldTerms = new ArrayList<>();
+        String[][] strr = new String[doc.size()][];
+        for (int i = 0; i <doc.size() ; i++) {
+            strr[i] = doc.get(i).toStringArray();
+        }
+
+//        for(Document field : doc){
+//            field.keywords.forEach((k) ->fieldTerms.add(k.getStem()));
+//        }
+
+//        String[] str = fieldTerms.toArray(new String[fieldTerms.size()]);
+//        terms.add(strr);
+
+
+//        List<Object[]> idf = new ArrayList<>();
+//        List<Object> idfTerms = new ArrayList<>();
+//        for(Document field : doc){
+//            field.keywords.forEach((k) ->idfTerms.add(k.getIdf()));
+//        }
+//        idf.add(idfTerms.toArray());
+//
+//
+//        List<Object[]> tf = new ArrayList<>();
+//        List<Object> tfTerms = new ArrayList<>();
+//        for(Document field : doc){
+//            field.keywords.forEach((k) ->tfTerms.add((int)k.getFrequency()));
+//        }
+//        tf.add(tfTerms.toArray());
+
+
+        HashMap<String, Object> params = new HashMap();
+//        params.put("documentLength", doc.keywords.size());
+        params.put("terms", strr);
+//        params.put("idf", idf.toArray());
+//        params.put("tf", tf.toArray());
+        params.put("name", node.getId());
+//        dl:$documentLength,
+//        , idf: $idf, tf: $tf
+        tx.execute("CREATE (n:indexNode {name: $name, terms: $terms})", params);
+    }
 }

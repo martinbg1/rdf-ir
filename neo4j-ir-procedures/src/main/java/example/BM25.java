@@ -35,6 +35,9 @@ public class BM25 {
             // get all indexNodes with (terms, idf, tf og dl)
             ResourceIterator<Object> res = tx.execute("MATCH (n:indexNode) return n").columnAs("n");
 
+            // retrieve mean document length
+            double meanDocumentLength = (double) tx.execute("MATCH (n:DataStats) return n.meanDocumentLength").columnAs("n.meanDocumentLength").next();
+
             // TODO endre return av indexnode til å bruke 'name' node isteden
             // fill result with a node and its corresponding BM25 score
             res.forEachRemaining(n -> result.put((Long)((Node) n).getProperty("name"), bm25Score(
@@ -42,26 +45,23 @@ public class BM25 {
                     (double[])((Node) n).getProperty("idf"),
                     (int[])((Node) n).getProperty("tf"),
                     (int)((Node) n).getProperty("dl"),
+                    meanDocumentLength,
                     qDoc)));
         }
 
-        Map<Node, Double> nodeMap = sortResult(result, db, 5);
+        Map<Node, Double> nodeMap = sortResult(result, db, 10);
         return nodeMap.entrySet().stream().map(ResultNode::new);
     }
 
 
     // math for bm25
     // take in documents and query, return their bm25 score
-    public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, Document query){
+    public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, double avgDl, Document query){
         // raw term frequency, should be between 1.2 and 2.0, smaller value = each term occurrence counts for less
         double k1 = 1.2;
 
         // scale term weight by document length, usually 0.75
         double b = 0.75;
-
-        // TODO make average document length dynamic
-        // average document length
-        double adl = 12;
 
         // Map with term (String) as key and index of term (Integer) as value
         Map<String, Integer> termPosition = new HashedMap();
@@ -79,10 +79,9 @@ public class BM25 {
             if(Arrays.asList(docTerms).contains(kw.getStem())){
                 double tempIdf = idf[termPosition.get(kw.getStem())];
                 int tempTf = tf[termPosition.get(kw.getStem())];
-                sum += tempIdf*(tempTf*(k1+1)/tempTf+k1*(1-b+(b*(dl/adl))));
+                sum += tempIdf*(tempTf*(k1+1)/tempTf+k1*(1-b+(b*(dl/avgDl))));
             }
         }
-
         return sum;
     }
 }

@@ -42,5 +42,4 @@ public class indexWriter {
 
         tx.execute("CREATE (n:indexNode {name: $name, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", params);
     }
-
 }

@@ -26,6 +26,7 @@ public class IndexRDF {
     @Procedure(value = "example.indexRDF", mode = Mode.WRITE)
     @Description("example.indexRDF(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
+        double documentLengthSum = 0.0  ;
         try(Transaction tx = db.beginTx()){
             Map<Long, Document> docCollection = new HashedMap();
 
@@ -53,6 +54,8 @@ public class IndexRDF {
 
                     Document doc = new Document(temp.toString());
                     docCollection.put(node.getId(), doc);
+
+                    documentLengthSum += doc.keywords.size();
                 }
             }
 
@@ -73,12 +76,17 @@ public class IndexRDF {
                     }
                 });
             }
+            double meanDocumentLength = documentLengthSum / docCollection.size();
 
-            HashMap<String, Object> paramsCorpus = new HashMap<>();
-            paramsCorpus.put("corpus", corpus.getBoW().toArray());
-            paramsCorpus.put("idf", corpus.getIdf());
-            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", paramsCorpus);
-            tx.execute("MATCH (n:IDF) SET n.idf=$idf", paramsCorpus);
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("corpus", corpus.getBoW().toArray());
+            params.put("idf", corpus.getIdf());
+            params.put("meanLength", meanDocumentLength);
+            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", params);
+            tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
+            tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
+
+
 
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);

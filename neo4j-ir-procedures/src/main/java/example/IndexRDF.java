@@ -1,5 +1,6 @@
 package example;
 
+import keywords.Corpus;
 import keywords.Document;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
@@ -14,32 +15,37 @@ import org.neo4j.procedure.Name;
 
 import keywords.CardKeyword;
 
+import static dbUtil.indexWriter.writeIndexNode;
 
-public class TF_IDF {
+
+public class IndexRDF {
 
     @Context
     public GraphDatabaseService db;
 
-    @Procedure(value = "example.tfidfscore", mode = Mode.WRITE)
-    @Description("example.tfidfscores(altnames) - return the tf-idf score for nodes")
-    public Stream<EntityField> tfidfscore(@Name("fetch") String input) throws IOException {
+    @Procedure(value = "example.indexRDF", mode = Mode.WRITE)
+    @Description("example.indexRDF(query) - return the tf-idf score for nodes")
+    public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
+        double documentLengthSum = 0.0  ;
         try(Transaction tx = db.beginTx()){
             Map<Long, Document> docCollection = new HashedMap();
 
             // Delete old index and initialize new
-            tx.execute("MATCH (n:TFIDF) detach delete n");
-            tx.execute("CREATE (n:TFIDF)");
+            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
+            tx.execute("CREATE (n:Corpus)");
+            tx.execute("CREATE (n:IDF)");
 
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
             Iterator<Node> d_column = res.columnAs("d");
 
+            // TODO handle null values
             // process terms
             while (d_column.hasNext()) {
                 ArrayList<String> temp = new ArrayList<>();
                 Node node = d_column.next();
-                if (!node.getLabels().toString().equals("[TFIDF]")) {
+                if (!node.getLabels().toString().equals("[Corpus]") && !node.getLabels().toString().equals("[IDF]")) {
                     node.getAllProperties().forEach((k, v) -> {
                         if (!k.equals("uri")) {
                             temp.add((String) v);
@@ -48,10 +54,13 @@ public class TF_IDF {
 
                     Document doc = new Document(temp.toString());
                     docCollection.put(node.getId(), doc);
+
+                    documentLengthSum += doc.keywords.size();
                 }
             }
 
             idf(docCollection);
+            Corpus corpus = new Corpus(docCollection);
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();
             docCollection.forEach((k, doc) -> doc.keywords.forEach(keyword -> result.put(keyword, keyword.getTfIdf())));
@@ -62,30 +71,29 @@ public class TF_IDF {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    if (!n.getLabels().toString().equals("[TFIDF]")) {
-                        writeTFIDF(n, tx, docCollection);
+                    if (!n.getLabels().toString().equals("[Corpus]") && !n.getLabels().toString().equals("[IDF]")) {
+                        writeIndexNode(n, tx, docCollection);
                     }
                 });
             }
+            double meanDocumentLength = documentLengthSum / docCollection.size();
+
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("corpus", corpus.getBoW().toArray());
+            params.put("idf", corpus.getIdf());
+            params.put("meanLength", meanDocumentLength);
+            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", params);
+            tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
+            tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
+
+
+
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
         }
 
     }
 
-    public void writeTFIDF(Node node, Transaction tx, Map<Long, Document> docCollection) {
-        Document doc = docCollection.get(node.getId());
-
-        Map<String, Double> tfidfValues = new HashMap<>();
-        // prepare the values
-        doc.keywords.forEach(k -> tfidfValues.put(k.getStem(), k.getTfIdf()));
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", node.getId());
-        params.put("tfidf", tfidfValues.toString());
-        tx.execute("MATCH (n:TFIDF) SET n._"+node.getId() +"=$tfidf",params);
-
-    }
 
     public static class EntityField {
         public String stem;

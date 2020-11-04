@@ -8,6 +8,7 @@ public class Document {
 
     public List<CardKeyword> keywords;
     private HashMap<String, Integer> wordCountMap;
+    private double[] vector;
 
     public Document(String field) throws IOException {
         this.keywords = KeywordsExtractor.getKeywordsList(field);
@@ -22,5 +23,20 @@ public class Document {
         return this.wordCountMap;
     }
 
+    public void setVector(double[] vector) {
+        this.vector = vector;
+    }
+
+    public double[] getVector()  {
+        return this.vector;
+    }
+
+    public void initializeVector(int size) {
+        this.vector = new double[size];
+    }
+
+    public void setVectorValue(double vectorValue, int index) {
+        this.vector[index] = vectorValue;
+    }
 }
 

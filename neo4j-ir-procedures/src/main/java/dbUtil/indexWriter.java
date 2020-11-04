@@ -1,5 +1,6 @@
 package dbUtil;
 
+import keywords.CardKeyword;
 import keywords.Document;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -50,11 +51,36 @@ public class indexWriter {
 
         List<String[]> terms= new ArrayList<>();
         List<String> fieldTerms = new ArrayList<>();
-        String[][] strr = new String[doc.size()][];
-        for (int i = 0; i <doc.size() ; i++) {
-            strr[i] = doc.get(i).toStringArray();
-        }
+//        String[][] strr = new String[doc.size()][];
+//        for (int i = 0; i <doc.size() ; i++) {
+//            strr[i] = doc.get(i).toStringArray();
+//        }
 
+
+        String[] str1 = new String[doc.get(0).keywords.size()];
+
+//        for (CardKeyword kw : doc.get(0).keywords) {
+//            str1[0] = kw.getStem();
+//        }
+
+//        Bare masse rot (:
+
+//        for (int i = 0; i < doc.get(0).keywords.size(); i++) {
+//            for(CardKeyword kw: doc.get(0).keywords){
+//                str1[i] = i + " : " + kw.getStem();
+//            }
+//        }
+//        for(String n : str1){
+//            System.out.println(n);
+//        }
+
+//        for (int i = 0; i < doc.size(); i++) {
+//            List<String> temp = new ArrayList<>();
+//            for(CardKeyword kw :doc.get(i).keywords){
+//                temp.add(kw.getStem());
+//            }
+//            str1[i] = temp.toString();
+//        }
 //        for(Document field : doc){
 //            field.keywords.forEach((k) ->fieldTerms.add(k.getStem()));
 //        }
@@ -81,7 +107,7 @@ public class indexWriter {
 
         HashMap<String, Object> params = new HashMap();
 //        params.put("documentLength", doc.keywords.size());
-        params.put("terms", strr);
+        params.put("terms", str1);
 //        params.put("idf", idf.toArray());
 //        params.put("tf", tf.toArray());
         params.put("name", node.getId());

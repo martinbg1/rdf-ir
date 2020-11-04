@@ -30,6 +30,7 @@ public class IndexRDFFielded {
     public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
         double documentLengthSum = 0.0  ;
         try(Transaction tx = db.beginTx()){
+            // ArrayList<Document> accounts to a list of documents for each field.
             Map<Long, ArrayList<Document>> docCollection = new HashedMap();
 
             // Delete old index and initialize new
@@ -88,15 +89,15 @@ public class IndexRDFFielded {
                     }
                 });
             }
-//            double meanDocumentLength = documentLengthSum / docCollection.size();
+            double meanDocumentLength = documentLengthSum / docCollection.size();
 
-//            HashMap<String, Object> params = new HashMap<>();
-//            params.put("corpus", corpus.getBoW().toArray());
-//            params.put("idf", corpus.getIdf());
-//            params.put("meanLength", meanDocumentLength);
-//            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", params);
-//            tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
-//            tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("corpus", corpusfielded.getBoW().toArray());
+            params.put("idf", corpusfielded.getIdf());
+            params.put("meanLength", meanDocumentLength);
+            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", params);
+            tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
+            tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
 
 
 

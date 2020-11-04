@@ -31,7 +31,7 @@ public class BM25F {
         return sum;
     }
 
-    public double BM25F(ArrayList<Document> fields, Document query){
+    public double BM25FScore(ArrayList<Document> fields, Document query){
         double k1 = 1.2;
         double sum = 0.0;
 

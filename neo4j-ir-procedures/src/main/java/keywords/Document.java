@@ -1,7 +1,6 @@
 package keywords;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,29 +23,19 @@ public class Document {
         return this.wordCountMap;
     }
 
-    public void setVector(Corpus corpus) {
-        List<String> BoW = corpus.getBoW();
-        this.vector = new double[BoW.size()];
-        for (int i = 0; i < BoW.size(); i++) {
-            double vectorValue = 0.0;
-            for (int j = 0; j < this.keywords.size(); j++) {
-                if (BoW.get(i).equals(this.keywords.get(j).getStem())) {
-                    vectorValue = this.keywords.get(j).getTfIdf();
-                }
-            }
-            this.vector[i] = vectorValue;
-        }
+    public void setVector(double[] vector) {
+        this.vector = vector;
     }
 
     public double[] getVector()  {
-        return new double[] {};
+        return this.vector;
     }
 
     public void initializeVector(int size) {
         this.vector = new double[size];
     }
 
-    public void setQueryValue(double vectorValue, int index) {
+    public void setVectorValue(double vectorValue, int index) {
         this.vector[index] = vectorValue;
     }
 }

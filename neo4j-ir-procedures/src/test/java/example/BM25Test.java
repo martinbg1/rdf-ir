@@ -19,7 +19,7 @@ public class BM25Test {
     static void initializeNeo4j() {
 
 
-        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(BM25.class).withProcedure(TF_IDF.class)
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(BM25.class).withProcedure(IndexRDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
                         "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
@@ -35,7 +35,7 @@ public class BM25Test {
             Map<String, Object> params = new HashMap<>();
             String covid = "MATCH (d) return d";
             params.put("q", covid);
-            Result result =  tx.execute( "CALL example.tfidfscore( $q )",params);
+            Result result =  tx.execute( "CALL example.indexRDF( $q )",params);
         }
     }
 
@@ -48,11 +48,6 @@ public class BM25Test {
 
     @Test
     public void shouldReturnQueryResult() {
-//        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
-//            tx.execute("CREATE (q:Disease {q:'influenza veldig blabla hei godt'})");
-//            tx.commit();
-//        }
-
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
             String query = "hei lul influenza";

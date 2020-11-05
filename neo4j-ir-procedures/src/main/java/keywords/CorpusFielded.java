@@ -1,5 +1,6 @@
 package keywords;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,37 +8,32 @@ import java.util.Map;
 
 public class CorpusFielded {
 
-    private List<List<String>> BoW;
-    private ArrayList<ArrayList<Double>> idf;
+    private List<String> BoW;
+    private ArrayList<Double> idf;
+    private String fieldName;
 
-    public CorpusFielded(Map<Long, ArrayList<Document>> docCollection) {
+    public CorpusFielded(Map<Long, ArrayList<Document>> fields, String fieldName) {
         this.BoW = new LinkedList<>();
         this.idf = new ArrayList<>();
-        for(ArrayList<Document> doc : docCollection.values()){
-            for (Document field : doc) {
-                List<CardKeyword> keywords =  field.keywords;
-                for (CardKeyword kw : keywords) {
-                    ArrayList<String> fieldkw = new ArrayList<>();
-                    ArrayList<Double> fieldidf = new ArrayList<>();
-                    for(List<String> f : BoW){
-                        if(!f.contains(kw.getStem())){
-                            fieldkw.add(kw.getStem());
-                            fieldidf.add(kw.getIdf());
-                        }
-                    }
-                    BoW.add(fieldkw);
-                    idf.add(fieldidf);
+        this.fieldName = fieldName;
+
+        // TODO Ekstra loop som går gjennom hvert field
+        for (Document field : fields.values()) {
+            List<CardKeyword> keywords =  field.keywords;
+            for (CardKeyword kw : keywords) {
+                if (!BoW.contains(kw.getStem())) {
+                    BoW.add(kw.getStem());
+                    idf.add(kw.getIdf());
                 }
             }
-
         }
     }
 
-    public List<List<String>> getBoW() {
+    public List<String> getBoW() {
         return BoW;
     }
 
-    public ArrayList<ArrayList<Double>> getIdf() {
+    public List<Double> getIdf() {
         return idf;
     }
 }

@@ -24,8 +24,8 @@ public class IndexRDFFieldedTest {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(IndexRDFFielded.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
-                        "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
-                                "CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
+                        "CREATE (d1:Disease {name:'covid hei', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
+                                "CREATE (d2:Disease {name:'influenza hei', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
                                 "CREATE (d3:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})")
                 .build();
     }
@@ -56,7 +56,7 @@ public class IndexRDFFieldedTest {
 
 //            Result testresult = tx.execute(covid);
 //            System.out.println(testresult.resultAsString());
-            tx.execute("CREATE (d1:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
+//            tx.execute("CREATE (d1:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
             tx.commit();
         }
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {

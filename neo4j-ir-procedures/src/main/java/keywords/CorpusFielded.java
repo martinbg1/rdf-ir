@@ -1,39 +1,66 @@
 package keywords;
 
+import org.apache.commons.collections.map.HashedMap;
+
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CorpusFielded {
 
-    private List<String> BoW;
-    private ArrayList<Double> idf;
-    private String fieldName;
+    private Map<String, List<String>> BoW;
+    private Map<String, ArrayList<Double>> idf;
+    private ArrayList<String> fieldNames;
+    private int size;
 
-    public CorpusFielded(Map<Long, ArrayList<Document>> fields, String fieldName) {
-        this.BoW = new LinkedList<>();
-        this.idf = new ArrayList<>();
-        this.fieldName = fieldName;
+    public CorpusFielded(Map<String, ArrayList<Document>> fields, ArrayList<String> fieldNames) {
+        this.BoW = new HashedMap();
+        this.idf = new HashedMap();
+        this.fieldNames = fieldNames;
+        this.size = fields.size();
 
-        // TODO Ekstra loop som går gjennom hvert field
-        for (Document field : fields.values()) {
-            List<CardKeyword> keywords =  field.keywords;
-            for (CardKeyword kw : keywords) {
-                if (!BoW.contains(kw.getStem())) {
-                    BoW.add(kw.getStem());
-                    idf.add(kw.getIdf());
+        fields.forEach((k, Node) -> {
+            if (!BoW.containsKey(k)) {
+                BoW.put(k, new LinkedList<>());
+            }
+            if (!idf.containsKey(k)) {
+                idf.put(k, new ArrayList<>());
+            }
+            for (Document field : Node) {
+                List<CardKeyword> keywords =  field.keywords;
+                for (CardKeyword kw : keywords) {
+                    if (!BoW.get(k).contains(kw.getStem())) {
+                        BoW.get(k).add(kw.getStem());
+                        idf.get(k).add(kw.getIdf());
+                    }
                 }
             }
-        }
+        });
     }
 
-    public List<String> getBoW() {
-        return BoW;
+    public List<String> getBoWByIndex(int i) {
+        return BoW.get(this.fieldNames.get(i));
     }
 
-    public List<Double> getIdf() {
-        return idf;
+    public List<String> getBoWByKey(String key) {
+        return BoW.get(key);
     }
+
+
+    public List<Double> getIdfByKey(String key) {
+        return idf.get(key);
+    }
+
+    public List<Double> getIdfByIndex(int i) {
+        return idf.get(this.fieldNames.get(i));
+    }
+
+    public String getFieldName(int i) {
+        return this.fieldNames.get(i);
+    }
+
+    public int getSize() {
+        return this.size;
+    }
+
+
 }

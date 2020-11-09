@@ -1,6 +1,5 @@
 package example;
 
-import keywords.Corpus;
 import keywords.CorpusFielded;
 import keywords.Document;
 import org.apache.commons.collections.map.HashedMap;
@@ -9,6 +8,7 @@ import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -16,8 +16,7 @@ import org.neo4j.procedure.Name;
 
 import keywords.CardKeyword;
 
-import static dbUtil.indexWriter.writeIndexNode;
-import static dbUtil.indexWriter.writeFieldIndexNode;
+import javax.print.Doc;
 
 
 public class IndexRDFFielded {
@@ -47,7 +46,6 @@ public class IndexRDFFielded {
             // TODO handle null values
             // process terms
             while (d_column.hasNext()) {
-//                ArrayList<ArrayList<Document>> temp = new ArrayList<>();
                 ArrayList<Document> tempArrayDocument = new ArrayList<>();
                 ArrayList<String> tempArrayField = new ArrayList<>();
                 Node node = d_column.next();
@@ -55,7 +53,7 @@ public class IndexRDFFielded {
                     node.getAllProperties().forEach((k, v) -> {
                         if (!k.equals("uri")) {
                             try {
-                                tempArrayDocument.add(new Document((String)v));
+                                tempArrayDocument.add(new Document((String)v, k));
                                 tempArrayField.add(k);
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -73,19 +71,25 @@ public class IndexRDFFielded {
             }
 
             idf(docCollection);
-//            docCollection.forEach((k, v) -> v.forEach(d -> d.keywords.forEach(a -> System.out.println(a.getIdf()))));
-//            CorpusFielded corpusfielded = new CorpusFielded(docCollection);
-            Map<String, CorpusFielded> corpusMap = new LinkedHashMap<>();
+            Map<String, ArrayList<Document>> fieldNameCollection = new HashMap<>();
+            ArrayList<String> fieldNames = new ArrayList<>();
             docCollection.forEach((k, v) -> {
+
+                ArrayList<Document> fields = new ArrayList<>();
+
                 String fieldName = "";
-                Map<Long, Document> fieldMap = new HashedMap();
                 for (int i = 0; i < docFieldNames.get(k).size(); i++) {
-                    fieldMap.put(k, v.get(i));
+                    fields.add(v.get(i));
+
                     fieldName = docFieldNames.get(k).get(i);
+                    fieldNames.add(fieldName);
+                    if (!fieldNameCollection.containsKey(fieldName)) {
+                        fieldNameCollection.put(fieldName, new ArrayList<>());
+                    }
+                    fieldNameCollection.get(fieldName).add(v.get(i));
                 }
-                // TODO fiks fieldmap til å være liste med dokumenter (fields). Nå lager vi bare corpus på første, vi må set på alle nodene
-                corpusMap.put(fieldName, new CorpusFielded(fieldMap, fieldName));
             });
+            CorpusFielded corpus = new CorpusFielded(fieldNameCollection, fieldNames);
 
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();
@@ -113,18 +117,19 @@ public class IndexRDFFielded {
 //            params.put("idf", corpusfielded.getIdf());
 //            params.put("meanLength", meanDocumentLength);
 
-            System.out.println(corpusMap);
-            corpusMap.forEach((k, v) -> {
+
+
+                for (int i = 0; i < corpus.getSize(); i++) {
+
                 Map<String, Object> params = new HashedMap();
-                params.put("corpus", v.getBoW().toArray());
-//                params.put("name", k);
-                tx.execute("MATCH (n:Corpus) SET n." + k + "=$corpus", params);
-            });
-//            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", params);
-//            tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
+                params.put("corpus", corpus.getBoWByIndex(i).toArray());
+                params.put("idf", corpus.getIdfByIndex(i).toArray());
+
+                String fieldName = corpus.getFieldName(i);
+                tx.execute("MATCH (n:Corpus) SET n." + fieldName + "=$corpus", params);
+                tx.execute("MATCH (n:IDF) SET n." + fieldName + "=$idf", params);
+                }
 //            tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
-
-
 
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
@@ -145,21 +150,35 @@ public class IndexRDFFielded {
 
 
     public static void idf(Map<Long, ArrayList<Document>> docs) {
-        int size = docs.size();
         docs.forEach((k, d) -> {
-            for (int i = 0; i < d.size(); i++) {
-                for(CardKeyword keyword : d.get(i).keywords) {
-                    AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
-                    int finalI = i;
-                    docs.forEach((k2, d2) -> {
-                        Map<String, Integer> tempMap = d2.get(finalI).getWordCountMap();
-                        if ( tempMap.containsKey(keyword.getStem())) {
-                            wordCount.getAndSet(wordCount.get() + 1);
+            for (ArrayList<Document> nodes : docs.values()) {
+                for (Document field : nodes) {
+                    AtomicInteger size = new AtomicInteger(0);
+                    for (ArrayList<Document> nodesToCompare : docs.values()) {
+                        for (Document fieldsToCompare : nodesToCompare) {
+                            if (field.getFieldName().equals(fieldsToCompare.getFieldName())) {
+                                size.getAndIncrement();
+                            }
                         }
-                    });
-                    double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
-                    keyword.setIdf(idf);
+                    }
+
+                    for(CardKeyword keyword : field.keywords) {
+                        AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
+                        docs.forEach((k2, d2) -> {
+                            for (Document fieldToCompare : d2) {
+                                Map<String, Integer> tempMap = fieldToCompare.getWordCountMap();
+                                if (field.getFieldName().equals(fieldToCompare.getFieldName()) && tempMap.containsKey(keyword.getStem())) {
+                                    wordCount.getAndSet(wordCount.get() + 1);
+                                }
+                            }
+
+                        });
+
+                        double idf = Math.log(size.get() / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
+                        keyword.setIdf(idf);
+                    }
                 }
+
             }
         });
     }

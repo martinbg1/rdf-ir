@@ -25,8 +25,8 @@ public class IndexRDFFieldedTest {
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
                         "CREATE (d1:Disease {name:'covid hei', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
-                                "CREATE (d2:Disease {name:'influenza hei', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
-                                "CREATE (d3:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})")
+                                "CREATE (d2:Disease {name:'influenza hei', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei', shit:'automobile'})" +
+                                "CREATE (d3:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids', shit:'automobile covids'})")
                 .build();
     }
 

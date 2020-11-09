@@ -9,6 +9,7 @@ public class Document {
     public List<CardKeyword> keywords;
     private HashMap<String, Integer> wordCountMap;
     private double[] vector;
+    private String fieldName;
 
     public Document(String field) throws IOException {
         this.keywords = KeywordsExtractor.getKeywordsList(field);
@@ -18,6 +19,17 @@ public class Document {
             this.wordCountMap.put(keyword.getStem(), keyword.getFrequency());
         }
     }
+
+    public Document(String field, String fieldName) throws IOException {
+        this.keywords = KeywordsExtractor.getKeywordsList(field);
+        this.wordCountMap = new HashMap<>();
+        this.fieldName = fieldName;
+
+        for (CardKeyword keyword : this.keywords) {
+            this.wordCountMap.put(keyword.getStem(), keyword.getFrequency());
+        }
+    }
+
 
     public HashMap<String, Integer> getWordCountMap() {
         return this.wordCountMap;
@@ -37,6 +49,10 @@ public class Document {
 
     public void setVectorValue(double vectorValue, int index) {
         this.vector[index] = vectorValue;
+    }
+
+    public String getFieldName() {
+        return this.fieldName;
     }
 
     public String[] toStringArray(){

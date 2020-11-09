@@ -45,74 +45,41 @@ public class indexWriter {
     }
 
 
-    public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, ArrayList<Document>> docCollection) {
-        ArrayList<Document> doc = docCollection.get(node.getId());
+    public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, ArrayList<Document>> fieldNameCollection) {
+        fieldNameCollection.forEach((ref, doc) -> {
+            if (ref.equals(node.getId())) {
+                HashMap<String, Object> params = new HashMap();
+                params.put("ref", node.getId());
+                tx.execute("CREATE (n:indexNode {ref: $ref})", params);
 
+                for (Document field : doc) {
+                    String fieldName = field.getFieldName();
 
-        List<String[]> terms= new ArrayList<>();
-        List<String> fieldTerms = new ArrayList<>();
-//        String[][] strr = new String[doc.size()][];
-//        for (int i = 0; i <doc.size() ; i++) {
-//            strr[i] = doc.get(i).toStringArray();
-//        }
+                    List<String> terms= new ArrayList<>();
+                    field.keywords.forEach((k) ->terms.add(k.getStem()));
 
+                    List<Double> idf = new ArrayList<>();
+                    field.keywords.forEach((k) ->idf.add(k.getIdf()));
 
-        String[] str1 = new String[doc.get(0).keywords.size()];
+                    List<Integer> tf = new ArrayList<>();
+                    field.keywords.forEach((k) ->tf.add(k.getFrequency()));
 
-//        for (CardKeyword kw : doc.get(0).keywords) {
-//            str1[0] = kw.getStem();
-//        }
+                    HashMap<String, Object> paramsField = new HashMap();
+                    paramsField.put("fieldLength", field.keywords.size());
+                    paramsField.put("terms", terms.toArray());
+                    paramsField.put("idf", idf.toArray());
+                    paramsField.put("tf", tf.toArray());
+                    paramsField.put("ref", ref);
 
-//        Bare masse rot (:
+                    tx.execute("MATCH (n:indexNode)" +
+                            "WHERE n.ref=$ref SET " +
+                            "n." + fieldName + "Terms=$terms," +
+                            "n." + fieldName + "IDF=$idf," +
+                            "n." + fieldName + "TF=$tf," +
+                            "n." + fieldName + "Length=$fieldLength", paramsField);
+                }
+            }
 
-//        for (int i = 0; i < doc.get(0).keywords.size(); i++) {
-//            for(CardKeyword kw: doc.get(0).keywords){
-//                str1[i] = i + " : " + kw.getStem();
-//            }
-//        }
-//        for(String n : str1){
-//            System.out.println(n);
-//        }
-
-//        for (int i = 0; i < doc.size(); i++) {
-//            List<String> temp = new ArrayList<>();
-//            for(CardKeyword kw :doc.get(i).keywords){
-//                temp.add(kw.getStem());
-//            }
-//            str1[i] = temp.toString();
-//        }
-//        for(Document field : doc){
-//            field.keywords.forEach((k) ->fieldTerms.add(k.getStem()));
-//        }
-
-//        String[] str = fieldTerms.toArray(new String[fieldTerms.size()]);
-//        terms.add(strr);
-
-
-//        List<Object[]> idf = new ArrayList<>();
-//        List<Object> idfTerms = new ArrayList<>();
-//        for(Document field : doc){
-//            field.keywords.forEach((k) ->idfTerms.add(k.getIdf()));
-//        }
-//        idf.add(idfTerms.toArray());
-//
-//
-//        List<Object[]> tf = new ArrayList<>();
-//        List<Object> tfTerms = new ArrayList<>();
-//        for(Document field : doc){
-//            field.keywords.forEach((k) ->tfTerms.add((int)k.getFrequency()));
-//        }
-//        tf.add(tfTerms.toArray());
-
-
-        HashMap<String, Object> params = new HashMap();
-//        params.put("documentLength", doc.keywords.size());
-        params.put("terms", str1);
-//        params.put("idf", idf.toArray());
-//        params.put("tf", tf.toArray());
-        params.put("name", node.getId());
-//        dl:$documentLength,
-//        , idf: $idf, tf: $tf
-        tx.execute("CREATE (n:indexNode {name: $name, terms: $terms})", params);
+        });
     }
 }

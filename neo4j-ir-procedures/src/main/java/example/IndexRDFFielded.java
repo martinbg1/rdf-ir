@@ -16,7 +16,7 @@ import org.neo4j.procedure.Name;
 
 import keywords.CardKeyword;
 
-import javax.print.Doc;
+import static dbUtil.indexWriter.writeFieldIndexNode;
 
 
 public class IndexRDFFielded {
@@ -27,17 +27,15 @@ public class IndexRDFFielded {
     @Procedure(value = "example.indexRDFFielded", mode = Mode.WRITE)
     @Description("example.indexRDFFielded(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
-        double documentLengthSum = 0.0  ;
+        Map<String, Double> fieldLengthSum = new HashedMap();
+        Map<String, Double> meanFieldLengths = new HashedMap();
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
             Map<Long, ArrayList<Document>> docCollection = new HashedMap();
             Map<Long, ArrayList<String>> docFieldNames = new HashedMap();
 
             // Delete old index and initialize new
-            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
-            tx.execute("CREATE (n:Corpus)");
-            tx.execute("CREATE (n:IDF)");
-
+            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
@@ -49,45 +47,40 @@ public class IndexRDFFielded {
                 ArrayList<Document> tempArrayDocument = new ArrayList<>();
                 ArrayList<String> tempArrayField = new ArrayList<>();
                 Node node = d_column.next();
-                if (!node.getLabels().toString().equals("[Corpus]") && !node.getLabels().toString().equals("[IDF]")) {
-                    node.getAllProperties().forEach((k, v) -> {
-                        if (!k.equals("uri")) {
-                            try {
-                                tempArrayDocument.add(new Document((String)v, k));
-                                tempArrayField.add(k);
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                node.getAllProperties().forEach((k, v) -> {
+                    if (!k.equals("uri")) {
+                        try {
+                            Document field = new Document((String)v, k);
+                            tempArrayDocument.add(field);
+                            tempArrayField.add(k);
+                            if (!fieldLengthSum.containsKey(k)) {
+                                fieldLengthSum.put(k, 0.0);
                             }
-//                            temp.add(tempArray);
+                            fieldLengthSum.put(k, fieldLengthSum.get(k) + field.keywords.size());
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    });
-
-//                    Document doc = new Document(temp.toString());
-                    docCollection.put(node.getId(), tempArrayDocument);
-                    docFieldNames.put(node.getId(), tempArrayField);
-
-//                    documentLengthSum += doc.keywords.size();
-                }
+                    }
+                });
+                docCollection.put(node.getId(), tempArrayDocument);
+                docFieldNames.put(node.getId(), tempArrayField);
             }
 
-            idf(docCollection);
-            Map<String, ArrayList<Document>> fieldNameCollection = new HashMap<>();
-            ArrayList<String> fieldNames = new ArrayList<>();
-            docCollection.forEach((k, v) -> {
+                idf(docCollection);
+                Map<String, ArrayList<Document>> fieldNameCollection = new HashMap<>();
+                ArrayList<String> fieldNames = new ArrayList<>();
+                docCollection.forEach((k, v) -> {
 
-                ArrayList<Document> fields = new ArrayList<>();
+                    String fieldName = "";
+                    for (int i = 0; i < docFieldNames.get(k).size(); i++) {
 
-                String fieldName = "";
-                for (int i = 0; i < docFieldNames.get(k).size(); i++) {
-                    fields.add(v.get(i));
-
-                    fieldName = docFieldNames.get(k).get(i);
-                    fieldNames.add(fieldName);
-                    if (!fieldNameCollection.containsKey(fieldName)) {
-                        fieldNameCollection.put(fieldName, new ArrayList<>());
+                        fieldName = docFieldNames.get(k).get(i);
+                        fieldNames.add(fieldName);
+                        if (!fieldNameCollection.containsKey(fieldName)) {
+                            fieldNameCollection.put(fieldName, new ArrayList<>());
+                        }
+                        fieldNameCollection.get(fieldName).add(v.get(i));
                     }
-                    fieldNameCollection.get(fieldName).add(v.get(i));
-                }
             });
             CorpusFielded corpus = new CorpusFielded(fieldNameCollection, fieldNames);
 
@@ -101,35 +94,31 @@ public class IndexRDFFielded {
 
             // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
             Result res1 = tx.execute(input);
+
             // start of write operation
             Iterator<Node> n_column = res1.columnAs("d");
-//            while(n_column.hasNext()){
-//                n_column.forEachRemaining(n -> {
-//                    if (!n.getLabels().toString().equals("[Corpus]") && !n.getLabels().toString().equals("[IDF]")) {
-//                        writeFieldIndexNode(n, tx, docCollection);
-//                    }
-//                });
-//            }
-//            double meanDocumentLength = documentLengthSum / docCollection.size();
-//
-//            HashMap<String, Object> params = new HashMap<>();
-//            params.put("corpus", corpusfielded.getBoW().toArray());
-//            params.put("idf", corpusfielded.getIdf());
-//            params.put("meanLength", meanDocumentLength);
+            while(n_column.hasNext()){
+                n_column.forEachRemaining(n -> {
+                    writeFieldIndexNode(n, tx, docCollection);
+                });
+            }
+            fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));
+            tx.execute("CREATE (n:Corpus)");
+            tx.execute("CREATE (n:IDF)");
+            tx.execute("CREATE (n:DataStats)");
 
-
-
-                for (int i = 0; i < corpus.getSize(); i++) {
+            for (int i = 0; i < corpus.getSize(); i++) {
 
                 Map<String, Object> params = new HashedMap();
-                params.put("corpus", corpus.getBoWByIndex(i).toArray());
-                params.put("idf", corpus.getIdfByIndex(i).toArray());
-
                 String fieldName = corpus.getFieldName(i);
+                params.put("idf", corpus.getIdfByIndex(i).toArray());
+                params.put("corpus", corpus.getBoWByIndex(i).toArray());
+                params.put("meanLength", meanFieldLengths.get(fieldName));
+
                 tx.execute("MATCH (n:Corpus) SET n." + fieldName + "=$corpus", params);
                 tx.execute("MATCH (n:IDF) SET n." + fieldName + "=$idf", params);
+                tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
                 }
-//            tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
 
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);

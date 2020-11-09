@@ -38,7 +38,6 @@ public class BM25 {
             // retrieve mean document length
             double meanDocumentLength = (double) tx.execute("MATCH (n:DataStats) return n.meanDocumentLength").columnAs("n.meanDocumentLength").next();
 
-            // TODO endre return av indexnode til å bruke 'name' node isteden
             // fill result with a node and its corresponding BM25 score
             res.forEachRemaining(n -> result.put((Long)((Node) n).getProperty("name"), bm25Score(
                     (String[])((Node) n).getProperty("terms"),

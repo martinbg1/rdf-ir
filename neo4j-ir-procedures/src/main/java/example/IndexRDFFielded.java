@@ -102,8 +102,12 @@ public class IndexRDFFielded {
                     writeFieldIndexNode(n, tx, docCollection);
                 });
             }
+            System.out.println(fieldNameCollection.keySet().toArray());
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));
-            tx.execute("CREATE (n:Corpus)");
+
+            Map<String, Object> fieldParams = new HashedMap();
+            fieldParams.put("fieldName", fieldNameCollection.keySet().toArray());
+            tx.execute("CREATE (n:Corpus {fieldName: $fieldName})", fieldParams);
             tx.execute("CREATE (n:IDF)");
             tx.execute("CREATE (n:DataStats)");
 

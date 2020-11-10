@@ -38,7 +38,7 @@ public class IndexRDFFieldedTest {
 
 
     @Test
-    public void shouldCalculateTF_IDF() {
+    public void shouldIndexFields() {
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();

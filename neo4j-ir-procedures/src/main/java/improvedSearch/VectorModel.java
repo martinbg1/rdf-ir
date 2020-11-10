@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import result.ResultNode;
 import keywords.Document;
@@ -17,7 +17,7 @@ public class VectorModel {
 
 
     @Procedure
-    @Description("example.vectorModelSearch(query) - returns TF-IDF query result")
+    @Description("improvedSearch.vectorModelSearch(query) - returns TF-IDF query result")
     public Stream<ResultNode> vectorModelSearch(@Name("fetch") String query) throws IOException {
         Map<Long, Double> result = new LinkedHashMap<>();
         Document queryDoc = new Document(query);

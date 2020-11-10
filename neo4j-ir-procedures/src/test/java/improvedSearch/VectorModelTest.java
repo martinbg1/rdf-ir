@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 
 import org.junit.jupiter.api.AfterAll;
@@ -37,7 +37,7 @@ public class VectorModelTest {
             Map<String, Object> params = new HashMap<>();
             String covid = "MATCH (d) return d";
             params.put("q", covid);
-            Result result =  tx.execute( "CALL example.indexRDF( $q )",params);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $q )",params);
         }
     }
 
@@ -56,7 +56,7 @@ public class VectorModelTest {
             String query = "hei lul influenza lul";
             params.put("query", query);
 
-            Result result =  tx.execute( "CALL example.vectorModelSearch( $query )",params);
+            Result result =  tx.execute( "CALL improvedSearch.vectorModelSearch( $query )",params);
             System.out.println(result.resultAsString());
 
             Result res = tx.execute("MATCH (n) return n");

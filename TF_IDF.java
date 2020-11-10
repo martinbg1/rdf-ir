@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.UserFunction;

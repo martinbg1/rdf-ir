@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import result.ResultNode;
 import keywords.CardKeyword;
@@ -25,7 +25,7 @@ public class BM25 {
     public GraphDatabaseService db;
 
     @Procedure
-    @Description("example.bm25Search(query) - returns bm25 query result")
+    @Description("improvedSearch.bm25Search(query) - returns bm25 query result")
     public Stream<ResultNode> bm25Search(@Name("fetch") String query) throws IOException{
         Map<Long, Double> result = new LinkedHashMap<>();
         // Query document

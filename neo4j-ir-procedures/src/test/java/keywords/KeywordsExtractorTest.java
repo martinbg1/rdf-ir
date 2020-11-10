@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 
-import static example.IndexRDF.idf;
+import static improvedSearch.IndexRDF.idf;
 
 public class KeywordsExtractorTest {
 

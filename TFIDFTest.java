@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 
 import org.junit.jupiter.api.BeforeAll;

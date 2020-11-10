@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 
 import org.junit.jupiter.api.AfterAll;
@@ -15,18 +15,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 
-public class IndexRDFFieldedTest {
+public class IndexRDFTest {
 
     private static Neo4j embeddedDatabaseServer;
 
     @BeforeAll
     static void initializeNeo4j() {
-        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(IndexRDFFielded.class)
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(IndexRDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
-                        "CREATE (d1:Disease {name:'covid hei', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
-                                "CREATE (d2:Disease {name:'influenza hei', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei', shit:'automobile'})" +
-                                "CREATE (d3:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids', shit:'automobile covids'})")
+                        "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
+                        "CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
+                        "CREATE (d3:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})")
                 .build();
     }
 
@@ -38,7 +38,7 @@ public class IndexRDFFieldedTest {
 
 
     @Test
-    public void shouldIndexFields() {
+    public void shouldCalculateTF_IDF() {
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
@@ -56,7 +56,7 @@ public class IndexRDFFieldedTest {
 
 //            Result testresult = tx.execute(covid);
 //            System.out.println(testresult.resultAsString());
-//            tx.execute("CREATE (d1:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
+            tx.execute("CREATE (d1:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
             tx.commit();
         }
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
@@ -64,9 +64,9 @@ public class IndexRDFFieldedTest {
             String covid = "MATCH (d) return d, d.altNames, d.description";
             params.put("covid", covid);
 
-            Result result =  tx.execute( "CALL example.indexRDFFielded( $covid )",params);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $covid )",params);
             System.out.println(result.resultAsString());
-
+            
             // check if result makes sense
 
             assertThat(true).isTrue();

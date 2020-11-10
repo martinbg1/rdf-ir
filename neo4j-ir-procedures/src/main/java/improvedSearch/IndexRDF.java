@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import keywords.Corpus;
 import keywords.Document;
@@ -23,8 +23,8 @@ public class IndexRDF {
     @Context
     public GraphDatabaseService db;
 
-    @Procedure(value = "example.indexRDF", mode = Mode.WRITE)
-    @Description("example.indexRDF(query) - return the tf-idf score for nodes")
+    @Procedure(value = "improvedSearch.indexRDF", mode = Mode.WRITE)
+    @Description("improvedSearch.indexRDF(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
         double documentLengthSum = 0.0  ;
         try(Transaction tx = db.beginTx()){

@@ -1,5 +1,6 @@
-package example;
+package improvedSearch;
 
+import keywords.Corpus;
 import keywords.CorpusFielded;
 import keywords.Document;
 import org.apache.commons.collections.map.HashedMap;
@@ -24,8 +25,8 @@ public class IndexRDFFielded {
     @Context
     public GraphDatabaseService db;
 
-    @Procedure(value = "example.indexRDFFielded", mode = Mode.WRITE)
-    @Description("example.indexRDFFielded(query) - return the tf-idf score for nodes")
+    @Procedure(value = "improvedSearch.indexRDFFielded", mode = Mode.WRITE)
+    @Description("improvedSearch.indexRDFFielded(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
         Map<String, Double> fieldLengthSum = new HashedMap();
         Map<String, Double> meanFieldLengths = new HashedMap();
@@ -66,23 +67,24 @@ public class IndexRDFFielded {
                 docFieldNames.put(node.getId(), tempArrayField);
             }
 
-                idf(docCollection);
-                Map<String, ArrayList<Document>> fieldNameCollection = new HashMap<>();
-                ArrayList<String> fieldNames = new ArrayList<>();
-                docCollection.forEach((k, v) -> {
+            idf(docCollection);
+            Map<String, ArrayList<Document>> fieldNameCollection = new HashMap<>();
+            ArrayList<String> fieldNames = new ArrayList<>();
+            docCollection.forEach((k, v) -> {
 
-                    String fieldName = "";
-                    for (int i = 0; i < docFieldNames.get(k).size(); i++) {
+                String fieldName = "";
+                for (int i = 0; i < docFieldNames.get(k).size(); i++) {
 
-                        fieldName = docFieldNames.get(k).get(i);
-                        fieldNames.add(fieldName);
-                        if (!fieldNameCollection.containsKey(fieldName)) {
-                            fieldNameCollection.put(fieldName, new ArrayList<>());
-                        }
-                        fieldNameCollection.get(fieldName).add(v.get(i));
+                    fieldName = docFieldNames.get(k).get(i);
+                    fieldNames.add(fieldName);
+                    if (!fieldNameCollection.containsKey(fieldName)) {
+                        fieldNameCollection.put(fieldName, new ArrayList<>());
                     }
+                    fieldNameCollection.get(fieldName).add(v.get(i));
+                }
             });
-            CorpusFielded corpus = new CorpusFielded(fieldNameCollection, fieldNames);
+            CorpusFielded fieldedCorpus = new CorpusFielded(fieldNameCollection, fieldNames);
+//            Corpus corpus = new Corpus()
 
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();
@@ -102,7 +104,6 @@ public class IndexRDFFielded {
                     writeFieldIndexNode(n, tx, docCollection);
                 });
             }
-            System.out.println(fieldNameCollection.keySet().toArray());
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));
 
             Map<String, Object> fieldParams = new HashedMap();
@@ -111,15 +112,15 @@ public class IndexRDFFielded {
             tx.execute("CREATE (n:IDF)");
             tx.execute("CREATE (n:DataStats)");
 
-            for (int i = 0; i < corpus.getSize(); i++) {
+            for (int i = 0; i < fieldedCorpus.getSize(); i++) {
 
                 Map<String, Object> params = new HashedMap();
-                String fieldName = corpus.getFieldName(i);
-                params.put("idf", corpus.getIdfByIndex(i).toArray());
-                params.put("corpus", corpus.getBoWByIndex(i).toArray());
+                String fieldName = fieldedCorpus.getFieldName(i);
+                params.put("idf", fieldedCorpus.getIdfByIndex(i).toArray());
+                params.put("fieldedCorpus", fieldedCorpus.getBoWByIndex(i).toArray());
                 params.put("meanLength", meanFieldLengths.get(fieldName));
 
-                tx.execute("MATCH (n:Corpus) SET n." + fieldName + "=$corpus", params);
+                tx.execute("MATCH (n:Corpus) SET n." + fieldName + "=$fieldedCorpus", params);
                 tx.execute("MATCH (n:IDF) SET n." + fieldName + "=$idf", params);
                 tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
                 }

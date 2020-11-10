@@ -32,9 +32,6 @@ public class IndexRDF {
 
             // Delete old index and initialize new
             tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
-            tx.execute("CREATE (n:Corpus)");
-            tx.execute("CREATE (n:IDF)");
-
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
@@ -45,18 +42,17 @@ public class IndexRDF {
             while (d_column.hasNext()) {
                 ArrayList<String> temp = new ArrayList<>();
                 Node node = d_column.next();
-                if (!node.getLabels().toString().equals("[Corpus]") && !node.getLabels().toString().equals("[IDF]")) {
-                    node.getAllProperties().forEach((k, v) -> {
-                        if (!k.equals("uri")) {
-                            temp.add((String) v);
-                        }
-                    });
 
-                    Document doc = new Document(temp.toString());
-                    docCollection.put(node.getId(), doc);
+                node.getAllProperties().forEach((k, v) -> {
+                    if (!k.equals("uri")) {
+                        temp.add((String) v);
+                    }
+                });
 
-                    documentLengthSum += doc.keywords.size();
-                }
+                Document doc = new Document(temp.toString());
+                docCollection.put(node.getId(), doc);
+
+                documentLengthSum += doc.keywords.size();
             }
 
             idf(docCollection);
@@ -71,9 +67,7 @@ public class IndexRDF {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    if (!n.getLabels().toString().equals("[Corpus]") && !n.getLabels().toString().equals("[IDF]")) {
-                        writeIndexNode(n, tx, docCollection);
-                    }
+                    writeIndexNode(n, tx, docCollection);
                 });
             }
             double meanDocumentLength = documentLengthSum / docCollection.size();
@@ -82,11 +76,12 @@ public class IndexRDF {
             params.put("corpus", corpus.getBoW().toArray());
             params.put("idf", corpus.getIdf());
             params.put("meanLength", meanDocumentLength);
+
+            tx.execute("CREATE (n:Corpus)");
+            tx.execute("CREATE (n:IDF)");
             tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", params);
             tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
             tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
-
-
 
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);

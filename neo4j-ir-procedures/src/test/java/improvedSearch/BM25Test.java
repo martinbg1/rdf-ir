@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,7 +35,7 @@ public class BM25Test {
             Map<String, Object> params = new HashMap<>();
             String covid = "MATCH (d) return d";
             params.put("q", covid);
-            Result result =  tx.execute( "CALL example.indexRDF( $q )",params);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $q )",params);
         }
     }
 
@@ -53,7 +53,7 @@ public class BM25Test {
             String query = "hei lul influenza";
             params.put("query", query);
 
-            Result result =  tx.execute( "CALL example.bm25Search( $query )",params);
+            Result result =  tx.execute( "CALL improvedSearch.bm25Search( $query )",params);
             System.out.println(result.resultAsString());
 
             Result res = tx.execute("MATCH (n) return n");

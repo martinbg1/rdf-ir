@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 
 import org.junit.jupiter.api.AfterAll;
@@ -64,7 +64,7 @@ public class IndexRDFTest {
             String covid = "MATCH (d) return d, d.altNames, d.description";
             params.put("covid", covid);
 
-            Result result =  tx.execute( "CALL example.indexRDF( $covid )",params);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $covid )",params);
             System.out.println(result.resultAsString());
             
             // check if result makes sense

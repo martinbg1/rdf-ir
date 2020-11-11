@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Entity;
@@ -18,8 +18,8 @@ public class GetNode {
     @Context
     public GraphDatabaseService db;
 
-    @Procedure(value ="example.properties")
-    @Description("example.nodes(node|id|[ids]) - goal: quickly returns all properties from nodes with with these ids")
+    @Procedure(value ="improvedSearch.properties")
+    @Description("improvedSearch.nodes(node|id|[ids]) - goal: quickly returns all properties from nodes with with these ids")
     public Stream<property> properties(@Name("node") long nodeId) {
         //Stream<Map> stream = Stream.empty();
         try(Transaction tx = db.beginTx()){

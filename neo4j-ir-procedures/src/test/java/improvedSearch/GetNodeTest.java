@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import org.junit.jupiter.api.AfterAll;
 //import org.junit.jupiter.api.Assertions;
@@ -38,7 +38,7 @@ public class GetNodeTest {
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String,Object> params = new HashMap<>();
             params.put( "nodeId", 0);
-            Result result = tx.execute( "CALL example.properties( $nodeId )", params);
+            Result result = tx.execute( "CALL improvedSearch.properties( $nodeId )", params);
             System.out.println(result.resultAsString());
             assertThat(true).isTrue();
             tx.commit();

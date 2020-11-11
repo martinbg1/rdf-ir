@@ -1,4 +1,4 @@
-package example;
+package improvedSearch;
 
 import result.ResultNode;
 import keywords.CardKeyword;
@@ -25,7 +25,7 @@ public class BM25 {
     public GraphDatabaseService db;
 
     @Procedure
-    @Description("example.bm25Search(query) - returns bm25 query result")
+    @Description("improvedSearch.bm25Search(query) - returns bm25 query result")
     public Stream<ResultNode> bm25Search(@Name("fetch") String query) throws IOException{
         Map<Long, Double> result = new LinkedHashMap<>();
         // Query document
@@ -38,7 +38,6 @@ public class BM25 {
             // retrieve mean document length
             double meanDocumentLength = (double) tx.execute("MATCH (n:DataStats) return n.meanDocumentLength").columnAs("n.meanDocumentLength").next();
 
-            // TODO endre return av indexnode til å bruke 'name' node isteden
             // fill result with a node and its corresponding BM25 score
             res.forEachRemaining(n -> result.put((Long)((Node) n).getProperty("name"), bm25Score(
                     (String[])((Node) n).getProperty("terms"),

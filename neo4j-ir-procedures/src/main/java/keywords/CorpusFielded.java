@@ -10,13 +10,15 @@ public class CorpusFielded {
     private Map<String, List<String>> BoW;
     private Map<String, ArrayList<Double>> idf;
     private ArrayList<String> fieldNames;
-    private int size;
+    private int corpusSize;
+    private int fieldSize;
 
     public CorpusFielded(Map<String, ArrayList<Document>> fields, ArrayList<String> fieldNames) {
         this.BoW = new HashedMap();
         this.idf = new HashedMap();
         this.fieldNames = fieldNames;
-        this.size = fields.size();
+        this.corpusSize = fields.size();
+        this.fieldSize = fieldNames.size();
 
         fields.forEach((k, Node) -> {
             if (!BoW.containsKey(k)) {
@@ -58,8 +60,12 @@ public class CorpusFielded {
         return this.fieldNames.get(i);
     }
 
-    public int getSize() {
-        return this.size;
+    public int getFieldSize() {
+        return this.fieldSize;
+    }
+
+    public int getCorpusSize() {
+        return this.corpusSize;
     }
 
 

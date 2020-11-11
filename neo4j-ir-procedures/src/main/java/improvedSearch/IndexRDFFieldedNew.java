@@ -1,5 +1,6 @@
 package improvedSearch;
 
+import keywords.Corpus;
 import keywords.CorpusFielded;
 import keywords.Document;
 import org.apache.commons.collections.map.HashedMap;
@@ -8,7 +9,7 @@ import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -19,14 +20,14 @@ import keywords.CardKeyword;
 import static dbUtil.indexWriter.writeFieldIndexNode;
 
 
-public class IndexRDFFielded {
+public class IndexRDFFieldedNew {
 
     @Context
     public GraphDatabaseService db;
 
-    @Procedure(value = "improvedSearch.indexRDFFielded", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDFFielded(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
+    @Procedure(value = "improvedSearch.indexRDFFieldedNew", mode = Mode.WRITE)
+    @Description("improvedSearch.indexRDFFieldedNew(query) - return the tf-idf score for nodes")
+    public Stream<EntityField> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
         Map<String, Double> fieldLengthSum = new HashedMap();
         Map<String, Double> meanFieldLengths = new HashedMap();
         try(Transaction tx = db.beginTx()){
@@ -64,7 +65,6 @@ public class IndexRDFFielded {
                 });
                 docCollection.put(node.getId(), tempArrayDocument);
                 docFieldNames.put(node.getId(), tempArrayField);
-
             }
 
             idf(docCollection);
@@ -84,6 +84,7 @@ public class IndexRDFFielded {
                 }
             });
             CorpusFielded fieldedCorpus = new CorpusFielded(fieldNameCollection, fieldNames);
+//            Corpus corpus = new Corpus()
 
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();
@@ -111,13 +112,17 @@ public class IndexRDFFielded {
             tx.execute("CREATE (n:DataStats)");
 
             for (int i = 0; i < fieldedCorpus.getFieldSize(); i++) {
+
                 Map<String, Object> params = new HashedMap();
                 String fieldName = fieldedCorpus.getFieldName(i);
                 params.put("fieldedCorpus", fieldedCorpus.getBoWByIndex(i).toArray());
                 params.put("meanLength", meanFieldLengths.get(fieldName));
+
                 tx.execute("MATCH (n:Corpus) SET n." + fieldName + "=$fieldedCorpus", params);
                 tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
             }
+
+
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
         }
@@ -137,29 +142,35 @@ public class IndexRDFFielded {
 
 
     public static void idf(Map<Long, ArrayList<Document>> docs) {
-        int size = docs.size();
         docs.forEach((k, d) -> {
             for (ArrayList<Document> nodes : docs.values()) {
                 for (Document field : nodes) {
+                    AtomicInteger size = new AtomicInteger(0);
+                    for (ArrayList<Document> nodesToCompare : docs.values()) {
+                        for (Document fieldsToCompare : nodesToCompare) {
+                            if (field.getFieldName().equals(fieldsToCompare.getFieldName())) {
+                                size.getAndIncrement();
+                            }
+                        }
+                    }
 
-                    // TODO Sjekk om keyword er allerede gått gjennom. Kan lage nytt map<String, double> (stem -> wordcount)
                     for(CardKeyword keyword : field.keywords) {
                         AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
                         docs.forEach((k2, d2) -> {
-                            AtomicBoolean alreadyChecked = new AtomicBoolean(false);
                             for (Document fieldToCompare : d2) {
                                 Map<String, Integer> tempMap = fieldToCompare.getWordCountMap();
-                                if (!alreadyChecked.get() && tempMap.containsKey(keyword.getStem())) {
+                                if (field.getFieldName().equals(fieldToCompare.getFieldName()) && tempMap.containsKey(keyword.getStem())) {
                                     wordCount.getAndSet(wordCount.get() + 1);
-                                    alreadyChecked.set(true);
                                 }
                             }
+
                         });
 
-                        double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
+                        double idf = Math.log(size.get() / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
                         keyword.setIdf(idf);
                     }
                 }
+
             }
         });
     }

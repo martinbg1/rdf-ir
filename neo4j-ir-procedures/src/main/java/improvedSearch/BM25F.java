@@ -76,7 +76,6 @@ public class BM25F {
 
     public double tfField(int length, double avgL, int occurrence){
         double b = 0.75;
-        // TODO fiks sånn at det fungerer med fields som ikke er i alle noder
         return occurrence/(1+b*((length/avgL)-1));
     }
 
@@ -87,8 +86,7 @@ public class BM25F {
             if(Arrays.asList(v).contains(qkw.getStem())) {
                 int tempOccurrence = occurrence.get(k)[termPosition.get(k).get(qkw.getStem())];
 
-                // TODO legge inn (Double) fieldAvgLength.get(k) for avgLength
-                double tfField = tfField(length.get(k), 12, tempOccurrence);
+                double tfField = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence);
 
                 sum.updateAndGet(v1 -> (v1 + boost * tfField));
             }

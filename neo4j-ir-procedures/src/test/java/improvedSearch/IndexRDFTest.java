@@ -52,10 +52,6 @@ public class IndexRDFTest {
                     " Cakes can also be filled with fruit preserves, nuts or dessert sauces (like pastry cream), iced with buttercream or other icings," +
                     " and decorated with marzipan, piped borders, or candied fruit.";
             params.put("text", text);
-//            String covid = "MATCH (d:Disease) where d.name='covid' return d.altNames, d.desc";
-
-//            Result testresult = tx.execute(covid);
-//            System.out.println(testresult.resultAsString());
             tx.execute("CREATE (d1:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})");
             tx.commit();
         }
@@ -68,7 +64,6 @@ public class IndexRDFTest {
             System.out.println(result.resultAsString());
             
             // check if result makes sense
-
             assertThat(true).isTrue();
         }
 

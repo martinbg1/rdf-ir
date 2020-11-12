@@ -3,10 +3,14 @@ package improvedSearch;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.neo4j.codegen.bytecode.While;
 import org.neo4j.graphdb.Result;
 import org.neo4j.harness.Neo4j;
 import org.neo4j.harness.Neo4jBuilders;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,12 +26,9 @@ public class BM25Test {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(BM25.class).withProcedure(IndexRDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
-                        "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er '})" +
-                                "CREATE (d2:Disease {name:'influenza', description:'influenza hei. veldig godt', altNames:'lol, name, influenza influenzas hei'})" +
-                                "CREATE (d3:Disease {name:'lul', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})"
-//                        "CREATE (q:Disease {q:'influenza veldig blabla hei godt'})"
-//                                "CREATE (i:TFIDF {_0:['[0.0, 1.7548875021634687, 0.0, 1.5849625007211563, 1.5849625007211563, 1.5849625007211563, 0.5849625007211562, 1.5849625007211563, 1.5849625007211563]','{covid=0.5849625007211562, kake=1.5849625007211563, mass=1.5849625007211563, name=0.0, godt=0.5849625007211562, tekst=1.5849625007211563, blabla=1.5849625007211563, hei=0.0, er=1.5849625007211563}'],_1:['[6.339850002884625, 0.0, 0.5849625007211562, 0.0, 1.5849625007211563, 0.5849625007211562]','{influenza=1.5849625007211563, lol=0.5849625007211562, name=0.0, veldig=1.5849625007211563, godt=0.5849625007211562, hei=0.0}'],_3:['[0.0, 0.0, 1.1699250014423124, 3.1699250014423126, 1.1699250014423124, 1.5849625007211563, 1.5849625007211563, 1.5849625007211563]','{covid=0.5849625007211562, lul=1.5849625007211563, lel=1.5849625007211563, ahaha=1.5849625007211563, name=0.0, lol=0.5849625007211562, automobil=1.5849625007211563, hei=0.0}']})"
-//                                "CREATE (i:TFIDF {vec_3:[0.0,0.0,1.1699250014423124,3.1699250014423126,1.1699250014423124,1.5849625007211563,1.5849625007211563,1.5849625007211563],vec_1:[6.339850002884625,0.0,0.5849625007211562,0.0,1.5849625007211563,0.5849625007211562],idf_3:'{covid=0.5849625007211562, lul=1.5849625007211563, lel=1.5849625007211563, ahaha=1.5849625007211563, name=0.0, lol=0.5849625007211562, automobil=1.5849625007211563, hei=0.0}',idf_0:'{covid=0.5849625007211562, kake=1.5849625007211563, mass=1.5849625007211563, name=0.0, godt=0.5849625007211562, tekst=1.5849625007211563, blabla=1.5849625007211563, hei=0.0, er=1.5849625007211563}',vec_0:[0.0,1.7548875021634687,0.0,1.5849625007211563,1.5849625007211563,1.5849625007211563,0.5849625007211562,1.5849625007211563,1.5849625007211563],idf_1:'{influenza=1.5849625007211563, lol=0.5849625007211562, name=0.0, veldig=1.5849625007211563, godt=0.5849625007211562, hei=0.0}'})"
+                        "CREATE (d1:Doc {field1:'cat dog blue cat red'})" +
+                                "CREATE (d2:Doc {field1:'green blue blue rat'})" +
+                                "CREATE (d3:Doc {field1:'dog rat'})"
                 )
                 .build();
 
@@ -50,18 +51,29 @@ public class BM25Test {
     public void shouldReturnQueryResult() {
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
-            String query = "hei lul influenza";
+            String query = "green dog rat";
             params.put("query", query);
 
             Result result =  tx.execute( "CALL improvedSearch.bm25Search( $query )",params);
-            System.out.println(result.resultAsString());
+            double[] expectedResult = new double[] {2.092, 1.437, 0.509};
+
+            int resI = 0;
+            DecimalFormat df = new DecimalFormat("#.###");
+            while (result.hasNext()) {
+                double score = (double) result.next().get("score");
+                double v = df.parse(df.format(score)).doubleValue();
+                assertThat(v).isEqualTo(expectedResult[resI]);
+                resI++;
+            }
+
+            Result resultToPrint =  tx.execute( "CALL improvedSearch.bm25Search( $query )",params);
+            System.out.println(resultToPrint.resultAsString());
 
             Result res = tx.execute("MATCH (n) return n");
             System.out.println(res.resultAsString());
 
-            // check if result makes sense
-
-            assertThat(true).isTrue();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 

@@ -78,7 +78,8 @@ public class BM25 {
             if(Arrays.asList(docTerms).contains(kw.getStem())){
                 double tempIdf = idf[termPosition.get(kw.getStem())];
                 int tempTf = tf[termPosition.get(kw.getStem())];
-                sum += tempIdf*(tempTf*(k1+1)/tempTf+k1*(1-b+(b*(dl/avgDl))));
+                sum += tempIdf*((tempTf*(k1+1))/(tempTf+k1*(1-b+(b*(dl/avgDl)))));
+
             }
         }
         return sum;

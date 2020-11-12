@@ -15,6 +15,7 @@ import result.ResultNode;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -113,16 +114,22 @@ public class BM25F {
 
         for(CardKeyword qkw : query.keywords){
             AtomicReference<Double> tempIdf = new AtomicReference<>(0.0);
+            AtomicBoolean alreadyChecked = new AtomicBoolean(false);
 
+            AtomicReference<Double> tf = new AtomicReference<>((double) 0);
             terms.forEach((k,v)->{
 
                 if(Arrays.asList(v).contains(qkw.getStem())) {
                     double[] idfField = (double[]) idf.get(k);
                     tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(qkw.getStem())]);
+                    tf.set(tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition, fieldNames));
                 }
-                double tf = tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition, fieldNames);
-                sum.updateAndGet(v1 -> (v1 + tempIdf.get() * (tf / (tf + k1))));
+
             });
+            if (!alreadyChecked.get()) {
+                alreadyChecked.set(true);
+                sum.updateAndGet(v1 -> (v1 + tempIdf.get() * (tf.get() / (tf.get() + k1))));
+            }
         }
         return sum.get();
     }

@@ -42,4 +42,32 @@ public class ResultUtil {
         }
         return nodeMap;
     }
+
+    public static Map<String, Double> sortResultInfo(Map<Long, Double> result, GraphDatabaseService db, int topN) {
+        // Sort result list based on cosine similarity
+        List<Map.Entry<Long, Double>> sortedResult = new ArrayList<>(result.entrySet());
+        sortedResult.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+
+        // to store result node and bm25 score
+        Map<String, Double> nodeMap = new LinkedHashMap<>();
+        // to store top n results
+        List<Map.Entry<Long, Double>> topRes;
+
+        try(Transaction tx1 = db.beginTx()){
+            // return top 5 results if possible
+            if (sortedResult.size() > topN) {
+                topRes = sortedResult.subList(0, topN);
+            } else {
+                topRes = sortedResult;
+            }
+            // loop through top results and query result Node
+            for(Map.Entry<Long, Double> entry : topRes){
+                HashMap<String, Object> params = new HashMap();
+                params.put("nodeId", entry.getKey());
+                Node tempNode = (Node)(tx1.execute("MATCH (n) WHERE ID(n) =$nodeId return n", params).columnAs("n").next());
+                nodeMap.put(tempNode.getAllProperties().toString(), entry.getValue());
+            }
+        }
+        return nodeMap;
+    }
 }

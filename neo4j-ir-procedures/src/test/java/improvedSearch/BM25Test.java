@@ -3,12 +3,10 @@ package improvedSearch;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.neo4j.codegen.bytecode.While;
 import org.neo4j.graphdb.Result;
 import org.neo4j.harness.Neo4j;
 import org.neo4j.harness.Neo4jBuilders;
 
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -26,17 +24,17 @@ public class BM25Test {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(BM25.class).withProcedure(IndexRDF.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
-                        "CREATE (d1:Doc {field1:'cat dog blue cat red'})" +
-                                "CREATE (d2:Doc {field1:'green blue blue rat'})" +
-                                "CREATE (d3:Doc {field1:'dog rat'})"
+                        "CREATE (d1:Doc {field1:'cat dog blue', field2:'cat red'})" +
+                        "CREATE (d2:Doc {field1:'green', field2:'blue blue rat'})" +
+                        "CREATE (d3:Doc {field1:'dog rat'})"
                 )
                 .build();
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
-            String covid = "MATCH (d) return d";
-            params.put("q", covid);
-            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $q )",params);
+            String nodes = "MATCH (d) return d";
+            params.put("n", nodes);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $n )", params);
         }
     }
 

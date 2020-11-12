@@ -1,5 +1,6 @@
 package improvedSearch;
 
+import result.ResultInfo;
 import result.ResultNode;
 import keywords.CardKeyword;
 import keywords.Document;
@@ -18,6 +19,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static result.ResultUtil.sortResult;
+import static result.ResultUtil.sortResultInfo;
 
 
 public class BM25 {
@@ -26,7 +28,7 @@ public class BM25 {
 
     @Procedure
     @Description("improvedSearch.bm25Search(query) - returns bm25 query result")
-    public Stream<ResultNode> bm25Search(@Name("fetch") String query) throws IOException{
+    public Stream<ResultInfo> bm25Search(@Name("fetch") String query) throws IOException{
         Map<Long, Double> result = new LinkedHashMap<>();
         // Query document
         Document qDoc = new Document(query);
@@ -46,11 +48,11 @@ public class BM25 {
                     (int)((Node) n).getProperty("dl"),
                     meanDocumentLength,
                     qDoc)));
-        }
 
-        Map<Node, Double> nodeMap = sortResult(result, db, 10);
-        return nodeMap.entrySet().stream().map(ResultNode::new);
-    }
+            };
+            Map<String, Double> nodeMap = sortResultInfo(result, db, 10);
+            return nodeMap.entrySet().stream().map(ResultInfo::new);
+        }
 
 
     // math for bm25

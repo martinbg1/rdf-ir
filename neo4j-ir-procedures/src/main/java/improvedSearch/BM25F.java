@@ -48,8 +48,8 @@ public class BM25F {
                 Map<String, Object> properties = node.getAllProperties();
 
                 Map<String,String[]> terms = new HashedMap();
-                Map<String,int[]> TF = new HashedMap();
-                Map<String,double[]> IDF = new HashedMap();
+                HashedMap TF = new HashedMap();
+                HashedMap IDF = new HashedMap();
                 Map<String,Integer> fieldLength = new HashedMap();
 
                 properties.forEach((k,v) ->{
@@ -57,13 +57,13 @@ public class BM25F {
                         terms.put(removeSuffix(k,"Terms"),(String[])v);
                     }
                     else if(k.endsWith("TF")){
-                        TF.put(removeSuffix(k,"TF"),(int[])v);
+                        TF.put(removeSuffix(k,"TF"), v);
                     }
                     else if(k.endsWith("IDF")){
-                        IDF.put(removeSuffix(k,"IDF"),(double[])v);
+                        IDF.put(removeSuffix(k,"IDF"), v);
                     }
                     else if(k.endsWith("Length")){
-                        fieldLength.put(removeSuffix(k,"Length"),(int)v);
+                        fieldLength.put(removeSuffix(k,"Length"),(int) v);
                     }
                 });
                 result.put((Long)node.getProperty("ref"),bm25fScore(terms, TF, IDF, fieldLength,fieldAvgLength, fieldNames,qDoc));
@@ -79,22 +79,23 @@ public class BM25F {
         return occurrence/(1+b*((length/avgL)-1));
     }
 
-    public double tf(CardKeyword qkw, Map<String, String[]> terms, Map<String,int[]> occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition, String[] fieldNames){
+    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition, String[] fieldNames){
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
 
         terms.forEach((k,v)->{
             if(Arrays.asList(v).contains(qkw.getStem())) {
-                int tempOccurrence = occurrence.get(k)[termPosition.get(k).get(qkw.getStem())];
+                int[] tfField = (int[]) occurrence.get(k);
+                int tempOccurrence = tfField[termPosition.get(k).get(qkw.getStem())];
 
-                double tfField = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence);
+                double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence);
 
-                sum.updateAndGet(v1 -> (v1 + boost * tfField));
+                sum.updateAndGet(v1 -> (v1 + boost * tfFieldScore));
             }
         });
         return sum.get();
     }
 
-    public double bm25fScore(Map<String, String[]> terms, Map<String,int[]> occurrence, Map<String,double[]> idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
+    public double bm25fScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
         double k1 = 1.2;
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value
@@ -116,7 +117,8 @@ public class BM25F {
             terms.forEach((k,v)->{
 
                 if(Arrays.asList(v).contains(qkw.getStem())) {
-                    tempIdf.getAndSet(idf.get(k)[fieldTermPosition.get(k).get(qkw.getStem())]);
+                    double[] idfField = (double[]) idf.get(k);
+                    tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(qkw.getStem())]);
                 }
                 double tf = tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition, fieldNames);
                 sum.updateAndGet(v1 -> (v1 + tempIdf.get() * (tf / (tf + k1))));

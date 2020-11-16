@@ -138,24 +138,29 @@ public class IndexRDFFielded {
 
     public static void idf(Map<Long, ArrayList<Document>> docs) {
         int size = docs.size();
+        Map<String, Double> checkedStems = new HashMap<>();
         docs.forEach((k, d) -> {
             for (ArrayList<Document> nodes : docs.values()) {
                 for (Document field : nodes) {
 
-                    // TODO Sjekk om keyword er allerede gått gjennom. Kan lage nytt map<String, double> (stem -> wordcount)
                     for(CardKeyword keyword : field.keywords) {
                         AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
-                        docs.forEach((k2, d2) -> {
-                            AtomicBoolean alreadyChecked = new AtomicBoolean(false);
-                            for (Document fieldToCompare : d2) {
-                                Map<String, Integer> tempMap = fieldToCompare.getWordCountMap();
-                                if (!alreadyChecked.get() && tempMap.containsKey(keyword.getStem())) {
-                                    wordCount.getAndSet(wordCount.get() + 1);
-                                    alreadyChecked.set(true);
+                        if (checkedStems.containsKey(keyword.getStem())) {
+                            wordCount.getAndSet(checkedStems.get(keyword.getStem()));
+                        }
+                        else {
+                            docs.forEach((k2, d2) -> {
+                                AtomicBoolean alreadyChecked = new AtomicBoolean(false);
+                                for (Document fieldToCompare : d2) {
+                                    Map<String, Integer> tempMap = fieldToCompare.getWordCountMap();
+                                    if (!alreadyChecked.get() && tempMap.containsKey(keyword.getStem())) {
+                                        wordCount.getAndSet(wordCount.get() + 1);
+                                        alreadyChecked.set(true);
+                                    }
                                 }
-                            }
-                        });
-
+                            });
+                            checkedStems.put(keyword.getStem(), wordCount.get());
+                        }
                         double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
                         keyword.setIdf(idf);
                     }

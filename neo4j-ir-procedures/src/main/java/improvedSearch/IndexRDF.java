@@ -26,12 +26,12 @@ public class IndexRDF {
     @Procedure(value = "improvedSearch.indexRDF", mode = Mode.WRITE)
     @Description("improvedSearch.indexRDF(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
-        double documentLengthSum = 0.0  ;
+        double documentLengthSum = 0.0;
         try(Transaction tx = db.beginTx()){
             Map<Long, Document> docCollection = new HashedMap();
 
             // Delete old index and initialize new
-            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
+            // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
@@ -77,11 +77,10 @@ public class IndexRDF {
             params.put("idf", corpus.getIdf());
             params.put("meanLength", meanDocumentLength);
 
-            tx.execute("CREATE (n:Corpus)");
             tx.execute("CREATE (n:IDF)");
-            tx.execute("MATCH (n:Corpus) SET n.corpus=$corpus", params);
+            tx.execute("MERGE (n:Corpus) ON CREATE SET n.corpus=$corpus ON MATCH SET n.corpus=$corpus", params);
             tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
-            tx.execute("CREATE (n:DataStats {meanDocumentLength: $meanLength})", params);
+            tx.execute("MERGE (n:DataStats) ON CREATE SET n.meanDocumentLength= $meanLength ON MATCH SET n.meanDocumentLength= $meanLength", params);
 
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
@@ -100,7 +99,8 @@ public class IndexRDF {
         }
     }
 
-
+    // Calculate the idf score for every document.
+    // Takes in a Map with NodeId(Long) and a Document consisting of every field as one string
     public static void idf(Map<Long, Document> docs) {
         int size = docs.size();
         docs.forEach((k, d) -> {

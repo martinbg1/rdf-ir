@@ -7,6 +7,9 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.harness.Neo4j;
 import org.neo4j.harness.Neo4jBuilders;
 
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,9 +25,9 @@ public class BM25FTest {
         embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(BM25F.class).withProcedure(IndexRDFFielded.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
-                        "CREATE (d1:Disease {name:'covid', description:'blabla, hei hei hei, kake er godt, masse tekst.', altNames:'name,name,name covid, covids', uri:'klokke, hei hei hei, kake er ', test:'automobile'})" +
-                                "CREATE (d2:Disease {name:'influenza', description:'lul hei. veldig godt', altNames:'lol, name, influenza influenzas hei', _test: 'martin'})" +
-                                "CREATE (d3:Disease {name:'lul influenza', description:'lol, hei hei hei, lol lul lel ahaha', altNames:'automobile, name,name covid, covids'})"
+                        "CREATE (d1:Doc {field1:'cat dog blue', field2:'cat red'})" +
+                        "CREATE (d2:Doc {field1:'green', field2:'blue blue rat'})" +
+                        "CREATE (d3:Doc {field1:'dog rat'})"
                 )
                 .build();
 
@@ -32,7 +35,7 @@ public class BM25FTest {
             Map<String, Object> params = new HashMap<>();
             String nodes = "MATCH (d) return d";
             params.put("n", nodes);
-            Result result =  tx.execute( "CALL improvedSearch.indexRDFFielded( $n )",params);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDFFielded( $n )", params);
         }
     }
 
@@ -47,19 +50,30 @@ public class BM25FTest {
     public void shouldReturnQueryResult() {
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
-            String query = "influenza automobile";
+            String query = "blue cat rat";
             params.put("query", query);
 
             Result result =  tx.execute( "CALL improvedSearch.bm25fSearch( $query )",params);
-            System.out.println(result.resultAsString());
+            double[] expectedResult = new double[] {1.193, 0.592, 0.266};
+
+            int resI = 0;
+            DecimalFormat df = new DecimalFormat("#.###");
+            while (result.hasNext()) {
+                double score = (double) result.next().get("score");
+                double v = df.parse(df.format(score)).doubleValue();
+                assertThat(v).isEqualTo(expectedResult[resI]);
+                resI++;
+            }
+
+            Result resultToPrint =  tx.execute( "CALL improvedSearch.bm25fSearch( $query )",params);
+            System.out.println(resultToPrint.resultAsString());
 
             Result res = tx.execute("MATCH (n) return n");
             System.out.println(res.resultAsString());
 
-            // check if result makes sense
 
-            assertThat(true).isTrue();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
-
 }

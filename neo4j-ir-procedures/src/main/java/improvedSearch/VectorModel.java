@@ -40,7 +40,7 @@ public class VectorModel {
                 String[] indexTerms = (String[]) tempNode.getProperty("terms");
                 int[] indexTF = (int[]) tempNode.getProperty("tf");
                 double[] indexIDF = (double[]) tempNode.getProperty("idf");
-                Long nodeID = (Long) tempNode.getProperty("name");
+                Long nodeID = (Long) tempNode.getProperty("ref");
                 double[] documentVector = setDocumentVector(queryDoc, indexTerms, indexTF, indexIDF);
 
                 result.put(nodeID, cosineSimilarity(queryDoc.getVector(), documentVector));

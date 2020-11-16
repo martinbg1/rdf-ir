@@ -11,6 +11,7 @@ import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
+import result.ResultInfo;
 import result.ResultNode;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static result.ResultUtil.sortResult;
+import static result.ResultUtil.sortResultInfo;
 
 public class BM25F {
     @Context
@@ -27,7 +29,7 @@ public class BM25F {
 
     @Procedure
     @Description("improvedSearch.bm25fSearch(query) - returns bm25f query result")
-    public Stream<ResultNode> bm25fSearch(@Name("fetch") String query) throws IOException {
+    public Stream<ResultInfo> bm25fSearch(@Name("fetch") String query) throws IOException {
         Map<Long, Double> result = new LinkedHashMap<>();
         // Query document
         Document qDoc = new Document(query);
@@ -71,8 +73,8 @@ public class BM25F {
             }
         }
 
-        Map<Node, Double> nodeMap = sortResult(result, db, 10);
-        return nodeMap.entrySet().stream().map(ResultNode::new);
+        Map<String, Double> nodeMap = sortResultInfo(result, db, 10);
+        return nodeMap.entrySet().stream().map(ResultInfo::new);
     }
 
     public double tfField(int length, double avgL, int occurrence){

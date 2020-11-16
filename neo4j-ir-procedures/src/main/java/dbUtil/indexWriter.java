@@ -39,9 +39,9 @@ public class indexWriter {
         params.put("terms", terms.toArray());
         params.put("idf", idf.toArray());
         params.put("tf", tf.toArray());
-        params.put("name", node.getId());
+        params.put("ref", node.getId());
 
-        tx.execute("CREATE (n:indexNode {name: $name, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", params);
+        tx.execute("CREATE (n:indexNode {ref: $ref, dl:$documentLength, terms: $terms, idf: $idf, tf: $tf})", params);
     }
 
 
@@ -50,7 +50,7 @@ public class indexWriter {
             if (ref.equals(node.getId())) {
                 HashMap<String, Object> params = new HashMap();
                 params.put("ref", node.getId());
-                tx.execute("CREATE (n:indexNode {ref: $ref})", params);
+                tx.execute("CREATE (n:fieldIndexNode {ref: $ref})", params);
 
                 for (Document field : doc) {
                     String fieldName = field.getFieldName();
@@ -71,7 +71,8 @@ public class indexWriter {
                     paramsField.put("tf", tf.toArray());
                     paramsField.put("ref", ref);
 
-                    tx.execute("MATCH (n:indexNode)" +
+
+                    tx.execute("MATCH (n:fieldIndexNode)" +
                             "WHERE n.ref=$ref SET " +
                             "n." + fieldName + "Terms=$terms," +
                             "n." + fieldName + "IDF=$idf," +

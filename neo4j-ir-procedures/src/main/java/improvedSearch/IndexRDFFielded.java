@@ -35,18 +35,18 @@ public class IndexRDFFielded {
             Map<Long, ArrayList<String>> docFieldNames = new HashedMap();
 
             // Delete old index and initialize new
-            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
+            // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
-            Iterator<Node> d_column = res.columnAs("d");
+            Iterator<Node> d_column_fielded = res.columnAs("d");
 
             // TODO handle null values
             // process terms
-            while (d_column.hasNext()) {
+            while (d_column_fielded.hasNext()) {
                 ArrayList<Document> tempArrayDocument = new ArrayList<>();
                 ArrayList<String> tempArrayField = new ArrayList<>();
-                Node node = d_column.next();
+                Node node = d_column_fielded.next();
                 node.getAllProperties().forEach((k, v) -> {
                     if (!k.equals("uri")) {
                         try {
@@ -107,16 +107,13 @@ public class IndexRDFFielded {
 
             Map<String, Object> fieldParams = new HashedMap();
             fieldParams.put("fieldName", fieldNameCollection.keySet().toArray());
-            tx.execute("CREATE (n:Corpus {fieldName: $fieldName})", fieldParams);
-            tx.execute("CREATE (n:DataStats)");
+            tx.execute("MERGE (n:Corpus) ON CREATE SET n.fieldName= $fieldName ON MATCH SET n.fieldName= $fieldName", fieldParams);
 
             for (int i = 0; i < fieldedCorpus.getFieldSize(); i++) {
                 Map<String, Object> params = new HashedMap();
                 String fieldName = fieldedCorpus.getFieldName(i);
-                params.put("fieldedCorpus", fieldedCorpus.getBoWByIndex(i).toArray());
                 params.put("meanLength", meanFieldLengths.get(fieldName));
-                tx.execute("MATCH (n:Corpus) SET n." + fieldName + "=$fieldedCorpus", params);
-                tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
+                tx.execute("MERGE (n:DataStats) ON CREATE SET n." + fieldName + "=$meanLength ON MATCH SET n." + fieldName + "=$meanLength", params);
             }
             tx.commit();
             return result.entrySet().stream().map(EntityField::new);
@@ -135,7 +132,8 @@ public class IndexRDFFielded {
         }
     }
 
-
+    // Calculate the idf score for every field.
+    // Takes in a Map with NodeId(Long) and ArrayList of Fields
     public static void idf(Map<Long, ArrayList<Document>> docs) {
         int size = docs.size();
         Map<String, Double> checkedStems = new HashMap<>();

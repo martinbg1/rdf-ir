@@ -36,7 +36,7 @@ public class BM25F {
 
         try(Transaction tx = db.beginTx()) {
             // get all indexNodes for fields with (terms, idf, tf og fl)
-            ResourceIterator<Object> res = tx.execute("MATCH (n:indexNode) return n").columnAs("n");
+            ResourceIterator<Object> res = tx.execute("MATCH (n:fieldIndexNode) return n").columnAs("n");
 
 
             // retrieve mean field length

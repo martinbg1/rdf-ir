@@ -52,7 +52,7 @@ public class IndexRDF {
                 Document doc = new Document(temp.toString());
                 docCollection.put(node.getId(), doc);
 
-                documentLengthSum += doc.keywords.size();
+                documentLengthSum += doc.getDocLength();
             }
 
             idf(docCollection);

@@ -10,6 +10,7 @@ public class Document {
     private HashMap<String, Integer> wordCountMap;
     private double[] vector;
     private String fieldName;
+    private int docLength;
 
     public Document(String field) throws IOException {
         this.keywords = KeywordsExtractor.getKeywordsList(field);
@@ -18,6 +19,8 @@ public class Document {
         for (CardKeyword keyword : this.keywords) {
             this.wordCountMap.put(keyword.getStem(), keyword.getFrequency());
         }
+        this.docLength = this.wordCountMap.values().stream().reduce(0, Integer::sum);
+
     }
 
     public Document(String field, String fieldName) throws IOException {
@@ -28,6 +31,7 @@ public class Document {
         for (CardKeyword keyword : this.keywords) {
             this.wordCountMap.put(keyword.getStem(), keyword.getFrequency());
         }
+        this.docLength = this.wordCountMap.values().stream().reduce(0, Integer::sum);
     }
 
 
@@ -53,6 +57,10 @@ public class Document {
 
     public String getFieldName() {
         return this.fieldName;
+    }
+
+    public int getDocLength() {
+        return this.docLength;
     }
 
     public String[] toStringArray(){

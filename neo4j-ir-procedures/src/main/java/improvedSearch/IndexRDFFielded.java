@@ -56,7 +56,7 @@ public class IndexRDFFielded {
                             if (!fieldLengthSum.containsKey(k)) {
                                 fieldLengthSum.put(k, 0.0);
                             }
-                            fieldLengthSum.put(k, fieldLengthSum.get(k) + field.keywords.size());
+                            fieldLengthSum.put(k, fieldLengthSum.get(k) + field.getDocLength());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

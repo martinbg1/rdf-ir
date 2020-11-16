@@ -35,7 +35,7 @@ public class indexWriter {
 
 
         HashMap<String, Object> params = new HashMap();
-        params.put("documentLength", doc.keywords.size());
+        params.put("documentLength", doc.getDocLength());
         params.put("terms", terms.toArray());
         params.put("idf", idf.toArray());
         params.put("tf", tf.toArray());
@@ -65,7 +65,7 @@ public class indexWriter {
                     field.keywords.forEach((k) ->tf.add(k.getFrequency()));
 
                     HashMap<String, Object> paramsField = new HashMap();
-                    paramsField.put("fieldLength", field.keywords.size());
+                    paramsField.put("fieldLength", field.getDocLength());
                     paramsField.put("terms", terms.toArray());
                     paramsField.put("idf", idf.toArray());
                     paramsField.put("tf", tf.toArray());

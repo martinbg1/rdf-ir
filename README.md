@@ -21,6 +21,8 @@ cd neo4j-ir-procedures
 mvn clean package
 ```
 
+This will produce a jar-file, `target/neo4j-ir-procedures-1.0.0-SNAPSHOT.jar`, that can be deployed in the plugin directory of your Neo4j instance.
+
 ### Procedures
 
 Index variants and the procedure to run:
@@ -46,9 +48,6 @@ Ranking models and the procedure to run query:
     - `CALL improvedSearch.bm25fSearch("<query-terms>")`
 
 
-
-
-This will produce a jar-file, `target/neo4j-ir-procedures-1.0.0-SNAPSHOT.jar`, that can be deployed in the plugin directory of your Neo4j instance.
 ## Search Engine Web Application
 The web application can be found in the [`WebApp`](https://github.com/martinbg1/rdf-ir/tree/master/WebApp) directory.
 

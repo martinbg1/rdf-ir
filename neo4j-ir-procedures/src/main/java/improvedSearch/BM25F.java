@@ -12,7 +12,6 @@ import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
 import result.ResultInfo;
-import result.ResultNode;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,12 +19,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static result.ResultUtil.sortResult;
 import static result.ResultUtil.sortResultInfo;
 
 public class BM25F {
     @Context
     public GraphDatabaseService db;
+
+    // static field to manage what term a query keyword compared to. This is needed because we use startsWith instead of
+    // equals so we cannot guarantee that the CURRENT_TERM and query keyword is exactly the same
+    private static String CURRENT_TERM;
 
     @Procedure
     @Description("improvedSearch.bm25fSearch(query) - returns bm25f query result")
@@ -86,9 +88,9 @@ public class BM25F {
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
 
         terms.forEach((k,v)->{
-            if(Arrays.asList(v).contains(qkw.getStem())) {
+            if(termsStartsWith(v, qkw.getStem())) {
                 int[] tfField = (int[]) occurrence.get(k);
-                int tempOccurrence = tfField[termPosition.get(k).get(qkw.getStem())];
+                int tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
 
                 double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence);
 
@@ -121,9 +123,9 @@ public class BM25F {
             AtomicReference<Double> tf = new AtomicReference<>((double) 0);
             terms.forEach((k,v)->{
 
-                if(Arrays.asList(v).contains(qkw.getStem())) {
+                if(termsStartsWith(v, qkw.getStem())) {
                     double[] idfField = (double[]) idf.get(k);
-                    tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(qkw.getStem())]);
+                    tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(CURRENT_TERM)]);
                     tf.set(tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition, fieldNames));
                 }
 
@@ -136,11 +138,22 @@ public class BM25F {
         return sum.get();
     }
 
-    public static String removeSuffix(final String s, final String suffix) {
+    private static String removeSuffix(final String s, final String suffix) {
         if (s != null && suffix != null && s.endsWith(suffix)){
             return s.substring(0, s.length() - suffix.length());
         }
         return s;
+    }
+
+    private static boolean termsStartsWith(String[] terms, String queryKeyword) {
+        for (String s: terms) {
+            if (s.startsWith(queryKeyword)) {
+                // update CURRENT_TERM return true
+                CURRENT_TERM = s;
+                return true;
+            }
+        }
+        return false;
     }
 
 }

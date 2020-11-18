@@ -36,7 +36,7 @@ public class IndexRDFFieldedNew {
             Map<Long, ArrayList<String>> docFieldNames = new HashedMap();
 
             // Delete old index and initialize new
-            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
+//            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
@@ -101,7 +101,7 @@ public class IndexRDFFieldedNew {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeFieldIndexNode(n, tx, docCollection);
+                    writeFieldIndexNode(n, tx, docCollection, "Local");
                 });
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));

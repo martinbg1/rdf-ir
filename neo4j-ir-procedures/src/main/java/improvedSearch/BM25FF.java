@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import static result.ResultUtil.sortResultInfo;
 
-public class BM25F {
+public class BM25FF {
     @Context
     public GraphDatabaseService db;
 
@@ -30,8 +30,8 @@ public class BM25F {
     private static String CURRENT_TERM;
 
     @Procedure
-    @Description("improvedSearch.bm25fSearch(query) - returns bm25f query result")
-    public Stream<ResultInfo> bm25fSearch(@Name("fetch") String query) throws IOException {
+    @Description("improvedSearch.bm25ffSearch(query) - returns bm25ff query result")
+    public Stream<ResultInfo> bm25ffSearch(@Name("fetch") String query) throws IOException {
         Map<Long, Double> result = new LinkedHashMap<>();
         // Query document
         Document qDoc = new Document(query);
@@ -64,8 +64,8 @@ public class BM25F {
                     else if(k.endsWith("TF")){
                         TF.put(removeSuffix(k,"TF"), v);
                     }
-                    else if(k.endsWith("GlobalIDF")){
-                        IDF.put(removeSuffix(k,"GlobalIDF"), v);
+                    else if(k.endsWith("LocalIDF")){
+                        IDF.put(removeSuffix(k,"LocalIDF"), v);
                     }
                     else if(k.endsWith("Length")){
                         fieldLength.put(removeSuffix(k,"Length"),(int) v);

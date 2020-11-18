@@ -45,12 +45,12 @@ public class indexWriter {
     }
 
 
-    public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, ArrayList<Document>> fieldNameCollection) {
+    public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, ArrayList<Document>> fieldNameCollection, String prefix) {
         fieldNameCollection.forEach((ref, doc) -> {
             if (ref.equals(node.getId())) {
                 HashMap<String, Object> params = new HashMap();
                 params.put("ref", node.getId());
-                tx.execute("CREATE (n:fieldIndexNode {ref: $ref})", params);
+//                tx.execute("CREATE (n:fieldIndexNode {ref: $ref})", params);
 
                 for (Document field : doc) {
                     String fieldName = field.getFieldName();
@@ -72,10 +72,15 @@ public class indexWriter {
                     paramsField.put("ref", ref);
 
 
-                    tx.execute("MATCH (n:fieldIndexNode)" +
-                            "WHERE n.ref=$ref SET " +
-                            "n." + fieldName + "Terms=$terms," +
-                            "n." + fieldName + "IDF=$idf," +
+                    tx.execute("MERGE (n:fieldIndexNode {ref: $ref})" +
+                            " ON CREATE SET " +
+                            "n." + fieldName + "Terms=$terms,"+
+                            "n." + fieldName + prefix +"IDF=$idf,"+
+                            "n." + fieldName + "TF=$tf," +
+                            "n." + fieldName + "Length=$fieldLength" +
+                            " ON MATCH SET " +
+                            "n." + fieldName + "Terms=$terms,"+
+                            "n." + fieldName + prefix +"IDF=$idf,"+
                             "n." + fieldName + "TF=$tf," +
                             "n." + fieldName + "Length=$fieldLength", paramsField);
                 }

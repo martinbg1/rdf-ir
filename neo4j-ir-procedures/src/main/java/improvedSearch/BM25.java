@@ -1,10 +1,8 @@
 package improvedSearch;
 
 import result.ResultInfo;
-import result.ResultNode;
 import keywords.CardKeyword;
 import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
@@ -18,13 +16,16 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static result.ResultUtil.sortResult;
 import static result.ResultUtil.sortResultInfo;
 
 
 public class BM25 {
     @Context
     public GraphDatabaseService db;
+
+    // static field to manage what term a query keyword compared to. This is needed because we use startsWith instead of
+    // equals so we cannot guarantee that the CURRENT_TERM and query keyword is exactly the same
+    private static String CURRENT_TERM;
 
     @Procedure
     @Description("improvedSearch.bm25Search(query) - returns bm25 query result")
@@ -65,7 +66,7 @@ public class BM25 {
         double b = 0.75;
 
         // Map with term (String) as key and index of term (Integer) as value
-        Map<String, Integer> termPosition = new HashedMap();
+        Map<String, Integer> termPosition = new HashMap<>();
 
         // Fill termPosition with terms and their corresponding index
         for (int i = 0; i < docTerms.length; i++) {
@@ -77,13 +78,24 @@ public class BM25 {
 
         // calculate the BM25 score for every document
         for(CardKeyword kw : query.keywords){
-            if(Arrays.asList(docTerms).contains(kw.getStem())){
-                double tempIdf = idf[termPosition.get(kw.getStem())];
-                int tempTf = tf[termPosition.get(kw.getStem())];
+            if(termsStartsWith(docTerms, kw.getStem())){
+                double tempIdf = idf[termPosition.get(CURRENT_TERM)];
+                int tempTf = tf[termPosition.get(CURRENT_TERM)];
                 sum += tempIdf*((tempTf*(k1+1))/(tempTf+k1*(1-b+(b*(dl/avgDl)))));
 
             }
         }
         return sum;
+    }
+
+    private static boolean termsStartsWith(String[] terms, String queryKeyword) {
+        for (String s: terms) {
+            if (s.startsWith(queryKeyword)) {
+                // update CURRENT_TERM return true
+                CURRENT_TERM = s;
+                return true;
+            }
+        }
+        return false;
     }
 }

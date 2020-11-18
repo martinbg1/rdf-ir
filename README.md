@@ -28,15 +28,15 @@ This will produce a jar-file, `target/neo4j-ir-procedures-1.0.0-SNAPSHOT.jar`, t
 Index variants and the procedure to run:
 
 - Normal index 
-    - `CALL improvedSearch.indexRDF("MATCH (d:<Nodes-type> RETURN d")`
+    - `CALL improvedSearch.indexRDF("MATCH (d:<Nodes-type>) RETURN d")`
 - Fielded index with global idf 
-    - `CALL improvedSearch.indexRDFFielded("MATCH (d:<Node-type> RETURN d")`
+    - `CALL improvedSearch.indexRDFFielded("MATCH (d:<Node-type>) RETURN d")`
 - Fielded index with fielded idf 
-    - `CALL improvedSearch.indexRDFFieldedNew("MATCH (d:<Node-type> RETURN d")`
+    - `CALL improvedSearch.indexRDFFieldedNew("MATCH (d:<Node-type>) RETURN d")`
 
 If you want to include several node types in your index, you can write your cypher query inside the procedure the as following:
 
-`MATCH (d:<Nodes-type> RETURN (d) UNION MATCH (d:<Nodes-type>) RETURN (d)` Here you can add as many unions as needed.
+`MATCH (d:<Nodes-type>) RETURN (d) UNION MATCH (d:<Nodes-type>) RETURN (d)` Here you can add as many unions as needed.
 
 Ranking models and the procedure to run query:
 
@@ -49,7 +49,7 @@ Ranking models and the procedure to run query:
 
 
 ## Search Engine Web Application
-The web application can be found in the [`WebApp`](https://github.com/martinbg1/rdf-ir/tree/master/WebApp) directory.
+The web application can be found in the [`WebApp/`](https://github.com/martinbg1/rdf-ir/tree/master/WebApp) directory.
 
 The web application serves as a user interface to query data from a Neo4j database using the procedures described above.
 

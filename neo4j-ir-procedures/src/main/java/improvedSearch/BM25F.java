@@ -112,6 +112,17 @@ public class BM25F {
         return sum.get();
     }
 
+    /**
+     *
+     * @param terms Map with 
+     * @param occurrence
+     * @param idf
+     * @param length
+     * @param fieldAvgLength
+     * @param fieldNames
+     * @param query
+     * @return
+     */
     public double bm25fScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value

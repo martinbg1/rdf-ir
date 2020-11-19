@@ -61,18 +61,16 @@ public class BM25 {
 
     /**
      *
-     * @param docTerms
-     * @param idf
-     * @param tf
-     * @param dl
-     * @param avgDl
-     * @param k1 - raw term frequency, should be between 1.2 and 2.0, smaller value = each term occurrence counts for less
-     * @param b - scale term weight by document length, usually 0.75
-     * @param query
-     * @return
+     * @param docTerms - String-array with terms in each document (node)
+     * @param idf - Double-array with inverse term frequency (idf) scores
+     * @param tf - Double-array with term frequency (tf) scores
+     * @param dl - (int) document length of the current document (node)
+     * @param avgDl - (double) the average document length of all documents
+     * @param k1 - (double) raw term frequency, should be between 1.2 and 2.0, smaller value = each term occurrence counts for less
+     * @param b - (double) scale term weight by document length, usually 0.75
+     * @param query - (Document) query document with qyery terms as keywords
+     * @return - (double) returns the summed bm25 score for all the terms in a document (node)
      */
-    // math for bm25
-    // take in documents and query, return their bm25 score
     public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, double avgDl, double k1, double b, Document query){
 
         // Map with term (String) as key and index of term (Integer) as value

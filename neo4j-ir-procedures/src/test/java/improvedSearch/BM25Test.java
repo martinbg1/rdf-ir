@@ -3,6 +3,7 @@ package improvedSearch;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.harness.Neo4j;
 import org.neo4j.harness.Neo4jBuilders;
@@ -21,7 +22,7 @@ public class BM25Test {
     static void initializeNeo4j() {
 
 
-        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(BM25.class).withProcedure(IndexRDF.class)
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder().withProcedure(BM25.class).withProcedure(IndexRDF.class).withProcedure(SetParameters.class)
                 .withDisabledServer() // Don't need Neos HTTP server
                 .withFixture(
                         "CREATE (d1:Doc {field1:'cat dog blue', field2:'cat red'})" +
@@ -73,6 +74,52 @@ public class BM25Test {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void shouldUpdateParameters(){
+        double b = 0.2;
+        double k1 = 2.0;
+        try (var tx =embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()){
+            Map<String, Object> params = new HashMap<>();
+            params.put("b",b);
+            params.put("k1",k1);
+
+            tx.execute("CALL improvedSearch.setParameter($k1 , $b )", params);
+            tx.commit();
+        }
+
+        try (var tx =embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()){
+
+            Node parameters = (Node) tx.execute("MATCH (n:Parameters) return n").columnAs("n").next();
+            assertThat(parameters.getProperty("k1")).isEqualTo(k1);
+            assertThat(parameters.getProperty("b")).isEqualTo(b);
+
+            Map<String, Object> params = new HashMap<>();
+            String query = "green dog rat";
+            params.put("query", query);
+
+            Result result =  tx.execute( "CALL improvedSearch.bm25Search( $query )",params);
+            double[] expectedResult = new double[] {2.092, 1.437, 0.509};
+
+            int resI = 0;
+            DecimalFormat df = new DecimalFormat("#.###");
+            while (result.hasNext()) {
+                double score = (double) result.next().get("score");
+                double v = df.parse(df.format(score)).doubleValue();
+                assertThat(v).isNotEqualTo(expectedResult[resI]);
+                resI++;
+            }
+
+            Result resultToPrint =  tx.execute( "CALL improvedSearch.bm25Search( $query )",params);
+            System.out.println(resultToPrint.resultAsString());
+
+            Result res = tx.execute("MATCH (n) return n");
+            System.out.println(res.resultAsString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

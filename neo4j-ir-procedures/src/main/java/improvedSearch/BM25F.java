@@ -29,6 +29,9 @@ public class BM25F {
     // equals so we cannot guarantee that the CURRENT_TERM and query keyword is exactly the same
     private static String CURRENT_TERM;
 
+    private static double k1;
+    private static final Map<String, Double> b = new HashMap<>();
+
     @Procedure
     @Description("improvedSearch.bm25fSearch(query) - returns bm25f query result")
     public Stream<ResultInfo> bm25fSearch(@Name("fetch") String query) throws IOException {
@@ -40,6 +43,15 @@ public class BM25F {
             // get all indexNodes for fields with (terms, idf, tf og fl)
             ResourceIterator<Object> res = tx.execute("MATCH (n:fieldIndexNode) return n").columnAs("n");
 
+            Node parameters = (Node) tx.execute("MATCH (n:ParametersFielded) return n").columnAs("n").next();
+            parameters.getAllProperties().forEach((k,v)->{
+                if(k.equals("k1")){
+                    k1 = (double) v;
+                }
+                else if(k.endsWith("_b")){
+                    b.put(removeSuffix(k,"_b"),(double) v);
+                }
+            });
 
             // retrieve mean field length
             Node fieldDataStats = (Node) tx.execute("MATCH (n:DataStats) return n").columnAs("n").next();
@@ -79,9 +91,9 @@ public class BM25F {
         return nodeMap.entrySet().stream().map(ResultInfo::new);
     }
 
-    public double tfField(int length, double avgL, int occurrence){
-        double b = 0.75;
-        return occurrence/(1+b*((length/avgL)-1));
+    public double tfField(int length, double avgL, int occurrence, String fieldName){
+        double bField = b.get(fieldName);
+        return occurrence/(1+bField*((length/avgL)-1));
     }
 
     public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition, String[] fieldNames){
@@ -92,7 +104,7 @@ public class BM25F {
                 int[] tfField = (int[]) occurrence.get(k);
                 int tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
 
-                double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence);
+                double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence, k);
 
                 sum.updateAndGet(v1 -> (v1 + boost * tfFieldScore));
             }
@@ -101,7 +113,6 @@ public class BM25F {
     }
 
     public double bm25fScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
-        double k1 = 1.2;
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value
         Map<String, Map<String,Integer>> fieldTermPosition = new HashedMap();

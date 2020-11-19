@@ -47,7 +47,7 @@ BM25F and BM25FF operate with a separate b for each field.
 - Setting parameters used by BM25
     - `CALL improvedSearch.setParameter(<k1-value>, <b-value>)`
 - Setting parameters used by BM25F and BM25FF
-    - `CALL improvedSearch.setParameter(<k1-value>, "<field-name>", <b-value>)`
+    - `CALL improvedSearch.setFieldParameter(<k1-value>, "<field-name>", <b-value>)`
 
 Ranking models and the procedure to run query:
 

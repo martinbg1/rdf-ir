@@ -108,8 +108,10 @@ public class IndexRDFFieldedNew {
 
             Map<String, Object> fieldParams = new HashMap<>();
             fieldParams.put("fieldName", fieldNameCollection.keySet().toArray());
+            fieldParams.put("k1", 1.2);
+
             tx.execute("MERGE (n:Corpus) ON CREATE SET n.fieldName= $fieldName ON MATCH SET n.fieldName= $fieldName", fieldParams);
-            tx.execute("CREATE (n:DataStats)");
+            tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n.k1= $k1 ON MATCH SET n.k1=$k1", fieldParams);
 
             for (int i = 0; i < fieldedCorpus.getFieldSize(); i++) {
 
@@ -117,8 +119,11 @@ public class IndexRDFFieldedNew {
                 String fieldName = fieldedCorpus.getFieldName(i);
                 params.put("fieldedCorpus", fieldedCorpus.getBoWByIndex(i).toArray());
                 params.put("meanLength", meanFieldLengths.get(fieldName));
+                params.put("b", 0.75);
 
-                tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
+                tx.execute("MERGE (n:DataStats) ON CREATE SET n." + fieldName + "=$meanLength ON MATCH SET n." + fieldName + "=$meanLength", params);
+                tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n." + fieldName + "_b=$b ON MATCH SET n." + fieldName + "_b=$b", params);
+//                tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
             }
 
 

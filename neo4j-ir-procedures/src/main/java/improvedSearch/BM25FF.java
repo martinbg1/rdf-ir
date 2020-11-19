@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import static result.ResultUtil.sortResultInfo;
 
-public class BM25F {
+public class BM25FF {
     @Context
     public GraphDatabaseService db;
 
@@ -33,8 +33,8 @@ public class BM25F {
     private static final Map<String, Double> b = new HashMap<>();
 
     @Procedure
-    @Description("improvedSearch.bm25fSearch(query) - returns bm25f query result")
-    public Stream<ResultInfo> bm25fSearch(@Name("fetch") String query) throws IOException {
+    @Description("improvedSearch.bm25ffSearch(query) - returns bm25ff query result")
+    public Stream<ResultInfo> bm25ffSearch(@Name("fetch") String query) throws IOException {
         Map<Long, Double> result = new LinkedHashMap<>();
         // Query document
         Document qDoc = new Document(query);
@@ -76,8 +76,8 @@ public class BM25F {
                     else if(k.endsWith("TF")){
                         TF.put(removeSuffix(k,"TF"), v);
                     }
-                    else if(k.endsWith("GlobalIDF")){
-                        IDF.put(removeSuffix(k,"GlobalIDF"), v);
+                    else if(k.endsWith("LocalIDF")){
+                        IDF.put(removeSuffix(k,"LocalIDF"), v);
                     }
                     else if(k.endsWith("Length")){
                         fieldLength.put(removeSuffix(k,"Length"),(int) v);
@@ -113,6 +113,7 @@ public class BM25F {
     }
 
     public double bm25fScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
+        double k1 = 1.2;
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value
         Map<String, Map<String,Integer>> fieldTermPosition = new HashedMap();

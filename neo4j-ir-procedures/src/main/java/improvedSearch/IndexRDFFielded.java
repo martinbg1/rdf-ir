@@ -27,12 +27,12 @@ public class IndexRDFFielded {
     @Procedure(value = "improvedSearch.indexRDFFielded", mode = Mode.WRITE)
     @Description("improvedSearch.indexRDFFielded(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
-        Map<String, Double> fieldLengthSum = new HashedMap();
-        Map<String, Double> meanFieldLengths = new HashedMap();
+        Map<String, Double> fieldLengthSum = new HashMap<>();
+        Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
-            Map<Long, ArrayList<Document>> docCollection = new HashedMap();
-            Map<Long, ArrayList<String>> docFieldNames = new HashedMap();
+            Map<Long, ArrayList<Document>> docCollection = new HashMap<>();
+            Map<Long, ArrayList<String>> docFieldNames = new HashMap<>();
 
             // Delete old index and initialize new
             // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
@@ -105,12 +105,12 @@ public class IndexRDFFielded {
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));
 
-            Map<String, Object> fieldParams = new HashedMap();
+            Map<String, Object> fieldParams = new HashMap<>();
             fieldParams.put("fieldName", fieldNameCollection.keySet().toArray());
             tx.execute("MERGE (n:Corpus) ON CREATE SET n.fieldName= $fieldName ON MATCH SET n.fieldName= $fieldName", fieldParams);
 
             for (int i = 0; i < fieldedCorpus.getFieldSize(); i++) {
-                Map<String, Object> params = new HashedMap();
+                Map<String, Object> params = new HashMap<>();
                 String fieldName = fieldedCorpus.getFieldName(i);
                 params.put("meanLength", meanFieldLengths.get(fieldName));
                 tx.execute("MERGE (n:DataStats) ON CREATE SET n." + fieldName + "=$meanLength ON MATCH SET n." + fieldName + "=$meanLength", params);

@@ -28,12 +28,12 @@ public class IndexRDFFieldedNew {
     @Procedure(value = "improvedSearch.indexRDFFieldedNew", mode = Mode.WRITE)
     @Description("improvedSearch.indexRDFFieldedNew(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
-        Map<String, Double> fieldLengthSum = new HashedMap();
-        Map<String, Double> meanFieldLengths = new HashedMap();
+        Map<String, Double> fieldLengthSum = new HashMap<>();
+        Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
-            Map<Long, ArrayList<Document>> docCollection = new HashedMap();
-            Map<Long, ArrayList<String>> docFieldNames = new HashedMap();
+            Map<Long, ArrayList<Document>> docCollection = new HashMap<>();
+            Map<Long, ArrayList<String>> docFieldNames = new HashMap<>();
 
             // Delete old index and initialize new
 //            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
@@ -57,7 +57,7 @@ public class IndexRDFFieldedNew {
                             if (!fieldLengthSum.containsKey(k)) {
                                 fieldLengthSum.put(k, 0.0);
                             }
-                            fieldLengthSum.put(k, fieldLengthSum.get(k) + field.keywords.size());
+                            fieldLengthSum.put(k, fieldLengthSum.get(k) + field.getDocLength());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -106,19 +106,18 @@ public class IndexRDFFieldedNew {
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));
 
-            Map<String, Object> fieldParams = new HashedMap();
+            Map<String, Object> fieldParams = new HashMap<>();
             fieldParams.put("fieldName", fieldNameCollection.keySet().toArray());
-            tx.execute("CREATE (n:Corpus {fieldName: $fieldName})", fieldParams);
+            tx.execute("MERGE (n:Corpus) ON CREATE SET n.fieldName= $fieldName ON MATCH SET n.fieldName= $fieldName", fieldParams);
             tx.execute("CREATE (n:DataStats)");
 
             for (int i = 0; i < fieldedCorpus.getFieldSize(); i++) {
 
-                Map<String, Object> params = new HashedMap();
+                Map<String, Object> params = new HashMap<>();
                 String fieldName = fieldedCorpus.getFieldName(i);
                 params.put("fieldedCorpus", fieldedCorpus.getBoWByIndex(i).toArray());
                 params.put("meanLength", meanFieldLengths.get(fieldName));
 
-                tx.execute("MATCH (n:Corpus) SET n." + fieldName + "=$fieldedCorpus", params);
                 tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
             }
 

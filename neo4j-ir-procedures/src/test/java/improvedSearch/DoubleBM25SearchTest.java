@@ -8,8 +8,11 @@ import org.neo4j.harness.Neo4j;
 import org.neo4j.harness.Neo4jBuilders;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DoubleBM25SearchTest {
     private static Neo4j embeddedDatabaseServer;
@@ -49,18 +52,18 @@ public class DoubleBM25SearchTest {
             String query = "blue cat rat";
             params.put("query", query);
 
-//            Result result =  tx.execute( "CALL improvedSearch.bm25fSearch( $query )",params);
-//            Result fieldResult =  tx.execute( "CALL improvedSearch.bm25ffSearch( $query )",params);
-//            double[] expectedResult = new double[] {1.193, 0.592, 0.266};
+            Result result =  tx.execute( "CALL improvedSearch.bm25fSearch( $query )",params);
+            Result fieldResult =  tx.execute( "CALL improvedSearch.bm25ffSearch( $query )",params);
+            double[] expectedResult = new double[] {1.193, 0.592, 0.266};
 
-//            int resI = 0;
-//            DecimalFormat df = new DecimalFormat("#.###");
-//            while (result.hasNext()) {
-//                double score = (double) result.next().get("score");
-//                double v = df.parse(df.format(score)).doubleValue();
-//                assertThat(v).isEqualTo(expectedResult[resI]);
-//                resI++;
-//            }
+            int resI = 0;
+            DecimalFormat df = new DecimalFormat("#.###");
+            while (result.hasNext()) {
+                double score = (double) result.next().get("score");
+                double v = df.parse(df.format(score)).doubleValue();
+                assertThat(v).isEqualTo(expectedResult[resI]);
+                resI++;
+            }
 
             Result resultToPrint =  tx.execute( "CALL improvedSearch.bm25fSearch( $query )",params);
             System.out.println(resultToPrint.resultAsString());
@@ -71,10 +74,8 @@ public class DoubleBM25SearchTest {
             Result res = tx.execute("MATCH (n) return n");
             System.out.println(res.resultAsString());
 
-
-//        } catch (ParseException e) {
-//            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
-
 }

@@ -31,12 +31,7 @@ public class BM25Test {
                 )
                 .build();
 
-        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
-            Map<String, Object> params = new HashMap<>();
-            String nodes = "MATCH (d) return d";
-            params.put("n", nodes);
-            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $n )", params);
-        }
+
     }
 
     @AfterAll
@@ -48,6 +43,12 @@ public class BM25Test {
 
     @Test
     public void shouldReturnQueryResult() {
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
+            Map<String, Object> params = new HashMap<>();
+            String nodes = "MATCH (d:Doc) return d";
+            params.put("n", nodes);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $n )", params);
+        }
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
             String query = "green dog rat";
@@ -78,6 +79,12 @@ public class BM25Test {
 
     @Test
     public void shouldUpdateParameters(){
+        try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
+            Map<String, Object> params = new HashMap<>();
+            String nodes = "MATCH (d:Doc) return d";
+            params.put("n", nodes);
+            Result result =  tx.execute( "CALL improvedSearch.indexRDF( $n )", params);
+        }
         double b = 0.2;
         double k1 = 2.0;
         try (var tx =embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()){

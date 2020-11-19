@@ -37,6 +37,7 @@ public class BM25 {
         try(Transaction tx = db.beginTx()) {
             // get all indexNodes with (terms, idf, tf og dl)
             ResourceIterator<Object> res = tx.execute("MATCH (n:indexNode) return n").columnAs("n");
+            Node params = (Node) tx.execute("MATCH (n:Parameters) return n").columnAs("n").next();
 
             // retrieve mean document length
             double meanDocumentLength = (double) tx.execute("MATCH (n:DataStats) return n.meanDocumentLength").columnAs("n.meanDocumentLength").next();
@@ -48,6 +49,8 @@ public class BM25 {
                     (int[])((Node) n).getProperty("tf"),
                     (int)((Node) n).getProperty("dl"),
                     meanDocumentLength,
+                    (double) params.getProperty("k1"),
+                    (double) params.getProperty("b"),
                     qDoc)));
 
             };
@@ -56,14 +59,21 @@ public class BM25 {
         }
 
 
+    /**
+     *
+     * @param docTerms
+     * @param idf
+     * @param tf
+     * @param dl
+     * @param avgDl
+     * @param k1 - raw term frequency, should be between 1.2 and 2.0, smaller value = each term occurrence counts for less
+     * @param b - scale term weight by document length, usually 0.75
+     * @param query
+     * @return
+     */
     // math for bm25
     // take in documents and query, return their bm25 score
-    public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, double avgDl, Document query){
-        // raw term frequency, should be between 1.2 and 2.0, smaller value = each term occurrence counts for less
-        double k1 = 1.2;
-
-        // scale term weight by document length, usually 0.75
-        double b = 0.75;
+    public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, double avgDl, double k1, double b, Document query){
 
         // Map with term (String) as key and index of term (Integer) as value
         Map<String, Integer> termPosition = new HashMap<>();

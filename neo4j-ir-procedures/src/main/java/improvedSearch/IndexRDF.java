@@ -75,10 +75,13 @@ public class IndexRDF {
             HashMap<String, Object> params = new HashMap<>();
             params.put("corpus", corpus.getBoW().toArray());
             params.put("idf", corpus.getIdf());
+            params.put("k1", 1.2);
+            params.put("b", 0.75);
             params.put("meanLength", meanDocumentLength);
 
             tx.execute("CREATE (n:IDF)");
             tx.execute("MERGE (n:Corpus) ON CREATE SET n.corpus=$corpus ON MATCH SET n.corpus=$corpus", params);
+            tx.execute("MERGE (n:Parameters) ON CREATE SET n.b=$b , n.k1=$k1 ON MATCH SET n.b=$b , n.k1=$k1 ", params);
             tx.execute("MATCH (n:IDF) SET n.idf=$idf", params);
             tx.execute("MERGE (n:DataStats) ON CREATE SET n.meanDocumentLength= $meanLength ON MATCH SET n.meanDocumentLength= $meanLength", params);
 

@@ -27,10 +27,10 @@ public class SetParameters {
             params.put("k1", k1);
             params.put("b", b);
 
-
             tx.execute("MERGE (n:Parameters) ON CREATE SET n.b=$b , n.k1=$k1 ON MATCH SET n.b=$b , n.k1=$k1 ", params);
             tx.commit();
-
+        }catch(Exception e){
+            return Stream.of(SingleResult.fail());
         }
         return Stream.of(SingleResult.success());
     }
@@ -53,12 +53,10 @@ public class SetParameters {
                     return Stream.of((SingleResult.success()));
                 }
             }
-
-
+        }catch(Exception e){
+            return Stream.of(SingleResult.fail());
         }
-        return Stream.of(SingleResult.fail());
+        return Stream.of(SingleResult.success());
     }
-
-
 
 }

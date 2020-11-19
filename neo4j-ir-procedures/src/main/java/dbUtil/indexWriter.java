@@ -50,7 +50,6 @@ public class indexWriter {
             if (ref.equals(node.getId())) {
                 HashMap<String, Object> params = new HashMap();
                 params.put("ref", node.getId());
-//                tx.execute("CREATE (n:fieldIndexNode {ref: $ref})", params);
 
                 for (Document field : doc) {
                     String fieldName = field.getFieldName();

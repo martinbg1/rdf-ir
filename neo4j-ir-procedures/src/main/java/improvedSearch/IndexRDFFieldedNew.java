@@ -123,7 +123,6 @@ public class IndexRDFFieldedNew {
 
                 tx.execute("MERGE (n:DataStats) ON CREATE SET n." + fieldName + "=$meanLength ON MATCH SET n." + fieldName + "=$meanLength", params);
                 tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n." + fieldName + "_b=$b ON MATCH SET n." + fieldName + "_b=$b", params);
-//                tx.execute("MATCH (n:DataStats) SET n." + fieldName + "=$meanLength", params);
             }
 
 

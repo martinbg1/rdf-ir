@@ -141,6 +141,7 @@ public class IndexRDFFieldedNew {
 
 
     public static void idf(Map<Long, ArrayList<Document>> docs) {
+        Map<String, Double> checkedStems = new HashMap<>();
         docs.forEach((k, d) -> {
             for (ArrayList<Document> nodes : docs.values()) {
                 for (Document field : nodes) {
@@ -155,15 +156,21 @@ public class IndexRDFFieldedNew {
 
                     for(CardKeyword keyword : field.keywords) {
                         AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
-                        docs.forEach((k2, d2) -> {
-                            for (Document fieldToCompare : d2) {
-                                Map<String, Integer> tempMap = fieldToCompare.getWordCountMap();
-                                if (field.getFieldName().equals(fieldToCompare.getFieldName()) && tempMap.containsKey(keyword.getStem())) {
-                                    wordCount.getAndSet(wordCount.get() + 1);
+                        if (checkedStems.containsKey(keyword.getStem())) {
+                            wordCount.getAndSet(checkedStems.get(keyword.getStem()));
+                        }
+                        else {
+                            docs.forEach((k2, d2) -> {
+                                for (Document fieldToCompare : d2) {
+                                    Map<String, Integer> tempMap = fieldToCompare.getWordCountMap();
+                                    if (field.getFieldName().equals(fieldToCompare.getFieldName()) && tempMap.containsKey(keyword.getStem())) {
+                                        wordCount.getAndSet(wordCount.get() + 1);
+                                    }
                                 }
-                            }
 
-                        });
+                            });
+                            checkedStems.put(keyword.getStem(), wordCount.get());
+                        }
 
                         double idf = Math.log(size.get() / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
                         keyword.setIdf(idf);

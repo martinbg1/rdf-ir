@@ -55,7 +55,7 @@ Ranking models and the procedure to run query:
     - `CALL improvedSearch.vectorModelSearch("<query-terms>")`
 - BM25 (require normal index)
     - `CALL improvedSearch.bm25Search("<query-terms>")`
-- BM25F (require either fielded index)
+- BM25F (require fielded index with global idf)
     - `CALL improvedSearch.bm25fSearch("<query-terms>")`
 - BM25FF (require fielded index with fielded idf)
     - `CALL improvedSearch.bm25ffSearch("<query-terms>")`

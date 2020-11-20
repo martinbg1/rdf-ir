@@ -55,19 +55,18 @@ public class BM25FF {
 
             // retrieve mean field length
             Node fieldDataStats = (Node) tx.execute("MATCH (n:DataStats) return n").columnAs("n").next();
-            String[] fieldNames = (String[]) tx.execute("MATCH (n:Corpus) return n.fieldName").columnAs("n.fieldName").next();
 
             Map<String, Object> fieldAvgLength = fieldDataStats.getAllProperties();
 
-            // fill result with a node and its corresponding bm25f score
+            // fill result with a node and its corresponding bm25ff score
             while(res.hasNext()){
                 Node node = (Node) res.next();
                 Map<String, Object> properties = node.getAllProperties();
 
-                Map<String,String[]> terms = new HashedMap();
+                Map<String,String[]> terms = new HashMap<>();
                 HashedMap TF = new HashedMap();
                 HashedMap IDF = new HashedMap();
-                Map<String,Integer> fieldLength = new HashedMap();
+                Map<String,Integer> fieldLength = new HashMap<>();
 
                 properties.forEach((k,v) ->{
                     if(k.endsWith("Terms")){
@@ -83,7 +82,7 @@ public class BM25FF {
                         fieldLength.put(removeSuffix(k,"Length"),(int) v);
                     }
                 });
-                result.put((Long)node.getProperty("ref"),bm25fScore(terms, TF, IDF, fieldLength,fieldAvgLength, fieldNames,qDoc));
+                result.put((Long)node.getProperty("ref"),bm25ffScore(terms, TF, IDF, fieldLength,fieldAvgLength, qDoc));
             }
         }
 
@@ -91,35 +90,24 @@ public class BM25FF {
         return nodeMap.entrySet().stream().map(ResultInfo::new);
     }
 
-    public double tfField(int length, double avgL, int occurrence, String fieldName){
-        double bField = b.get(fieldName);
-        return occurrence/(1+bField*((length/avgL)-1));
-    }
-
-    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition, String[] fieldNames){
-        AtomicReference<Double> sum = new AtomicReference<>(0.0);
-
-        terms.forEach((k,v)->{
-            if(termsStartsWith(v, qkw.getStem())) {
-                int[] tfField = (int[]) occurrence.get(k);
-                int tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
-
-                double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence, k);
-
-                sum.updateAndGet(v1 -> (v1 + boost * tfFieldScore));
-            }
-        });
-        return sum.get();
-    }
-
-    public double bm25fScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
+    /**
+     *
+     * @param terms - Map<String, String-array> with fieldName and an array with the corresponding terms in each field.
+     * @param occurrence - HashedMap with fieldName and the occurrence of a term in a that field
+     * @param idf - HashedMap with fieldName and inverse term frequency (idf) scores
+     * @param length - Map<String,Integer> with fieldName and the corresponding length of the field
+     * @param fieldAvgLength - Map<String, Object> with fieldName and the corresponding average length
+     * @param query - (Document) query document with query terms as keywords
+     * @return - (double) returns the summed bm25ff score for all the terms per field in a document (node)
+     */
+    public double bm25ffScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, Document query){
         double k1 = 1.2;
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value
-        Map<String, Map<String,Integer>> fieldTermPosition = new HashedMap();
+        Map<String, Map<String,Integer>> fieldTermPosition = new HashMap<>();
 
         terms.forEach((k,v)->{
-            Map<String, Integer> tempTermPos = new HashedMap();
+            Map<String, Integer> tempTermPos = new HashMap<>();
             // Fill termPosition with terms and their corresponding index
             for (int i = 0; i < v.length; i++) {
                 tempTermPos.put(terms.get(k)[i], i);
@@ -138,7 +126,7 @@ public class BM25FF {
                 if(termsStartsWith(v, qkw.getStem())) {
                     double[] idfField = (double[]) idf.get(k);
                     tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(CURRENT_TERM)]);
-                    tf.set(tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition, fieldNames));
+                    tf.set(tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition));
                 }
 
             });
@@ -148,6 +136,27 @@ public class BM25FF {
             }
         }
         return sum.get();
+    }
+
+    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition){
+        AtomicReference<Double> sum = new AtomicReference<>(0.0);
+
+        terms.forEach((k,v)->{
+            if(termsStartsWith(v, qkw.getStem())) {
+                int[] tfField = (int[]) occurrence.get(k);
+                int tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
+
+                double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence, k);
+
+                sum.updateAndGet(v1 -> (v1 + boost * tfFieldScore));
+            }
+        });
+        return sum.get();
+    }
+
+    public double tfField(int length, double avgL, int occurrence, String fieldName){
+        double bField = b.get(fieldName);
+        return occurrence/(1+bField*((length/avgL)-1));
     }
 
     private static String removeSuffix(final String s, final String suffix) {

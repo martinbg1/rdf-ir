@@ -68,7 +68,7 @@ public class BM25 {
      * @param avgDl - (double) the average document length of all documents
      * @param k1 - (double) raw term frequency, should be between 1.2 and 2.0, smaller value = each term occurrence counts for less
      * @param b - (double) scale term weight by document length, usually 0.75
-     * @param query - (Document) query document with qyery terms as keywords
+     * @param query - (Document) query document with query terms as keywords
      * @return - (double) returns the summed bm25 score for all the terms in a document (node)
      */
     public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, double avgDl, double k1, double b, Document query){

@@ -106,16 +106,23 @@ public class IndexRDF {
     // Takes in a Map with NodeId(Long) and a Document consisting of every field as one string
     public static void idf(Map<Long, Document> docs) {
         int size = docs.size();
+        Map<String, Double> checkedStems = new HashMap<>();
         docs.forEach((k, d) -> {
 
             for (CardKeyword keyword : d.keywords) {
                 AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
-                docs.forEach((k2, d2) -> {
-                    Map<String, Integer> tempMap = d2.getWordCountMap();
-                    if (tempMap.containsKey(keyword.getStem())) {
-                        wordCount.getAndSet(wordCount.get() + 1);
-                    }
-                });
+                if (checkedStems.containsKey(keyword.getStem())) {
+                    wordCount.getAndSet(checkedStems.get(keyword.getStem()));
+                }
+                else {
+                    docs.forEach((k2, d2) -> {
+                        Map<String, Integer> tempMap = d2.getWordCountMap();
+                        if (tempMap.containsKey(keyword.getStem())) {
+                            wordCount.getAndSet(wordCount.get() + 1);
+                        }
+                    });
+                    checkedStems.put(keyword.getStem(), wordCount.get());
+                }
                 double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
                 keyword.setIdf(idf);
             }

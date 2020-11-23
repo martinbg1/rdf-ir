@@ -37,17 +37,18 @@ public class SetParameters {
 
     @Procedure(value ="improvedSearch.setFieldParameter", mode = Mode.WRITE)
     @Description("improvedSearch.setFieldParameter()")
-    public Stream<SingleResult> setFieldParameter(@Name("k1") double k1, @Name("fieldNames") String fieldName, @Name("b") double b) {
+    public Stream<SingleResult> setFieldParameter(@Name("k1") double k1, @Name("fieldNames") String fieldName, @Name("b") double b, @Name("boost") double boost) {
         try(Transaction tx = db.beginTx()){
             HashMap<String, Object> params = new HashMap<>();
             params.put("k1", k1);
             params.put("b", b);
+            params.put("boost", boost);
 
             String[] corpusFieldNames = (String[]) tx.execute("MATCH (n:Corpus) return n.fieldName").columnAs("n.fieldName").next();
 
             for(String fieldNameToCompare : corpusFieldNames){
                 if(fieldNameToCompare.equals(fieldName)){
-                    tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n."+ fieldName+"_b=$b , n.k1=$k1 ON MATCH SET n."+ fieldName +"_b=$b , n.k1=$k1 ", params);
+                    tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n."+ fieldName+"_b=$b , n."+ fieldName+"_boost=$boost , n.k1=$k1 ON MATCH SET n."+ fieldName +"_b=$b , n."+ fieldName+"_boost=$boost , n.k1=$k1 ", params);
 
                     tx.commit();
                     return Stream.of((SingleResult.success()));

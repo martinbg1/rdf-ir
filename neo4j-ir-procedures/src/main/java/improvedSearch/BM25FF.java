@@ -31,6 +31,7 @@ public class BM25FF {
 
     private static double k1;
     private static final Map<String, Double> b = new HashMap<>();
+    private static final Map<String, Double> boost = new HashMap<>();
 
     @Procedure
     @Description("improvedSearch.bm25ffSearch(query) - returns bm25ff query result")
@@ -50,6 +51,9 @@ public class BM25FF {
                 }
                 else if(k.endsWith("_b")){
                     b.put(removeSuffix(k,"_b"),(double) v);
+                }
+                else if(k.endsWith("_boost")){
+                    boost.put(removeSuffix(k,"_boost"),(double) v);
                 }
             });
 
@@ -96,7 +100,7 @@ public class BM25FF {
         return occurrence/(1+bField*((length/avgL)-1));
     }
 
-    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition, String[] fieldNames){
+    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition, String[] fieldNames){
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
 
         terms.forEach((k,v)->{
@@ -106,14 +110,13 @@ public class BM25FF {
 
                 double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence, k);
 
-                sum.updateAndGet(v1 -> (v1 + boost * tfFieldScore));
+                sum.updateAndGet(v1 -> (v1 + boost.get(k) * tfFieldScore));
             }
         });
         return sum.get();
     }
 
     public double bm25fScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
-        double k1 = 1.2;
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value
         Map<String, Map<String,Integer>> fieldTermPosition = new HashedMap();
@@ -138,7 +141,7 @@ public class BM25FF {
                 if(termsStartsWith(v, qkw.getStem())) {
                     double[] idfField = (double[]) idf.get(k);
                     tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(CURRENT_TERM)]);
-                    tf.set(tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition, fieldNames));
+                    tf.set(tf(qkw, terms, occurrence, length, fieldAvgLength, fieldTermPosition, fieldNames));
                 }
 
             });

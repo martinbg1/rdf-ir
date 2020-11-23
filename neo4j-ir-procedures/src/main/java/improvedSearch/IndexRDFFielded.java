@@ -117,7 +117,7 @@ public class IndexRDFFielded {
                 String fieldName = fieldedCorpus.getFieldName(i);
                 params.put("meanLength", meanFieldLengths.get(fieldName));
                 params.put("b", 0.75);
-                params.put("boost", 1);
+                params.put("boost", 1.0);
 
                 tx.execute("MERGE (n:DataStats) ON CREATE SET n." + fieldName + "=$meanLength ON MATCH SET n." + fieldName + "=$meanLength", params);
                 tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n." + fieldName + "_b=$b , n." + fieldName + "_boost=$boost ON MATCH SET n." + fieldName + "_b=$b , n." + fieldName + "_boost=$boost ", params);

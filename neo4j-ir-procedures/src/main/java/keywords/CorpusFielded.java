@@ -80,24 +80,22 @@ public class CorpusFielded {
      */
     public void calculateIDF(Map<Long, NodeFields> docs) {
         int size = docs.size();
-        docs.forEach((k, d) -> {
-            for (NodeFields fields : docs.values()) {
-                for (Document field : fields.getFields()) {
-                    for (CardKeyword keyword : field.keywords) {
-                        double wordCount = this.getDocumentWordCount().get(keyword.getStem());
-                        double idf = Math.log((size / wordCount)) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
-                        keyword.setIdf(idf);
-                    }
+        for (NodeFields fields : docs.values()) {
+            for (Document field : fields.getFields()) {
+                for (CardKeyword keyword : field.keywords) {
+                    double wordCount = this.getDocumentWordCount().get(keyword.getStem());
+                    double idf = Math.log((size / wordCount)) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
+                    keyword.setIdf(idf);
                 }
             }
-        });
+        }
     }
 
     /**
      * Initializing bag of words and idf values. Assumes that idf is already calculate
      * @param fields Every field in the corpus
      */
-    public void initCourpusValues(Map<String, ArrayList<Document>> fields) {
+    public void initCorpusValues(Map<String, ArrayList<Document>> fields) {
         this.corpusSize = fields.size();
         this.fieldNames = new ArrayList<>();
         fieldNames.addAll(fields.keySet());

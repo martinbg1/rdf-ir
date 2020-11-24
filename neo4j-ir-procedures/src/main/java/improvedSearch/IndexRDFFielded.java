@@ -1,21 +1,13 @@
 package improvedSearch;
 
 import keywords.*;
-import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
-
 import org.neo4j.procedure.Name;
-
-import javax.print.Doc;
-
-import static dbUtil.indexWriter.writeFieldIndexNode;
 import static dbUtil.indexWriter.writeFieldIndexNodeTest;
 
 
@@ -83,7 +75,7 @@ public class IndexRDFFielded {
 
             // Calculate idfInitialize corpus values
             corpus.calculateIDF(docCollection);
-            corpus.initCourpusValues(fieldNameCollection);
+            corpus.initCorpusValues(fieldNameCollection);
 
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();

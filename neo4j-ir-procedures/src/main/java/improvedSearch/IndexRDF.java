@@ -1,6 +1,6 @@
 package improvedSearch;
 
-import keywords.Corpus;
+import keywords.CorpusRDF;
 import keywords.Document;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
@@ -27,6 +27,7 @@ public class IndexRDF {
     @Description("improvedSearch.indexRDF(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
         double documentLengthSum = 0.0;
+        CorpusRDF corpus = new CorpusRDF();
         try(Transaction tx = db.beginTx()){
             Map<Long, Document> docCollection = new HashedMap();
 
@@ -49,14 +50,16 @@ public class IndexRDF {
                     }
                 });
 
-                Document doc = new Document(temp.toString());
+                Document doc = new Document(temp.toString(), corpus);
                 docCollection.put(node.getId(), doc);
 
                 documentLengthSum += doc.getDocLength();
             }
 
-            idf(docCollection);
-            Corpus corpus = new Corpus(docCollection);
+            // Initialize corpus and calculate idf values
+            corpus.initCorpusValues(docCollection);
+            corpus.calculateIDF(docCollection);
+
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();
             docCollection.forEach((k, doc) -> doc.keywords.forEach(keyword -> result.put(keyword, keyword.getTfIdf())));
@@ -101,31 +104,5 @@ public class IndexRDF {
             this.tfidf = entity.getValue();
         }
     }
-
-    // Calculate the idf score for every document.
-    // Takes in a Map with NodeId(Long) and a Document consisting of every field as one string
-    public static void idf(Map<Long, Document> docs) {
-        int size = docs.size();
-        Map<String, Double> checkedStems = new HashMap<>();
-        docs.forEach((k, d) -> {
-
-            for (CardKeyword keyword : d.keywords) {
-                AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
-                if (checkedStems.containsKey(keyword.getStem())) {
-                    wordCount.getAndSet(checkedStems.get(keyword.getStem()));
-                }
-                else {
-                    docs.forEach((k2, d2) -> {
-                        Map<String, Integer> tempMap = d2.getWordCountMap();
-                        if (tempMap.containsKey(keyword.getStem())) {
-                            wordCount.getAndSet(wordCount.get() + 1);
-                        }
-                    });
-                    checkedStems.put(keyword.getStem(), wordCount.get());
-                }
-                double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
-                keyword.setIdf(idf);
-            }
-        });
-    }
 }
+

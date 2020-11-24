@@ -33,7 +33,6 @@ public class IndexRDFFielded {
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
             Map<Long, NodeFields> docCollection = new HashMap<>();
-//            Map<Long, ArrayList<String>> docFieldNames = new HashMap<>();
 
             // Delete old index and initialize new
             // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
@@ -82,9 +81,9 @@ public class IndexRDFFielded {
                 }
             });
 
-            // Initialize corpus and calculate idf values
-            corpus.initCourpusValues(fieldNameCollection);
+            // Calculate idfInitialize corpus values
             corpus.calculateIDF(docCollection);
+            corpus.initCourpusValues(fieldNameCollection);
 
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();

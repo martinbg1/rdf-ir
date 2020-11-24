@@ -56,9 +56,9 @@ public class IndexRDF {
                 documentLengthSum += doc.getDocLength();
             }
 
-            // Initialize corpus and calculate idf values
-            corpus.initCorpusValues(docCollection);
+            // Calculate idf and initialize corpus values
             corpus.calculateIDF(docCollection);
+            corpus.initCorpusValues(docCollection);
 
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();

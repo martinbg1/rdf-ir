@@ -40,14 +40,14 @@ If you want to include several node types in your index, you can write your cyph
 
 Setting parameters for different versions of BM25 search:
 
-The default parameters set for all versions of BM25 is b=0.75 and k1=1.2.
+The default parameters set for all versions of BM25 is b=0.75, k1=1.2 and boost=1.
 These can be changed to tweak the methods. Parameter b should be set between 0 and 1 and parameter k1 should be set between 1 and 2.
 BM25F and BM25FF operate with a separate b for each field.
 
 - Setting parameters used by BM25
     - `CALL improvedSearch.setParameter(<k1-value>, <b-value>)`
 - Setting parameters used by BM25F and BM25FF
-    - `CALL improvedSearch.setFieldParameter(<k1-value>, "<field-name>", <b-value>)`
+    - `CALL improvedSearch.setFieldParameter(<k1-value>, "<field-name>", <b-value>, <boost-value>)`
 
 Ranking models and the procedure to run query:
 

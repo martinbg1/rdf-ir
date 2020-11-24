@@ -31,6 +31,7 @@ public class BM25F {
 
     private static double k1;
     private static final Map<String, Double> b = new HashMap<>();
+    private static final Map<String, Double> boost = new HashMap<>();
 
     @Procedure
     @Description("improvedSearch.bm25fSearch(query) - returns bm25f query result")
@@ -50,6 +51,9 @@ public class BM25F {
                 }
                 else if(k.endsWith("_b")){
                     b.put(removeSuffix(k,"_b"),(double) v);
+                }
+                else if(k.endsWith("_boost")){
+                    boost.put(removeSuffix(k,"_boost"),(double) v);
                 }
             });
 

@@ -31,6 +31,7 @@ public class BM25FF {
 
     private static double k1;
     private static final Map<String, Double> b = new HashMap<>();
+    private static final Map<String, Double> boost = new HashMap<>();
 
     @Procedure
     @Description("improvedSearch.bm25ffSearch(query) - returns bm25ff query result")
@@ -50,6 +51,9 @@ public class BM25FF {
                 }
                 else if(k.endsWith("_b")){
                     b.put(removeSuffix(k,"_b"),(double) v);
+                }
+                else if(k.endsWith("_boost")){
+                    boost.put(removeSuffix(k,"_boost"),(double) v);
                 }
             });
 
@@ -101,7 +105,6 @@ public class BM25FF {
      * @return - (double) returns the summed bm25ff score for all the terms per field in a document (node)
      */
     public double bm25ffScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, Document query){
-        double k1 = 1.2;
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value
         Map<String, Map<String,Integer>> fieldTermPosition = new HashMap<>();

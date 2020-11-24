@@ -12,6 +12,7 @@ public class Document {
     private String fieldName;
     private int docLength;
 
+
     public Document(String field) throws IOException {
         this.keywords = KeywordsExtractor.getKeywordsList(field);
         this.wordCountMap = new HashMap<>();
@@ -22,6 +23,19 @@ public class Document {
         this.docLength = this.wordCountMap.values().stream().reduce(0, Integer::sum);
 
     }
+
+    public Document(String field, CorpusRDF corpus) throws IOException {
+        this.keywords = KeywordsExtractor.getKeywordsList(field);
+        this.wordCountMap = new HashMap<>();
+
+        for (CardKeyword keyword : this.keywords) {
+            this.wordCountMap.put(keyword.getStem(), keyword.getFrequency());
+            corpus.updateWordCount(keyword);
+        }
+        this.docLength = this.wordCountMap.values().stream().reduce(0, Integer::sum);
+
+    }
+
 
     public Document(String field, String fieldName) throws IOException {
         this.keywords = KeywordsExtractor.getKeywordsList(field);

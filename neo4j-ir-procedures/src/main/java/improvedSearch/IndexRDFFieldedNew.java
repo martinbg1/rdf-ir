@@ -1,9 +1,7 @@
 package improvedSearch;
 
-import keywords.Corpus;
 import keywords.CorpusFielded;
 import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 

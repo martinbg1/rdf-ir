@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 import org.neo4j.procedure.Name;
-import static dbUtil.indexWriter.writeFieldIndexNodeTest;
+
+import static dbUtil.indexWriter.writeFieldIndexNode;
 
 
 public class IndexRDFFielded {
@@ -92,7 +93,7 @@ public class IndexRDFFielded {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeFieldIndexNodeTest(n, tx, docCollection, "Global");
+                    writeFieldIndexNode(n, tx, docCollection, "Global");
                 });
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));

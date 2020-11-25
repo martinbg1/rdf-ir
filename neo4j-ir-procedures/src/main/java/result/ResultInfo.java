@@ -1,7 +1,5 @@
 package result;
 
-import org.neo4j.graphdb.Node;
-
 import java.util.Map;
 
 public class ResultInfo {

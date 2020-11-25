@@ -10,7 +10,7 @@ import result.SingleResult;
 
 import java.util.stream.Stream;
 
-import static dbUtil.indexDeleter.deleteRDFIndexes;
+import static util.IndexDeleter.deleteRDFIndexes;
 
 public class DeleteIndexes {
 

@@ -1,4 +1,8 @@
-package keywords;
+package model;
+
+import model.corpus.CardKeyword;
+import model.corpus.CorpusRDF;
+import util.KeywordsExtractor;
 
 import java.io.IOException;
 import java.util.HashMap;

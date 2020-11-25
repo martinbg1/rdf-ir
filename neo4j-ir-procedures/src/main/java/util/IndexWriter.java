@@ -1,8 +1,7 @@
-package dbUtil;
+package util;
 
-import keywords.CardKeyword;
-import keywords.Document;
-import keywords.NodeFields;
+import model.Document;
+import model.NodeFields;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
@@ -11,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class indexWriter {
+public class IndexWriter {
 
     /**
      * Write indexNode to database

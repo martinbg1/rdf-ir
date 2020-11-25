@@ -1,6 +1,7 @@
 package improvedSearch;
 
-import keywords.*;
+import model.*;
+import model.corpus.CorpusFielded;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
@@ -8,9 +9,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 import org.neo4j.procedure.Name;
+import result.SingleResult;
 
-import static dbUtil.indexDeleter.prepareRDFFieldedIndex;
-import static dbUtil.indexWriter.writeFieldIndexNode;
+import static util.IndexDeleter.prepareRDFFieldedIndex;
+import static util.IndexWriter.writeFieldIndexNode;
 
 
 public class IndexRDFFielded {
@@ -19,9 +21,9 @@ public class IndexRDFFielded {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDFFielded", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDFFielded(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
+    @Description("improvedSearch.indexRDFFielded(query) - return information of if indexing was a success or failure")
 
+    public Stream<SingleResult> indexRDFFielded(@Name("fetch") String input) throws IOException {
         // Prepare db to be indexed by deleting old indexNodes
         try(Transaction tx = db.beginTx()) {
             prepareRDFFieldedIndex(tx);
@@ -82,13 +84,6 @@ public class IndexRDFFielded {
             corpus.calculateIDF(docCollection);
             corpus.initCorpusValues(fieldNameCollection);
 
-            // finish result
-            Map<CardKeyword, Double> result = new HashMap<>();
-            docCollection.forEach((k, docs) -> {
-                for(Document field : docs.getFields()){
-                    field.keywords.forEach(keyword -> result.put(keyword, keyword.getTfIdf()));
-                }
-            });
 
             // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
             Result res1 = tx.execute(input);
@@ -120,19 +115,9 @@ public class IndexRDFFielded {
                 tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n." + fieldName + "_b=$b , n." + fieldName + "_boost=$boost ON MATCH SET n." + fieldName + "_b=$b , n." + fieldName + "_boost=$boost ", params);
             }
             tx.commit();
-            return result.entrySet().stream().map(EntityField::new);
+        }catch(Exception e){
+            return Stream.of(SingleResult.fail());
         }
-
-    }
-
-
-    public static class EntityField {
-        public String stem;
-        public Double tfidf;
-
-        public EntityField(Map.Entry<CardKeyword, Double> entity) {
-            this.stem = entity.getKey().getStem();
-            this.tfidf = entity.getValue();
-        }
+        return Stream.of(SingleResult.success());
     }
 }

@@ -1,8 +1,8 @@
-package dbUtil;
+package util;
 
 import org.neo4j.graphdb.Transaction;
 
-public class indexDeleter {
+public class IndexDeleter {
 
     /**
      * Prepares db for RDF index
@@ -25,7 +25,7 @@ public class indexDeleter {
 
     /**
      * Prepares db for fieldedNew RDF index
-     * @param tx
+     * @param tx Neo4j Transaction to write to db
      */
     public static void prepareRDFFieldedNewIndex(Transaction tx) {
         tx.execute("MATCH (i:fieldNewIndexNode) DETACH DELETE i");

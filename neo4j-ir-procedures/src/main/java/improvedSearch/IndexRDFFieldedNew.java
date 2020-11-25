@@ -1,7 +1,7 @@
 package improvedSearch;
 
-import keywords.CorpusFielded;
-import keywords.Document;
+import model.corpus.CorpusFielded;
+import model.Document;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
@@ -13,10 +13,11 @@ import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import keywords.CardKeyword;
+import model.corpus.CardKeyword;
+import result.SingleResult;
 
-import static dbUtil.indexDeleter.prepareRDFFieldedNewIndex;
-import static dbUtil.indexWriter.writeFieldIndexNodeTest;
+import static util.IndexDeleter.prepareRDFFieldedNewIndex;
+import static util.IndexWriter.writeFieldIndexNodeTest;
 
 
 public class IndexRDFFieldedNew {
@@ -25,14 +26,13 @@ public class IndexRDFFieldedNew {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDFFieldedNew", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDFFieldedNew(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
+    @Description("improvedSearch.indexRDFFieldedNew(query) - return information of if indexing was a success or failure")
+    public Stream<SingleResult> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
 
         // Prepare db to be indexed by deleting old indexNodes
         try(Transaction tx = db.beginTx()) {
             prepareRDFFieldedNewIndex(tx);
         }
-
         Map<String, Double> fieldLengthSum = new HashMap<>();
         Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
@@ -129,20 +129,10 @@ public class IndexRDFFieldedNew {
 
 
             tx.commit();
-            return result.entrySet().stream().map(EntityField::new);
+        }catch(Exception e){
+            return Stream.of(SingleResult.fail());
         }
-
-    }
-
-
-    public static class EntityField {
-        public String stem;
-        public Double tfidf;
-
-        public EntityField(Map.Entry<CardKeyword, Double> entity) {
-            this.stem = entity.getKey().getStem();
-            this.tfidf = entity.getValue();
-        }
+        return Stream.of(SingleResult.success());
     }
 
 

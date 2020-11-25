@@ -3,13 +3,13 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.neo4j.example</groupId>
-  <artifactId>procedure-template</artifactId>
+  <groupId>org.neo4j.improvedSearch</groupId>
+  <artifactId>neo4j-ir-procedures</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>jar</packaging>
-  <name>Neo4j Procedure Template</name>
-  <description>A template project for building a Neo4j Procedure</description>
+  <name>Neo4j IR Procedures</name>
+  <description>A project building Neo4j IR procedures</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,13 +45,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <!-- Used to send cypher statements to our procedure. -->
-      <groupId>org.neo4j.driver</groupId>
-      <artifactId>neo4j-java-driver</artifactId>
-      <version>${neo4j-java-driver.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -79,6 +72,19 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <!-- Used to send cypher statements to our procedure. -->
+      <groupId>org.neo4j.driver</groupId>
+      <artifactId>neo4j-java-driver</artifactId>
+      <version>${neo4j-java-driver.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>	8.6.2</version>
+    </dependency>
   </dependencies>
 
   <build>

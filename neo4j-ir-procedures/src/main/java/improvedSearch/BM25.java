@@ -98,6 +98,12 @@ public class BM25 {
         return sum;
     }
 
+    /**
+     *
+     * @param terms - String array of the terms in a document
+     * @param queryKeyword - A keyword from the query
+     * @return boolean answering if the term starts with the query term
+     */
     private static boolean termsStartsWith(String[] terms, String queryKeyword) {
         for (String s: terms) {
             if (s.startsWith(queryKeyword)) {

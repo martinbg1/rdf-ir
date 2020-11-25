@@ -74,7 +74,6 @@ public class CorpusRDF {
         return this.BoW;
     }
 
-
     public ArrayList<Double> getIdf() {
         return this.idf;
     }
@@ -83,13 +82,4 @@ public class CorpusRDF {
         return this.documentWordCount;
     }
 
-
-    public String getBoWByIndex(int i) {
-        return this.BoW.get(i);
-    }
-
-
-    public int getCorpusSize() {
-        return this.BoW.size();
-    }
 }

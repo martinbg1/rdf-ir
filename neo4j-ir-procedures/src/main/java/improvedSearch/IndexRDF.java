@@ -2,7 +2,6 @@ package improvedSearch;
 
 import model.corpus.CorpusRDF;
 import model.Document;
-import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
@@ -12,7 +11,6 @@ import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import model.corpus.CardKeyword;
 import resultSorter.SingleResult;
 
 import static util.indexWriter.writeIndexNode;

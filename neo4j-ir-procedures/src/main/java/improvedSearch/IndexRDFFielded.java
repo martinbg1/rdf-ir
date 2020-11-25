@@ -1,7 +1,6 @@
 package improvedSearch;
 
 import model.*;
-import model.corpus.CardKeyword;
 import model.corpus.CorpusFielded;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;

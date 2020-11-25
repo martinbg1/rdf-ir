@@ -178,7 +178,4 @@ public class CorpusFielded {
         return this.fieldSize;
     }
 
-    public int getCorpusSize() {
-        return this.corpusSize;
-    }
 }

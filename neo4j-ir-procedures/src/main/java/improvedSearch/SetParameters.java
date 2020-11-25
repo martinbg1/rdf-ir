@@ -16,7 +16,7 @@ public class SetParameters {
 
 
     @Procedure(value ="improvedSearch.setParameter", mode = Mode.WRITE)
-    @Description("improvedSearch.setParameter()")
+    @Description("improvedSearch.setParameter(<k1-value>, <b-value>) - used to set the free parameters of BM25")
     public Stream<SingleResult> setParameter(@Name("k1") double k1, @Name("b") double b) {
         try(Transaction tx = db.beginTx()){
             HashMap<String, Object> params = new HashMap<>();
@@ -32,7 +32,7 @@ public class SetParameters {
     }
 
     @Procedure(value ="improvedSearch.setFieldParameter", mode = Mode.WRITE)
-    @Description("improvedSearch.setFieldParameter()")
+    @Description("improvedSearch.setFieldParameter(<k1-value>, <fieldName>, <b-value>, <boost-value>) - used to set the free parameters for BM25F and BM25FF")
     public Stream<SingleResult> setFieldParameter(@Name("k1") double k1, @Name("fieldNames") String fieldName, @Name("b") double b, @Name("boost") double boost) {
         try(Transaction tx = db.beginTx()){
             HashMap<String, Object> params = new HashMap<>();

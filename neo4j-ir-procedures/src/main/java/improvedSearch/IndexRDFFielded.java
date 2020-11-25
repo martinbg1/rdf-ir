@@ -1,6 +1,8 @@
 package improvedSearch;
 
-import keywords.*;
+import model.*;
+import model.corpus.CardKeyword;
+import model.corpus.CorpusFielded;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
@@ -9,7 +11,7 @@ import java.util.*;
 import java.util.stream.Stream;
 import org.neo4j.procedure.Name;
 
-import static dbUtil.indexWriter.writeFieldIndexNode;
+import static util.indexWriter.writeFieldIndexNode;
 
 
 public class IndexRDFFielded {

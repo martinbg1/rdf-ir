@@ -1,4 +1,4 @@
-package result;
+package resultSorter;
 
 public class SingleResult {
 

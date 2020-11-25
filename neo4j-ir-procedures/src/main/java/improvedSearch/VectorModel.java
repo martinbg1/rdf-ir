@@ -1,7 +1,7 @@
 package improvedSearch;
 
-import result.ResultNode;
-import keywords.Document;
+import resultSorter.ResultNode;
+import model.Document;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static result.ResultUtil.sortResult;
+import static util.ResultUtil.sortResult;
 
 public class VectorModel {
     @Context

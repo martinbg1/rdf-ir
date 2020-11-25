@@ -1,4 +1,4 @@
-package result;
+package util;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;

@@ -1,8 +1,8 @@
-package keywords;
+package model.corpus;
 
-import org.apache.commons.collections.map.HashedMap;
+import model.Document;
+import model.NodeFields;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class CorpusFielded {

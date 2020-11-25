@@ -1,4 +1,4 @@
-package result;
+package resultSorter;
 
 import org.neo4j.graphdb.Node;
 

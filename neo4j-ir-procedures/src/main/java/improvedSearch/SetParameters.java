@@ -1,15 +1,11 @@
 package improvedSearch;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.procedure.*;
-import result.SingleResult;
+import resultSorter.SingleResult;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 

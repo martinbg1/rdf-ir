@@ -1,7 +1,7 @@
 package improvedSearch;
 
-import keywords.CardKeyword;
-import keywords.Document;
+import model.corpus.CardKeyword;
+import model.Document;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -11,7 +11,7 @@ import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
-import result.ResultInfo;
+import resultSorter.ResultInfo;
 
 import java.io.IOException;
 import java.util.*;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static result.ResultUtil.sortResultInfo;
+import static util.ResultUtil.sortResultInfo;
 
 public class BM25F {
     @Context

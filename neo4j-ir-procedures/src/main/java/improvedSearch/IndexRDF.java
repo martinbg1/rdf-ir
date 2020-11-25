@@ -1,21 +1,20 @@
 package improvedSearch;
 
-import keywords.CorpusRDF;
-import keywords.Document;
+import model.corpus.CorpusRDF;
+import model.Document;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import keywords.CardKeyword;
+import model.corpus.CardKeyword;
 
-import static dbUtil.indexWriter.writeIndexNode;
+import static util.indexWriter.writeIndexNode;
 
 
 public class IndexRDF {

@@ -1,8 +1,8 @@
 package improvedSearch;
 
-import result.ResultInfo;
-import keywords.CardKeyword;
-import keywords.Document;
+import resultSorter.ResultInfo;
+import model.corpus.CardKeyword;
+import model.Document;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static result.ResultUtil.sortResultInfo;
+import static util.ResultUtil.sortResultInfo;
 
 
 public class BM25 {

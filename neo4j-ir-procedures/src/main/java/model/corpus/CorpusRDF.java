@@ -1,4 +1,6 @@
-package keywords;
+package model.corpus;
+
+import model.Document;
 
 import java.util.*;
 

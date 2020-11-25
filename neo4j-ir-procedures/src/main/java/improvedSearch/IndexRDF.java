@@ -1,21 +1,19 @@
 package improvedSearch;
 
-import keywords.CorpusRDF;
-import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
+import model.corpus.CorpusRDF;
+import model.Document;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import keywords.CardKeyword;
+import resultSorter.SingleResult;
 
-import static dbUtil.indexWriter.writeIndexNode;
+import static util.indexWriter.writeIndexNode;
 
 
 public class IndexRDF {
@@ -24,12 +22,12 @@ public class IndexRDF {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDF", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDF(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
+    @Description("improvedSearch.indexRDF(query) - return information of if indexing was a success or failure")
+    public Stream<SingleResult> indexRDF(@Name("fetch") String input) throws IOException {
         double documentLengthSum = 0.0;
         CorpusRDF corpus = new CorpusRDF();
         try(Transaction tx = db.beginTx()){
-            Map<Long, Document> docCollection = new HashedMap();
+            Map<Long, Document> docCollection = new HashMap<>();
 
             // Delete old index and initialize new
             // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
@@ -60,9 +58,6 @@ public class IndexRDF {
             corpus.calculateIDF(docCollection);
             corpus.initCorpusValues(docCollection);
 
-            // finish result
-            Map<CardKeyword, Double> result = new HashMap<>();
-            docCollection.forEach((k, doc) -> doc.keywords.forEach(keyword -> result.put(keyword, keyword.getTfIdf())));
 
             // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
             Result res1 = tx.execute(input);
@@ -89,20 +84,9 @@ public class IndexRDF {
             tx.execute("MERGE (n:DataStats) ON CREATE SET n.meanDocumentLength= $meanLength ON MATCH SET n.meanDocumentLength= $meanLength", params);
 
             tx.commit();
-            return result.entrySet().stream().map(EntityField::new);
+        }catch (Exception e){
+            return Stream.of(SingleResult.fail());
         }
-
-    }
-
-
-    public static class EntityField {
-        public String stem;
-        public Double tfidf;
-
-        public EntityField(Map.Entry<CardKeyword, Double> entity) {
-            this.stem = entity.getKey().getStem();
-            this.tfidf = entity.getValue();
-        }
+        return Stream.of(SingleResult.success());
     }
 }
-

@@ -1,4 +1,6 @@
-package keywords;
+package model;
+
+import model.corpus.CorpusFielded;
 
 import java.util.ArrayList;
 

@@ -1,8 +1,7 @@
-package dbUtil;
+package util;
 
-import keywords.CardKeyword;
-import keywords.Document;
-import keywords.NodeFields;
+import model.Document;
+import model.NodeFields;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 

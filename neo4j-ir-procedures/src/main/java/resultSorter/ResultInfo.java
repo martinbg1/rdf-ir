@@ -1,6 +1,4 @@
-package result;
-
-import org.neo4j.graphdb.Node;
+package resultSorter;
 
 import java.util.Map;
 

@@ -25,10 +25,15 @@ public class BM25F {
     @Context
     public GraphDatabaseService db;
 
-    // static field to manage what term a query keyword compared to. This is needed because we use startsWith instead of
-    // equals so we cannot guarantee that the CURRENT_TERM and query keyword is exactly the same
+    /**
+     * static field to manage what term a query keyword compared to. This is needed because we use startsWith instead of
+     * equals so we cannot guarantee that the CURRENT_TERM and query keyword is exactly the same
+     */
     private static String CURRENT_TERM;
 
+    /**
+     * BM25F parameters.
+     */
     private static double k1;
     private static final Map<String, Double> b = new HashMap<>();
     private static final Map<String, Double> boost = new HashMap<>();
@@ -68,10 +73,10 @@ public class BM25F {
                 Node node = (Node) res.next();
                 Map<String, Object> properties = node.getAllProperties();
 
-                Map<String,String[]> terms = new HashedMap();
+                Map<String,String[]> terms = new HashMap<>();
                 HashedMap TF = new HashedMap();
                 HashedMap IDF = new HashedMap();
-                Map<String,Integer> fieldLength = new HashedMap();
+                Map<String,Integer> fieldLength = new HashMap<>();
 
                 properties.forEach((k,v) ->{
                     if(k.endsWith("Terms")){
@@ -119,10 +124,10 @@ public class BM25F {
     public double bm25fScore(Map<String, String[]> terms, HashedMap occurrence, HashedMap idf, Map<String,Integer> length, Map<String, Object> fieldAvgLength, String[] fieldNames, Document query){
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
         // Map with term (String) as key and index of term (Integer) as value
-        Map<String, Map<String,Integer>> fieldTermPosition = new HashedMap();
+        Map<String, Map<String,Integer>> fieldTermPosition = new HashMap<>();
 
         terms.forEach((k,v)->{
-            Map<String, Integer> tempTermPos = new HashedMap();
+            Map<String, Integer> tempTermPos = new HashMap<>();
             // Fill termPosition with terms and their corresponding index
             for (int i = 0; i < v.length; i++) {
                 tempTermPos.put(terms.get(k)[i], i);

@@ -1,9 +1,7 @@
 package improvedSearch;
 
-import keywords.Corpus;
 import keywords.CorpusFielded;
 import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
@@ -17,7 +15,7 @@ import org.neo4j.procedure.Name;
 
 import keywords.CardKeyword;
 
-import static dbUtil.indexWriter.writeFieldIndexNode;
+import static dbUtil.indexWriter.writeFieldIndexNodeTest;
 
 
 public class IndexRDFFieldedNew {
@@ -101,7 +99,7 @@ public class IndexRDFFieldedNew {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeFieldIndexNode(n, tx, docCollection, "Local");
+                    writeFieldIndexNodeTest(n, tx, docCollection, "Local");
                 });
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));

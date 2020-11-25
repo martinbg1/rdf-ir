@@ -23,8 +23,10 @@ public class BM25 {
     @Context
     public GraphDatabaseService db;
 
-    // static field to manage what term a query keyword compared to. This is needed because we use startsWith instead of
-    // equals so we cannot guarantee that the CURRENT_TERM and query keyword is exactly the same
+    /**
+     * static field to manage what term a query keyword compared to. This is needed because we use startsWith instead of
+     * equals so we cannot guarantee that the CURRENT_TERM and query keyword is exactly the same
+     */
     private static String CURRENT_TERM;
 
     @Procedure

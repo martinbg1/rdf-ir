@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.neo4j.procedure.Name;
 
 import model.corpus.CardKeyword;
+import resultSorter.SingleResult;
 
 import static util.indexWriter.writeFieldIndexNodeTest;
 
@@ -25,7 +26,7 @@ public class IndexRDFFieldedNew {
 
     @Procedure(value = "improvedSearch.indexRDFFieldedNew", mode = Mode.WRITE)
     @Description("improvedSearch.indexRDFFieldedNew(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
+    public Stream<SingleResult> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
         Map<String, Double> fieldLengthSum = new HashMap<>();
         Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
@@ -125,20 +126,10 @@ public class IndexRDFFieldedNew {
 
 
             tx.commit();
-            return result.entrySet().stream().map(EntityField::new);
+        }catch(Exception e){
+            return Stream.of(SingleResult.fail());
         }
-
-    }
-
-
-    public static class EntityField {
-        public String stem;
-        public Double tfidf;
-
-        public EntityField(Map.Entry<CardKeyword, Double> entity) {
-            this.stem = entity.getKey().getStem();
-            this.tfidf = entity.getValue();
-        }
+        return Stream.of(SingleResult.success());
     }
 
 

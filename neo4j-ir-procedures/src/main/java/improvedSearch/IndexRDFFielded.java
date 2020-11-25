@@ -1,22 +1,15 @@
 package improvedSearch;
 
 import keywords.*;
-import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
-
 import org.neo4j.procedure.Name;
 
-import javax.print.Doc;
-
 import static dbUtil.indexWriter.writeFieldIndexNode;
-import static dbUtil.indexWriter.writeFieldIndexNodeTest;
 
 
 public class IndexRDFFielded {
@@ -33,7 +26,6 @@ public class IndexRDFFielded {
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
             Map<Long, NodeFields> docCollection = new HashMap<>();
-//            Map<Long, ArrayList<String>> docFieldNames = new HashMap<>();
 
             // Delete old index and initialize new
             // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
@@ -82,9 +74,9 @@ public class IndexRDFFielded {
                 }
             });
 
-            // Initialize corpus and calculate idf values
-            corpus.initCourpusValues(fieldNameCollection);
+            // Calculate idfInitialize corpus values
             corpus.calculateIDF(docCollection);
+            corpus.initCorpusValues(fieldNameCollection);
 
             // finish result
             Map<CardKeyword, Double> result = new HashMap<>();
@@ -101,7 +93,7 @@ public class IndexRDFFielded {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeFieldIndexNodeTest(n, tx, docCollection, "Global");
+                    writeFieldIndexNode(n, tx, docCollection, "Global");
                 });
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));

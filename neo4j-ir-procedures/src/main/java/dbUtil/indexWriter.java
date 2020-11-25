@@ -46,7 +46,7 @@ public class indexWriter {
     }
 
 
-    public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, ArrayList<Document>> fieldNameCollection, String prefix) {
+    public static void writeFieldIndexNodeTest(Node node, Transaction tx, Map<Long, ArrayList<Document>> fieldNameCollection, String prefix) {
         fieldNameCollection.forEach((ref, doc) -> {
             if (ref.equals(node.getId())) {
                 HashMap<String, Object> params = new HashMap();
@@ -89,7 +89,7 @@ public class indexWriter {
         });
     }
 
-    public static void writeFieldIndexNodeTest(Node node, Transaction tx, Map<Long, NodeFields> fieldNameCollection, String prefix) {
+    public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, NodeFields> fieldNameCollection, String prefix) {
         fieldNameCollection.forEach((ref, doc) -> {
             if (ref.equals(node.getId())) {
                 HashMap<String, Object> params = new HashMap();

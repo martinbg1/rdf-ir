@@ -32,10 +32,10 @@ public class DoubleBM25SearchTest {
 
         try(var tx = embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()) {
             Map<String, Object> params = new HashMap<>();
-        String nodes = "MATCH (d:Doc) return d";
+            String nodes = "MATCH (d:Doc) return d";
             params.put("n", nodes);
-            Result fieldedResult =  tx.execute( "CALL improvedSearch.indexRDFFieldedNew( $n )", params);
-            Result result =  tx.execute( "CALL improvedSearch.indexRDFFielded( $n )", params);
+            tx.execute( "CALL improvedSearch.indexRDFFieldedNew( $n )", params);
+            tx.execute( "CALL improvedSearch.indexRDFFielded( $n )", params);
         }
     }
 

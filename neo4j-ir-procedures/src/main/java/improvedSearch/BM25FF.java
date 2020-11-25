@@ -42,7 +42,7 @@ public class BM25FF {
 
         try(Transaction tx = db.beginTx()) {
             // get all indexNodes for fields with (terms, idf, tf og fl)
-            ResourceIterator<Object> res = tx.execute("MATCH (n:fieldIndexNode) return n").columnAs("n");
+            ResourceIterator<Object> res = tx.execute("MATCH (n:fieldNewIndexNode) return n").columnAs("n");
 
             Node parameters = (Node) tx.execute("MATCH (n:ParametersFielded) return n").columnAs("n").next();
             parameters.getAllProperties().forEach((k,v)->{

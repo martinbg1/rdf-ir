@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Stream;
 import org.neo4j.procedure.Name;
 
+import static dbUtil.indexDeleter.prepareRDFFieldedIndex;
 import static dbUtil.indexWriter.writeFieldIndexNode;
 
 
@@ -20,15 +21,18 @@ public class IndexRDFFielded {
     @Procedure(value = "improvedSearch.indexRDFFielded", mode = Mode.WRITE)
     @Description("improvedSearch.indexRDFFielded(query) - return the tf-idf score for nodes")
     public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
+
+        // Prepare db to be indexed by deleting old indexNodes
+        try(Transaction tx = db.beginTx()) {
+            prepareRDFFieldedIndex(tx);
+        }
+
         CorpusFielded corpus = new CorpusFielded();
         Map<String, Double> fieldLengthSum = new HashMap<>();
         Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
             Map<Long, NodeFields> docCollection = new HashMap<>();
-
-            // Delete old index and initialize new
-            // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);

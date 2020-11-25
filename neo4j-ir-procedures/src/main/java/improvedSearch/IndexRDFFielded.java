@@ -20,7 +20,7 @@ public class IndexRDFFielded {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDFFielded", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDFFielded(query) - return the tf-idf score for nodes")
+    @Description("improvedSearch.indexRDFFielded(query) - return information of if indexing was a success or failure")
     public Stream<SingleResult> indexRDFFielded(@Name("fetch") String input) throws IOException {
         CorpusFielded corpus = new CorpusFielded();
         Map<String, Double> fieldLengthSum = new HashMap<>();

@@ -22,7 +22,7 @@ public class IndexRDF {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDF", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDF(query) - return the tf-idf score for nodes")
+    @Description("improvedSearch.indexRDF(query) - return information of if indexing was a success or failure")
     public Stream<SingleResult> indexRDF(@Name("fetch") String input) throws IOException {
         double documentLengthSum = 0.0;
         CorpusRDF corpus = new CorpusRDF();

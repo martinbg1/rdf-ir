@@ -25,7 +25,7 @@ public class IndexRDFFieldedNew {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDFFieldedNew", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDFFieldedNew(query) - return the tf-idf score for nodes")
+    @Description("improvedSearch.indexRDFFieldedNew(query) - return information of if indexing was a success or failure")
     public Stream<SingleResult> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
         Map<String, Double> fieldLengthSum = new HashMap<>();
         Map<String, Double> meanFieldLengths = new HashMap<>();

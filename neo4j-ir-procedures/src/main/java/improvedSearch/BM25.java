@@ -1,6 +1,6 @@
 package improvedSearch;
 
-import resultSorter.ResultInfo;
+import result.ResultInfo;
 import model.corpus.CardKeyword;
 import model.Document;
 import org.neo4j.graphdb.GraphDatabaseService;

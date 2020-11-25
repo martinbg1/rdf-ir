@@ -3,7 +3,7 @@ package improvedSearch;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.procedure.*;
-import resultSorter.SingleResult;
+import result.SingleResult;
 
 import java.util.HashMap;
 import java.util.stream.Stream;

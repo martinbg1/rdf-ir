@@ -1,6 +1,6 @@
 package improvedSearch;
 
-import resultSorter.ResultNode;
+import result.ResultNode;
 import model.Document;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;

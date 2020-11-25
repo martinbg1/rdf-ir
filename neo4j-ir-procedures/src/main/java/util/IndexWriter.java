@@ -10,10 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class indexWriter {
+public class IndexWriter {
 
     /**
-     *
      * Write indexNode to database
      *
      * @param node - Node to index
@@ -71,7 +70,7 @@ public class indexWriter {
                     paramsField.put("ref", ref);
 
 
-                    tx.execute("MERGE (n:fieldIndexNode {ref: $ref})" +
+                    tx.execute("MERGE (n:fieldNewIndexNode {ref: $ref})" +
                             " ON CREATE SET " +
                             "n." + fieldName + "Terms=$terms,"+
                             "n." + fieldName + prefix +"IDF=$idf,"+

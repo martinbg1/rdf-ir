@@ -1,14 +1,15 @@
-package keywords;
+package util;
 
+import model.Document;
+import model.corpus.CardKeyword;
+import model.corpus.CorpusRDF;
 import org.junit.jupiter.api.Test;
+import util.KeywordsExtractor;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-import static improvedSearch.IndexRDF.idf;
 
 public class KeywordsExtractorTest {
 
@@ -46,14 +47,14 @@ public class KeywordsExtractorTest {
 
     @Test
     void shouldCalculateIdf() throws IOException {
+        CorpusRDF corpus = new CorpusRDF();
         String text2 = "yes i love baking very much. Cake is my favourite. I love the sugar in the cakes.";
         Map<Long, Document> documents = new HashMap<>();
-        Document doc1 = new Document(text);
-        Document doc2 = new Document(text2);
+        Document doc1 = new Document(text, corpus);
+        Document doc2 = new Document(text2, corpus);
         documents.put((long) 123, doc1);
         documents.put((long) 321, doc2);
-        idf(documents);
+        corpus.calculateIDF(documents);
         doc1.keywords.forEach(k -> System.out.println(k.getStem() + "\t" + k.getIdf()));
-//        doc1.keywords.forEach(k -> System.out.println(k.getIdf()));
     }
 }

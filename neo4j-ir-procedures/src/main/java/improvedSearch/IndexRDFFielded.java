@@ -1,22 +1,18 @@
 package improvedSearch;
 
-import keywords.CorpusFielded;
-import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
+import model.*;
+import model.corpus.CorpusFielded;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
-
 import org.neo4j.procedure.Name;
+import result.SingleResult;
 
-import keywords.CardKeyword;
-
-import static dbUtil.indexWriter.writeFieldIndexNode;
+import static util.IndexDeleter.prepareRDFFieldedIndex;
+import static util.IndexWriter.writeFieldIndexNode;
 
 
 public class IndexRDFFielded {
@@ -25,17 +21,20 @@ public class IndexRDFFielded {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDFFielded", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDFFielded(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDFFielded(@Name("fetch") String input) throws IOException {
+    @Description("improvedSearch.indexRDFFielded(query) - return information of if indexing was a success or failure")
+
+    public Stream<SingleResult> indexRDFFielded(@Name("fetch") String input) throws IOException {
+        // Prepare db to be indexed by deleting old indexNodes
+        try(Transaction tx = db.beginTx()) {
+            prepareRDFFieldedIndex(tx);
+        }
+
+        CorpusFielded corpus = new CorpusFielded();
         Map<String, Double> fieldLengthSum = new HashMap<>();
         Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
-            Map<Long, ArrayList<Document>> docCollection = new HashMap<>();
-            Map<Long, ArrayList<String>> docFieldNames = new HashMap<>();
-
-            // Delete old index and initialize new
-            // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
+            Map<Long, NodeFields> docCollection = new HashMap<>();
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
@@ -62,36 +61,29 @@ public class IndexRDFFielded {
                         }
                     }
                 });
-                docCollection.put(node.getId(), tempArrayDocument);
-                docFieldNames.put(node.getId(), tempArrayField);
+                NodeFields nodeFields = new NodeFields(tempArrayDocument, tempArrayField, corpus);
+                docCollection.put(node.getId(),nodeFields);
 
             }
 
-            idf(docCollection);
             Map<String, ArrayList<Document>> fieldNameCollection = new HashMap<>();
-            ArrayList<String> fieldNames = new ArrayList<>();
             docCollection.forEach((k, v) -> {
 
                 String fieldName = "";
-                for (int i = 0; i < docFieldNames.get(k).size(); i++) {
+                for (int i = 0; i < docCollection.get(k).getFieldNames().size(); i++) {
 
-                    fieldName = docFieldNames.get(k).get(i);
-                    fieldNames.add(fieldName);
+                    fieldName = docCollection.get(k).getFieldName(i);
                     if (!fieldNameCollection.containsKey(fieldName)) {
                         fieldNameCollection.put(fieldName, new ArrayList<>());
                     }
-                    fieldNameCollection.get(fieldName).add(v.get(i));
+                    fieldNameCollection.get(fieldName).add(v.getFields().get(i));
                 }
             });
-            CorpusFielded fieldedCorpus = new CorpusFielded(fieldNameCollection, fieldNames);
 
-            // finish result
-            Map<CardKeyword, Double> result = new HashMap<>();
-            docCollection.forEach((k, docs) -> {
-                for(Document field : docs){
-                    field.keywords.forEach(keyword -> result.put(keyword, keyword.getTfIdf()));
-                }
-            });
+            // Calculate idfInitialize corpus values
+            corpus.calculateIDF(docCollection);
+            corpus.initCorpusValues(fieldNameCollection);
+
 
             // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
             Result res1 = tx.execute(input);
@@ -112,64 +104,20 @@ public class IndexRDFFielded {
             tx.execute("MERGE (n:Corpus) ON CREATE SET n.fieldName= $fieldName ON MATCH SET n.fieldName= $fieldName", fieldParams);
             tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n.k1= $k1 ON MATCH SET n.k1=$k1", fieldParams);
 
-            for (int i = 0; i < fieldedCorpus.getFieldSize(); i++) {
+            for (int i = 0; i < corpus.getFieldSize(); i++) {
                 Map<String, Object> params = new HashMap<>();
-                String fieldName = fieldedCorpus.getFieldName(i);
+                String fieldName = corpus.getFieldName(i);
                 params.put("meanLength", meanFieldLengths.get(fieldName));
                 params.put("b", 0.75);
+                params.put("boost", 1.0);
 
                 tx.execute("MERGE (n:DataStats) ON CREATE SET n." + fieldName + "=$meanLength ON MATCH SET n." + fieldName + "=$meanLength", params);
-                tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n." + fieldName + "_b=$b ON MATCH SET n." + fieldName + "_b=$b", params);
+                tx.execute("MERGE (n:ParametersFielded) ON CREATE SET n." + fieldName + "_b=$b , n." + fieldName + "_boost=$boost ON MATCH SET n." + fieldName + "_b=$b , n." + fieldName + "_boost=$boost ", params);
             }
             tx.commit();
-            return result.entrySet().stream().map(EntityField::new);
+        }catch(Exception e){
+            return Stream.of(SingleResult.fail());
         }
-
-    }
-
-
-    public static class EntityField {
-        public String stem;
-        public Double tfidf;
-
-        public EntityField(Map.Entry<CardKeyword, Double> entity) {
-            this.stem = entity.getKey().getStem();
-            this.tfidf = entity.getValue();
-        }
-    }
-
-    // Calculate the idf score for every field.
-    // Takes in a Map with NodeId(Long) and ArrayList of Fields
-    public static void idf(Map<Long, ArrayList<Document>> docs) {
-        int size = docs.size();
-        Map<String, Double> checkedStems = new HashMap<>();
-        docs.forEach((k, d) -> {
-            for (ArrayList<Document> nodes : docs.values()) {
-                for (Document field : nodes) {
-
-                    for(CardKeyword keyword : field.keywords) {
-                        AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
-                        if (checkedStems.containsKey(keyword.getStem())) {
-                            wordCount.getAndSet(checkedStems.get(keyword.getStem()));
-                        }
-                        else {
-                            docs.forEach((k2, d2) -> {
-                                AtomicBoolean alreadyChecked = new AtomicBoolean(false);
-                                for (Document fieldToCompare : d2) {
-                                    Map<String, Integer> tempMap = fieldToCompare.getWordCountMap();
-                                    if (!alreadyChecked.get() && tempMap.containsKey(keyword.getStem())) {
-                                        wordCount.getAndSet(wordCount.get() + 1);
-                                        alreadyChecked.set(true);
-                                    }
-                                }
-                            });
-                            checkedStems.put(keyword.getStem(), wordCount.get());
-                        }
-                        double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
-                        keyword.setIdf(idf);
-                    }
-                }
-            }
-        });
+        return Stream.of(SingleResult.success());
     }
 }

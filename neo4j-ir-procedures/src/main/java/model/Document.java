@@ -1,4 +1,8 @@
-package keywords;
+package model;
+
+import model.corpus.CardKeyword;
+import model.corpus.CorpusRDF;
+import util.KeywordsExtractor;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -6,12 +10,37 @@ import java.util.List;
 
 public class Document {
 
+    /**
+     * List of all keywords in the Document
+     */
     public List<CardKeyword> keywords;
-    private HashMap<String, Integer> wordCountMap;
-    private double[] vector;
-    private String fieldName;
-    private int docLength;
 
+    /**
+     * Count of all keywords in the document
+     */
+    private final HashMap<String, Integer> wordCountMap;
+
+    /**
+     * TF IDF vector of the document
+     */
+    private double[] vector;
+
+    /**
+     * Name of the field the Document belongs to (only initilized in fielded variants)
+     */
+    private String fieldName;
+
+    /**
+     * Length of document
+     */
+    private final int docLength;
+
+
+    /**
+     * Constructor for a simple independent Document
+     * @param field String to be converted to a document
+     * @throws IOException
+     */
     public Document(String field) throws IOException {
         this.keywords = KeywordsExtractor.getKeywordsList(field);
         this.wordCountMap = new HashMap<>();
@@ -23,6 +52,31 @@ public class Document {
 
     }
 
+    /**
+     * Constructor for a Document that belongs to a corpus
+     * @param field String to be converted to a document
+     * @param corpus corpus the Document belongs to
+     * @throws IOException
+     */
+    public Document(String field, CorpusRDF corpus) throws IOException {
+        this.keywords = KeywordsExtractor.getKeywordsList(field);
+        this.wordCountMap = new HashMap<>();
+
+        for (CardKeyword keyword : this.keywords) {
+            this.wordCountMap.put(keyword.getStem(), keyword.getFrequency());
+            corpus.updateWordCount(keyword);
+        }
+        this.docLength = this.wordCountMap.values().stream().reduce(0, Integer::sum);
+
+    }
+
+
+    /**
+     * Fielded variant of the simple constructor. May belong to a corpus defined in the NodeFields class
+     * @param field String to be converted to a document
+     * @param fieldName Name of the field
+     * @throws IOException
+     */
     public Document(String field, String fieldName) throws IOException {
         this.keywords = KeywordsExtractor.getKeywordsList(field);
         this.wordCountMap = new HashMap<>();

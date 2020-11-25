@@ -71,16 +71,19 @@ public class BM25FFTest {
             Result result =  tx.execute( "CALL improvedSearch.indexRDFFieldedNew( $n )", params);
         }
         double[] b = new double[]{0.2,1};
+        double[] boost = new double[]{1,1.3};
         String[] fieldNames = new String[] {"field2", "field1", "hei"};
         double k1 = 2.0;
         try (var tx =embeddedDatabaseServer.databaseManagementService().database("neo4j").beginTx()){
             for (int i = 0; i < b.length; i++) {
                 Map<String, Object> params = new HashMap<>();
                 params.put("b",b[i]);
+                params.put("boost",boost[i]);
                 params.put("fieldNames", fieldNames[i]);
                 params.put("k1",k1);
 
-                tx.execute("CALL improvedSearch.setFieldParameter($k1 , $fieldNames,  $b )", params);
+                tx.execute("CALL improvedSearch.setFieldParameter($k1 , $fieldNames,  $b , $boost)", params);
+
             }
 
             tx.commit();
@@ -94,6 +97,7 @@ public class BM25FFTest {
 
             for (int i = 0; i <b.length; i++) {
                 assertThat(parameters.getProperty(fieldNames[i]+"_b")).isEqualTo(b[i]);
+                assertThat(parameters.getProperty(fieldNames[i]+"_boost")).isEqualTo(boost[i]);
             }
 
             Map<String, Object> params = new HashMap<>();

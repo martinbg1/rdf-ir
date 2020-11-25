@@ -1,9 +1,7 @@
 package improvedSearch;
 
-import keywords.Corpus;
-import keywords.CorpusFielded;
-import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
+import model.corpus.CorpusFielded;
+import model.Document;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
@@ -15,9 +13,11 @@ import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import keywords.CardKeyword;
+import model.corpus.CardKeyword;
+import result.SingleResult;
 
-import static dbUtil.indexWriter.writeFieldIndexNode;
+import static util.IndexDeleter.prepareRDFFieldedNewIndex;
+import static util.IndexWriter.writeFieldIndexNodeTest;
 
 
 public class IndexRDFFieldedNew {
@@ -26,17 +26,19 @@ public class IndexRDFFieldedNew {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDFFieldedNew", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDFFieldedNew(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
+    @Description("improvedSearch.indexRDFFieldedNew(query) - return information of if indexing was a success or failure")
+    public Stream<SingleResult> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
+
+        // Prepare db to be indexed by deleting old indexNodes
+        try(Transaction tx = db.beginTx()) {
+            prepareRDFFieldedNewIndex(tx);
+        }
         Map<String, Double> fieldLengthSum = new HashMap<>();
         Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
             Map<Long, ArrayList<Document>> docCollection = new HashMap<>();
             Map<Long, ArrayList<String>> docFieldNames = new HashMap<>();
-
-            // Delete old index and initialize new
-//            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
@@ -101,7 +103,7 @@ public class IndexRDFFieldedNew {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeFieldIndexNode(n, tx, docCollection, "Local");
+                    writeFieldIndexNodeTest(n, tx, docCollection, "Local");
                 });
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));
@@ -127,20 +129,10 @@ public class IndexRDFFieldedNew {
 
 
             tx.commit();
-            return result.entrySet().stream().map(EntityField::new);
+        }catch(Exception e){
+            return Stream.of(SingleResult.fail());
         }
-
-    }
-
-
-    public static class EntityField {
-        public String stem;
-        public Double tfidf;
-
-        public EntityField(Map.Entry<CardKeyword, Double> entity) {
-            this.stem = entity.getKey().getStem();
-            this.tfidf = entity.getValue();
-        }
+        return Stream.of(SingleResult.success());
     }
 
 

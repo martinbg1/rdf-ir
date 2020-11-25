@@ -38,14 +38,28 @@ If you want to include several node types in your index, you can write your cyph
 
 `MATCH (d:<Nodes-type>) RETURN (d) UNION MATCH (d:<Nodes-type>) RETURN (d)` Here you can add as many unions as needed.
 
+Setting parameters for different versions of BM25 search:
+
+The default parameters set for all versions of BM25 is b=0.75, k1=1.2 and boost=1.
+These can be changed to tweak the methods. Parameter b should be set between 0 and 1 and parameter k1 should be set between 1 and 2.
+BM25F and BM25FF operate with a separate b for each field.
+
+- Setting parameters used by BM25
+    - `CALL improvedSearch.setParameter(<k1-value>, <b-value>)`
+- Setting parameters used by BM25F and BM25FF
+    - `CALL improvedSearch.setFieldParameter(<k1-value>, "<field-name>", <b-value>, <boost-value>)`
+
 Ranking models and the procedure to run query:
 
 - Vector Model (require normal index)
     - `CALL improvedSearch.vectorModelSearch("<query-terms>")`
 - BM25 (require normal index)
     - `CALL improvedSearch.bm25Search("<query-terms>")`
-- BM25F (require either fielded index)
+- BM25F (require fielded index with global idf)
     - `CALL improvedSearch.bm25fSearch("<query-terms>")`
+- BM25FF (require fielded index with fielded idf)
+    - `CALL improvedSearch.bm25ffSearch("<query-terms>")`
+
 
 
 ## Search Engine Web Application

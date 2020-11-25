@@ -1,21 +1,21 @@
 package improvedSearch;
 
-import keywords.Corpus;
-import keywords.Document;
-import org.apache.commons.collections.map.HashedMap;
+
+import model.corpus.CorpusRDF;
+import model.Document;
 import org.neo4j.graphdb.*;
 import org.neo4j.procedure.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import keywords.CardKeyword;
+import result.SingleResult;
 
-import static dbUtil.indexWriter.writeIndexNode;
+import static util.IndexDeleter.prepareRDFIndex;
+import static util.IndexWriter.writeIndexNode;
 
 
 public class IndexRDF {
@@ -24,14 +24,17 @@ public class IndexRDF {
     public GraphDatabaseService db;
 
     @Procedure(value = "improvedSearch.indexRDF", mode = Mode.WRITE)
-    @Description("improvedSearch.indexRDF(query) - return the tf-idf score for nodes")
-    public Stream<EntityField> indexRDF(@Name("fetch") String input) throws IOException {
-        double documentLengthSum = 0.0;
-        try(Transaction tx = db.beginTx()){
-            Map<Long, Document> docCollection = new HashedMap();
+    @Description("improvedSearch.indexRDF(query) - return information of if indexing was a success or failure")
+    public Stream<SingleResult> indexRDF(@Name("fetch") String input) throws IOException {
 
-            // Delete old index and initialize new
-            // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
+        // Prepare db to be indexed by deleting old indexNodes
+        try(Transaction tx = db.beginTx()) {
+            prepareRDFIndex(tx);
+        }
+        double documentLengthSum = 0.0;
+        CorpusRDF corpus = new CorpusRDF();
+        try(Transaction tx = db.beginTx()){
+            Map<Long, Document> docCollection = new HashMap<>();
 
             // Retrieve nodes to index
             Result res = tx.execute(input);
@@ -49,17 +52,16 @@ public class IndexRDF {
                     }
                 });
 
-                Document doc = new Document(temp.toString());
+                Document doc = new Document(temp.toString(), corpus);
                 docCollection.put(node.getId(), doc);
 
                 documentLengthSum += doc.getDocLength();
             }
 
-            idf(docCollection);
-            Corpus corpus = new Corpus(docCollection);
-            // finish result
-            Map<CardKeyword, Double> result = new HashMap<>();
-            docCollection.forEach((k, doc) -> doc.keywords.forEach(keyword -> result.put(keyword, keyword.getTfIdf())));
+            // Calculate idf and initialize corpus values
+            corpus.calculateIDF(docCollection);
+            corpus.initCorpusValues(docCollection);
+
 
             // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
             Result res1 = tx.execute(input);
@@ -86,39 +88,9 @@ public class IndexRDF {
             tx.execute("MERGE (n:DataStats) ON CREATE SET n.meanDocumentLength= $meanLength ON MATCH SET n.meanDocumentLength= $meanLength", params);
 
             tx.commit();
-            return result.entrySet().stream().map(EntityField::new);
+        }catch (Exception e){
+            return Stream.of(SingleResult.fail());
         }
-
-    }
-
-
-    public static class EntityField {
-        public String stem;
-        public Double tfidf;
-
-        public EntityField(Map.Entry<CardKeyword, Double> entity) {
-            this.stem = entity.getKey().getStem();
-            this.tfidf = entity.getValue();
-        }
-    }
-
-    // Calculate the idf score for every document.
-    // Takes in a Map with NodeId(Long) and a Document consisting of every field as one string
-    public static void idf(Map<Long, Document> docs) {
-        int size = docs.size();
-        docs.forEach((k, d) -> {
-
-            for (CardKeyword keyword : d.keywords) {
-                AtomicReference<Double> wordCount = new AtomicReference<>((double) 0);
-                docs.forEach((k2, d2) -> {
-                    Map<String, Integer> tempMap = d2.getWordCountMap();
-                    if (tempMap.containsKey(keyword.getStem())) {
-                        wordCount.getAndSet(wordCount.get() + 1);
-                    }
-                });
-                double idf = Math.log(size / wordCount.get()) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
-                keyword.setIdf(idf);
-            }
-        });
+        return Stream.of(SingleResult.success());
     }
 }

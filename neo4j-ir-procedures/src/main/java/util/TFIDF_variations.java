@@ -18,4 +18,23 @@ public class TFIDF_variations {
         return K+(1-K)*((double)frequency/maxFrequency);
     }
 
+    /**
+     * IDF versions
+     */
+
+    public static double IDF_standard(double wordCount, int numOfDocs){
+        return Math.log((numOfDocs / wordCount)) / Math.log(2);
+    }
+
+    public static double IDF_smooth(double wordCount, int numOfDocs){
+        return Math.log((1+(numOfDocs/wordCount)))/ Math.log(2);
+    }
+
+    public static double IDF_max(double wordCount, int maxFrequency){
+        return Math.log((1+(maxFrequency/wordCount)))/ Math.log(2);
+    }
+
+    public static double IDF_probabilitic(double wordCount, int numOfDocs){
+        return Math.log(((numOfDocs-wordCount)/wordCount))/ Math.log(2);
+    }
 }

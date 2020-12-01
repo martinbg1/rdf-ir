@@ -1,6 +1,5 @@
 package model;
 
-import model.corpus.CardKeyword;
 import model.corpus.CorpusRDF;
 import util.KeywordsExtractor;
 

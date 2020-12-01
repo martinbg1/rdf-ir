@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import model.corpus.CardKeyword;
+import model.CardKeyword;
 import resultSorter.SingleResult;
 
 import static util.indexWriter.writeFieldIndexNodeTest;
@@ -100,7 +100,7 @@ public class IndexRDFFieldedNew {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeFieldIndexNodeTest(n, tx, docCollection, "Local");
+                    writeFieldIndexNodeTest(n, tx, docCollection, "Local", fieldedCorpus.getMaxFrequency());
                 });
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));

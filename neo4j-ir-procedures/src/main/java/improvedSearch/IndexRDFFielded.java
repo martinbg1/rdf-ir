@@ -88,7 +88,7 @@ public class IndexRDFFielded {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeFieldIndexNode(n, tx, docCollection, "Global");
+                    writeFieldIndexNode(n, tx, docCollection, "Global", corpus.getMaxFrequency());
                 });
             }
             fieldLengthSum.forEach((k, v) -> meanFieldLengths.put(k, v / fieldNameCollection.get(k).size()));

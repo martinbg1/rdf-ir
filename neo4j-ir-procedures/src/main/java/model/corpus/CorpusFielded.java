@@ -1,7 +1,9 @@
 package model.corpus;
 
+import model.CardKeyword;
 import model.Document;
 import model.NodeFields;
+import util.TFIDF_variations;
 
 import java.util.*;
 
@@ -33,6 +35,7 @@ public class CorpusFielded {
      * Constructs an empty corpus
      */
     private final HashMap<String, Double> documentWordCount;
+    private int maxFrequency;
 
 
     /**
@@ -84,7 +87,7 @@ public class CorpusFielded {
             for (Document field : fields.getFields()) {
                 for (CardKeyword keyword : field.keywords) {
                     double wordCount = this.getDocumentWordCount().get(keyword.getStem());
-                    double idf = Math.log((size / wordCount)) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
+                    double idf = TFIDF_variations.IDF_standard(wordCount, size); // divide on Math.log(2) to get base 2 logarithm
                     keyword.setIdf(idf);
                 }
             }
@@ -159,6 +162,10 @@ public class CorpusFielded {
 
     public List<String> getBoWByKey(String key) {
         return BoW.get(key);
+    }
+
+    public int getMaxFrequency(){
+        return this.maxFrequency;
     }
 
 

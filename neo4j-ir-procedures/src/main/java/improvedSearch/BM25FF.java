@@ -1,6 +1,6 @@
 package improvedSearch;
 
-import model.corpus.CardKeyword;
+import model.CardKeyword;
 import model.Document;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.GraphDatabaseService;

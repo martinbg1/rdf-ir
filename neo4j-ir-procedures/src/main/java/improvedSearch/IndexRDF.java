@@ -65,7 +65,7 @@ public class IndexRDF {
             Iterator<Node> n_column = res1.columnAs("d");
             while(n_column.hasNext()){
                 n_column.forEachRemaining(n -> {
-                    writeIndexNode(n, tx, docCollection);
+                    writeIndexNode(n, tx, docCollection, corpus.getMaxFrequency());
                 });
             }
             double meanDocumentLength = documentLengthSum / docCollection.size();

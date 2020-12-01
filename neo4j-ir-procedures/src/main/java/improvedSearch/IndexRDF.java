@@ -1,5 +1,6 @@
 package improvedSearch;
 
+
 import model.corpus.CorpusRDF;
 import model.Document;
 import org.neo4j.graphdb.*;
@@ -11,9 +12,10 @@ import java.util.stream.Stream;
 
 import org.neo4j.procedure.Name;
 
-import resultSorter.SingleResult;
+import result.SingleResult;
 
-import static util.indexWriter.writeIndexNode;
+import static util.IndexDeleter.prepareRDFIndex;
+import static util.IndexWriter.writeIndexNode;
 
 
 public class IndexRDF {
@@ -24,13 +26,15 @@ public class IndexRDF {
     @Procedure(value = "improvedSearch.indexRDF", mode = Mode.WRITE)
     @Description("improvedSearch.indexRDF(query) - return information of if indexing was a success or failure")
     public Stream<SingleResult> indexRDF(@Name("fetch") String input) throws IOException {
+
+        // Prepare db to be indexed by deleting old indexNodes
+        try(Transaction tx = db.beginTx()) {
+            prepareRDFIndex(tx);
+        }
         double documentLengthSum = 0.0;
         CorpusRDF corpus = new CorpusRDF();
         try(Transaction tx = db.beginTx()){
             Map<Long, Document> docCollection = new HashMap<>();
-
-            // Delete old index and initialize new
-            // tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF) detach delete i, c, idf ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);

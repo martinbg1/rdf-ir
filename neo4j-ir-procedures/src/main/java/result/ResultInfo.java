@@ -1,4 +1,4 @@
-package resultSorter;
+package result;
 
 import java.util.Map;
 

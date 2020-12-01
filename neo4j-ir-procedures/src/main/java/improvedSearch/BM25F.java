@@ -11,7 +11,7 @@ import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
-import resultSorter.ResultInfo;
+import result.ResultInfo;
 
 import java.io.IOException;
 import java.util.*;
@@ -134,7 +134,7 @@ public class BM25F {
                 if(termsStartsWith(v, qkw.getStem())) {
                     double[] idfField = (double[]) idf.get(k);
                     tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(CURRENT_TERM)]);
-                    tf.set(tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition));
+                    tf.set(tf(qkw, terms, occurrence, length, fieldAvgLength, fieldTermPosition));
                 }
 
             });
@@ -146,17 +146,16 @@ public class BM25F {
         return sum.get();
     }
 
-    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition){
+    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition){
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
 
         terms.forEach((k,v)->{
             if(termsStartsWith(v, qkw.getStem())) {
                 int[] tfField = (int[]) occurrence.get(k);
                 int tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
-
                 double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence, k);
 
-                sum.updateAndGet(v1 -> (v1 + boost * tfFieldScore));
+                sum.updateAndGet(v1 -> (v1 + boost.get(k) * tfFieldScore));
             }
         });
         return sum.get();

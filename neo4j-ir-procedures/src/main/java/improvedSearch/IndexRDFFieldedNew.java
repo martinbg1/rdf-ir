@@ -14,9 +14,10 @@ import java.util.stream.Stream;
 import org.neo4j.procedure.Name;
 
 import model.CardKeyword;
-import resultSorter.SingleResult;
+import result.SingleResult;
 
-import static util.indexWriter.writeFieldIndexNodeTest;
+import static util.IndexDeleter.prepareRDFFieldedNewIndex;
+import static util.IndexWriter.writeFieldIndexNodeTest;
 
 
 public class IndexRDFFieldedNew {
@@ -27,15 +28,17 @@ public class IndexRDFFieldedNew {
     @Procedure(value = "improvedSearch.indexRDFFieldedNew", mode = Mode.WRITE)
     @Description("improvedSearch.indexRDFFieldedNew(query) - return information of if indexing was a success or failure")
     public Stream<SingleResult> indexRDFFieldedNew(@Name("fetch") String input) throws IOException {
+
+        // Prepare db to be indexed by deleting old indexNodes
+        try(Transaction tx = db.beginTx()) {
+            prepareRDFFieldedNewIndex(tx);
+        }
         Map<String, Double> fieldLengthSum = new HashMap<>();
         Map<String, Double> meanFieldLengths = new HashMap<>();
         try(Transaction tx = db.beginTx()){
             // ArrayList<Document> accounts to a list of documents for each field.
             Map<Long, ArrayList<Document>> docCollection = new HashMap<>();
             Map<Long, ArrayList<String>> docFieldNames = new HashMap<>();
-
-            // Delete old index and initialize new
-//            tx.execute("MATCH (i:indexNode), (c:Corpus), (idf:IDF), (ds:DataStats) detach delete i, c, idf, ds ");
 
             // Retrieve nodes to index
             Result res = tx.execute(input);

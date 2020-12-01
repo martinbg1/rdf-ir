@@ -41,7 +41,7 @@ public class IndexWriter {
 //        doc.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
 
 
-        HashMap<String, Object> params = new HashMap();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("documentLength", doc.getDocLength());
         params.put("terms", terms.toArray());
         params.put("idf", idf.toArray());
@@ -55,7 +55,7 @@ public class IndexWriter {
     public static void writeFieldIndexNodeTest(Node node, Transaction tx, Map<Long, ArrayList<Document>> fieldNameCollection, String prefix, int maxFrequency) {
         fieldNameCollection.forEach((ref, doc) -> {
             if (ref.equals(node.getId())) {
-                HashMap<String, Object> params = new HashMap();
+                HashMap<String, Object> params = new HashMap<>();
                 params.put("ref", node.getId());
 
                 for (Document field : doc) {
@@ -81,7 +81,7 @@ public class IndexWriter {
 
 
 
-                    HashMap<String, Object> paramsField = new HashMap();
+                    HashMap<String, Object> paramsField = new HashMap<>();
                     paramsField.put("fieldLength", field.getDocLength());
                     paramsField.put("terms", terms.toArray());
                     paramsField.put("idf", idf.toArray());
@@ -109,7 +109,7 @@ public class IndexWriter {
     public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, NodeFields> fieldNameCollection, String prefix, int maxFrequency) {
         fieldNameCollection.forEach((ref, doc) -> {
             if (ref.equals(node.getId())) {
-                HashMap<String, Object> params = new HashMap();
+                HashMap<String, Object> params = new HashMap<>();
                 params.put("ref", node.getId());
 
                 for (Document field : doc.getFields()) {
@@ -131,7 +131,7 @@ public class IndexWriter {
                     // TODO: finne ut hva K kan være / pleier å være - legge til en bra måte å regulere denne
 //                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
 
-                    HashMap<String, Object> paramsField = new HashMap();
+                    HashMap<String, Object> paramsField = new HashMap<>();
                     paramsField.put("fieldLength", field.getDocLength());
                     paramsField.put("terms", terms.toArray());
                     paramsField.put("idf", idf.toArray());

@@ -64,6 +64,7 @@ public class Document {
         for (CardKeyword keyword : this.keywords) {
             this.wordCountMap.put(keyword.getStem(), keyword.getFrequency());
             corpus.updateWordCount(keyword);
+            corpus.updateMaxFrequency(keyword.getFrequency());
         }
         this.docLength = this.wordCountMap.values().stream().reduce(0, Integer::sum);
 

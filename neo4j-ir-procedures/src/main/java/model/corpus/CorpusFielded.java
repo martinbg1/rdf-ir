@@ -118,6 +118,9 @@ public class CorpusFielded {
                         this.BoW.get(k).add(kw.getStem());
                         this.idf.get(k).add(kw.getIdf());
                     }
+                    if(kw.getFrequency() > this.maxFrequency){
+                        this.maxFrequency = kw.getFrequency();
+                    }
                 }
             }
         });
@@ -168,6 +171,11 @@ public class CorpusFielded {
         return this.maxFrequency;
     }
 
+    public void updateMaxFrequency(int freq){
+        if(freq > this.maxFrequency){
+            this.maxFrequency = freq;
+        }
+    }
 
     public List<Double> getIdfByKey(String key) {
         return idf.get(key);

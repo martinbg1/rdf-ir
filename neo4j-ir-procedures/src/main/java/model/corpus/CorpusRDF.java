@@ -48,9 +48,6 @@ public class CorpusRDF {
                     BoW.add(kw.getStem());
                     idf.add(kw.getIdf());
                 }
-                if(kw.getFrequency() > maxFrequency){
-                    maxFrequency = kw.getFrequency();
-                }
             }
         }
     }
@@ -65,10 +62,6 @@ public class CorpusRDF {
             for (CardKeyword keyword : d.keywords) {
                 double wordCount = this.getDocumentWordCount().get(keyword.getStem());
                 double idf = TFIDF_variations.IDF_standard(wordCount, size); // divide on Math.log(2) to get base 2 logarithm
-                System.out.println("Wordcount + size :\t" + wordCount + "\t" + size);
-                System.out.println("Standard, " + keyword.getStem() + ": \t" + TFIDF_variations.IDF_standard(wordCount, size));
-                System.out.println("Smooth, " + keyword.getStem() + ": \t" + TFIDF_variations.IDF_smooth(wordCount, size));
-                System.out.println("Probabilistic, " + keyword.getStem() + ": \t" + TFIDF_variations.IDF_probabilitic(wordCount, size));
                 keyword.setIdf(idf);
             }
         });
@@ -80,6 +73,12 @@ public class CorpusRDF {
      */
     public void updateWordCount(CardKeyword keyword) {
         this.documentWordCount.merge(keyword.getStem(), 1.0, Double::sum);
+    }
+
+    public void updateMaxFrequency(int freq){
+        if(freq > this.maxFrequency){
+            this.maxFrequency = freq;
+        }
     }
 
     public List<String> getBoW() {

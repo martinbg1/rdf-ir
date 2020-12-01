@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import util.TFIDF_variations;
 
 public class indexWriter {
 
@@ -60,8 +61,20 @@ public class indexWriter {
                     List<Double> idf = new ArrayList<>();
                     field.keywords.forEach((k) ->idf.add(k.getIdf()));
 
-                    List<Integer> tf = new ArrayList<>();
-                    field.keywords.forEach((k) ->tf.add(k.getFrequency()));
+                    // Choose which TF to use
+                    List<Double> tf = new ArrayList<>();
+                    // raw frequency
+                    field.keywords.forEach((k) ->tf.add((double)k.getFrequency()));
+                    // log normalization tf
+//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_log_normalization(k.getFrequency())));
+                    // double normalization 0.5
+                    // TODO: fikse max frequency et sted
+//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_05(k.getFrequency(), 10)));
+                    // double normalization K
+                    // TODO: finne ut hva K kan være / pleier å være - legge til en bra måte å regulere denne
+//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), 10, 1)));
+
+
 
                     HashMap<String, Object> paramsField = new HashMap();
                     paramsField.put("fieldLength", field.getDocLength());

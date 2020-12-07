@@ -1,8 +1,11 @@
 package model.corpus;
 
+import model.CardKeyword;
 import model.Document;
 
 import java.util.*;
+
+import util.TFIDF_variations;
 
 public class CorpusRDF {
 
@@ -21,6 +24,8 @@ public class CorpusRDF {
      * Used to calculate idf values
      */
     private final HashMap<String, Double> documentWordCount;
+
+    private int maxFrequency = 0;
 
     /**
      * Constructs an empty corpus
@@ -56,7 +61,7 @@ public class CorpusRDF {
         docs.forEach((k, d) -> {
             for (CardKeyword keyword : d.keywords) {
                 double wordCount = this.getDocumentWordCount().get(keyword.getStem());
-                double idf = Math.log((size / wordCount)) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
+                double idf = TFIDF_variations.IDF_standard(wordCount, size); // divide on Math.log(2) to get base 2 logarithm
                 keyword.setIdf(idf);
             }
         });
@@ -70,12 +75,22 @@ public class CorpusRDF {
         this.documentWordCount.merge(keyword.getStem(), 1.0, Double::sum);
     }
 
+    public void updateMaxFrequency(int freq){
+        if(freq > this.maxFrequency){
+            this.maxFrequency = freq;
+        }
+    }
+
     public List<String> getBoW() {
         return this.BoW;
     }
 
     public ArrayList<Double> getIdf() {
         return this.idf;
+    }
+
+    public int getMaxFrequency(){
+        return this.maxFrequency;
     }
 
     public HashMap<String, Double> getDocumentWordCount() {

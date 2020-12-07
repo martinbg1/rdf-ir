@@ -1,6 +1,6 @@
 package util;
 
-import model.corpus.CardKeyword;
+import model.CardKeyword;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;

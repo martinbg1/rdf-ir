@@ -1,6 +1,6 @@
 package improvedSearch;
 
-import model.corpus.CardKeyword;
+import model.CardKeyword;
 import model.Document;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -146,8 +146,8 @@ public class BM25FF {
 
         terms.forEach((k,v)->{
             if(termsStartsWith(v, qkw.getStem())) {
-                int[] tfField = (int[]) occurrence.get(k);
-                int tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
+                double[] tfField = (double[]) occurrence.get(k);
+                double tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
                 double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence, k);
 
                 sum.updateAndGet(v1 -> (v1 + boost.get(k) * tfFieldScore));
@@ -156,7 +156,7 @@ public class BM25FF {
         return sum.get();
     }
 
-    public double tfField(int length, double avgL, int occurrence, String fieldName){
+    public double tfField(int length, double avgL, double occurrence, String fieldName){
         double bField = b.get(fieldName);
         return occurrence/(1+bField*((length/avgL)-1));
     }

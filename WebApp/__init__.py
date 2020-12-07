@@ -99,6 +99,30 @@ def get_drug():
                             mimetype="application/json")
     return 'No drugs'
 
+    """
+    Test for bruk av våre procedures :)
+    """
+@app.route('/test/')
+def get_search():
+    try:
+        q = request.args["d"]
+    except KeyError:
+        return render_template('index.html')
+    if q:
+        db = get_db()
+        print(q)
+        """
+        yield og return blir nok annerledes her..
+        """
+        results = db.run("CALL improvedSearch.bm15Search("+ q +"') "
+         "YIELD node,score "
+         "RETURN node,score limit 20"
+        )
+
+        return Response(json.dumps([serialize_disease(record) for record in results]),
+                        mimetype="application/json")
+    return 'No data'
+
 #@app.route('/search')
 #def get_disease_symptom():
 #    try:

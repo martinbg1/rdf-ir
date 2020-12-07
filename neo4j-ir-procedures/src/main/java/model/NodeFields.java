@@ -27,7 +27,7 @@ public class NodeFields {
         this.fields = fields;
         this.fieldNames = fieldNames;
         corpus.updateWordCount(this.fields);
-
+        corpus.updateMaxFrequency(fields);
     }
 
     public ArrayList<Document> getFields() {

@@ -23,7 +23,6 @@ public class IndexWriter {
     public static void writeIndexNode(Node node, Transaction tx, Map<Long, Document> docCollection, int maxFrequency) {
         Document doc = docCollection.get(node.getId());
 
-
         List<String> terms= new ArrayList<>();
         doc.keywords.forEach((k) ->terms.add(k.getStem()));
 
@@ -55,8 +54,6 @@ public class IndexWriter {
     public static void writeFieldIndexNodeTest(Node node, Transaction tx, Map<Long, ArrayList<Document>> fieldNameCollection, String prefix, int maxFrequency) {
         fieldNameCollection.forEach((ref, doc) -> {
             if (ref.equals(node.getId())) {
-                HashMap<String, Object> params = new HashMap<>();
-                params.put("ref", node.getId());
 
                 for (Document field : doc) {
                     String fieldName = field.getFieldName();
@@ -109,8 +106,6 @@ public class IndexWriter {
     public static void writeFieldIndexNode(Node node, Transaction tx, Map<Long, NodeFields> fieldNameCollection, String prefix, int maxFrequency) {
         fieldNameCollection.forEach((ref, doc) -> {
             if (ref.equals(node.getId())) {
-                HashMap<String, Object> params = new HashMap<>();
-                params.put("ref", node.getId());
 
                 for (Document field : doc.getFields()) {
                     String fieldName = field.getFieldName();

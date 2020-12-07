@@ -35,7 +35,7 @@ public class CorpusFielded {
      * Constructs an empty corpus
      */
     private final HashMap<String, Double> documentWordCount;
-    private int maxFrequency;
+    private int maxFrequency = 0;
 
 
     /**
@@ -138,6 +138,20 @@ public class CorpusFielded {
                 if (!checkedTerms.contains(keyword.getStem())) {
                     this.documentWordCount.merge(keyword.getStem(), 1.0, Double::sum);
                     checkedTerms.add(keyword.getStem());
+                }
+            }
+        }
+    }
+
+    /**
+     *  Update the max frequency
+     * @param fields List of all node fields
+     */
+    public void updateMaxFrequency(ArrayList<Document> fields){
+        for(Document field: fields){
+            for(CardKeyword kw: field.keywords){
+                if(kw.getFrequency() > this.maxFrequency){
+                    this.maxFrequency = kw.getFrequency();
                 }
             }
         }

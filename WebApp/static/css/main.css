@@ -3,7 +3,7 @@
 .header {
   padding: 10px;
   text-align: center;
-  background: #f2f2f2;
+  background: #65bfd6;
   color: black;
   font-size: 20px;
   opacity:0.9;
@@ -29,6 +29,7 @@ form {
 .btn-search {
     width:30px;
     height:30px;
+    background: #addde3;
 }
 
 input {
@@ -37,5 +38,5 @@ input {
 }
 
 #disease-data > div {
-    box-shadow: 1px 1px 5px;
+    padding: 5px 10px 5px 10px;
 }

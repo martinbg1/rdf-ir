@@ -10,6 +10,10 @@
     <input type="text" placeholder="Search.." name="search">
     <button type="submit"><i class="fa fa-search"></i></button>
 </form>
+<form role="search" id="searchTest">
+    <input type="text" placeholder="Search.." name="searchTest">
+    <button type="submit"><i class="fa fa-search"></i></button>
+</form>
 <div class="grid-container">
     <div id="disease-data">
         <p id="data-para">No data</p>
@@ -52,11 +56,28 @@
             return false
         }
 
+        function test_search(){
+            var query=$("#searchTest").find("input[name=searchTest]").val();
+            console.log(query);
+            $.get("/test?q=" + encodeURIComponent(query),
+            function (data) {
+                console.log(data);
+                if(!data) return;
+                $("#disease-data").empty();
+                data.forEach(function (disease) {
+                    $('<div> <h3> hei </h3> </div>').appendTo("#disease-data");
+                });
+            }, "json");
+            return false;
+        }
+        $("#searchTest").submit(test_search);
+        test_search();
+
         function search() {
             var query=$("#search").find("input[name=search]").val();
-            console.log(query)
             $.get("/search?q=" + encodeURIComponent(query),
             function (data) {
+                console.log(data);
                 if(!data) return;
                 //var $list = $("#data").empty();       
                 //data.forEach(function (disease) {

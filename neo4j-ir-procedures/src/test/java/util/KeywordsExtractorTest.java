@@ -1,10 +1,9 @@
 package util;
 
 import model.Document;
-import model.corpus.CardKeyword;
+import model.CardKeyword;
 import model.corpus.CorpusRDF;
 import org.junit.jupiter.api.Test;
-import util.KeywordsExtractor;
 
 import java.io.IOException;
 import java.util.HashMap;

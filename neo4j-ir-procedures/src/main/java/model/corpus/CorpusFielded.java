@@ -1,7 +1,9 @@
 package model.corpus;
 
+import model.CardKeyword;
 import model.Document;
 import model.NodeFields;
+import util.TFIDF_variations;
 
 import java.util.*;
 
@@ -33,6 +35,7 @@ public class CorpusFielded {
      * Constructs an empty corpus
      */
     private final HashMap<String, Double> documentWordCount;
+    private int maxFrequency = 0;
 
 
     /**
@@ -84,7 +87,7 @@ public class CorpusFielded {
             for (Document field : fields.getFields()) {
                 for (CardKeyword keyword : field.keywords) {
                     double wordCount = this.getDocumentWordCount().get(keyword.getStem());
-                    double idf = Math.log((size / wordCount)) / Math.log(2); // divide on Math.log(2) to get base 2 logarithm
+                    double idf = TFIDF_variations.IDF_standard(wordCount, size); // divide on Math.log(2) to get base 2 logarithm
                     keyword.setIdf(idf);
                 }
             }
@@ -115,6 +118,9 @@ public class CorpusFielded {
                         this.BoW.get(k).add(kw.getStem());
                         this.idf.get(k).add(kw.getIdf());
                     }
+                    if(kw.getFrequency() > this.maxFrequency){
+                        this.maxFrequency = kw.getFrequency();
+                    }
                 }
             }
         });
@@ -132,6 +138,20 @@ public class CorpusFielded {
                 if (!checkedTerms.contains(keyword.getStem())) {
                     this.documentWordCount.merge(keyword.getStem(), 1.0, Double::sum);
                     checkedTerms.add(keyword.getStem());
+                }
+            }
+        }
+    }
+
+    /**
+     *  Update the max frequency
+     * @param fields List of all node fields
+     */
+    public void updateMaxFrequency(ArrayList<Document> fields){
+        for(Document field: fields){
+            for(CardKeyword kw: field.keywords){
+                if(kw.getFrequency() > this.maxFrequency){
+                    this.maxFrequency = kw.getFrequency();
                 }
             }
         }
@@ -161,6 +181,15 @@ public class CorpusFielded {
         return BoW.get(key);
     }
 
+    public int getMaxFrequency(){
+        return this.maxFrequency;
+    }
+
+    public void updateMaxFrequency(int freq){
+        if(freq > this.maxFrequency){
+            this.maxFrequency = freq;
+        }
+    }
 
     public List<Double> getIdfByKey(String key) {
         return idf.get(key);

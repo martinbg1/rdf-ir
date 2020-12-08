@@ -1,6 +1,6 @@
 package improvedSearch;
 
-import model.corpus.CardKeyword;
+import model.CardKeyword;
 import model.Document;
 import org.apache.commons.collections.map.HashedMap;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -11,7 +11,7 @@ import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
-import resultSorter.ResultInfo;
+import result.ResultInfo;
 
 import java.io.IOException;
 import java.util.*;
@@ -42,7 +42,7 @@ public class BM25FF {
 
         try(Transaction tx = db.beginTx()) {
             // get all indexNodes for fields with (terms, idf, tf og fl)
-            ResourceIterator<Object> res = tx.execute("MATCH (n:fieldIndexNode) return n").columnAs("n");
+            ResourceIterator<Object> res = tx.execute("MATCH (n:fieldNewIndexNode) return n").columnAs("n");
 
             Node parameters = (Node) tx.execute("MATCH (n:ParametersFielded) return n").columnAs("n").next();
             parameters.getAllProperties().forEach((k,v)->{
@@ -129,7 +129,7 @@ public class BM25FF {
                 if(termsStartsWith(v, qkw.getStem())) {
                     double[] idfField = (double[]) idf.get(k);
                     tempIdf.getAndSet(idfField[fieldTermPosition.get(k).get(CURRENT_TERM)]);
-                    tf.set(tf(qkw, terms, occurrence, 1, length, fieldAvgLength, fieldTermPosition));
+                    tf.set(tf(qkw, terms, occurrence, length, fieldAvgLength, fieldTermPosition));
                 }
 
             });
@@ -141,23 +141,22 @@ public class BM25FF {
         return sum.get();
     }
 
-    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, double boost, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition){
+    public double tf(CardKeyword qkw, Map<String, String[]> terms, HashedMap occurrence, Map<String, Integer> length, Map<String, Object> fieldAvgLength, Map<String, Map<String,Integer>> termPosition){
         AtomicReference<Double> sum = new AtomicReference<>(0.0);
 
         terms.forEach((k,v)->{
             if(termsStartsWith(v, qkw.getStem())) {
-                int[] tfField = (int[]) occurrence.get(k);
-                int tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
-
+                double[] tfField = (double[]) occurrence.get(k);
+                double tempOccurrence = tfField[termPosition.get(k).get(CURRENT_TERM)];
                 double tfFieldScore = tfField(length.get(k), (Double) fieldAvgLength.get(k), tempOccurrence, k);
 
-                sum.updateAndGet(v1 -> (v1 + boost * tfFieldScore));
+                sum.updateAndGet(v1 -> (v1 + boost.get(k) * tfFieldScore));
             }
         });
         return sum.get();
     }
 
-    public double tfField(int length, double avgL, int occurrence, String fieldName){
+    public double tfField(int length, double avgL, double occurrence, String fieldName){
         double bField = b.get(fieldName);
         return occurrence/(1+bField*((length/avgL)-1));
     }

@@ -26,7 +26,7 @@ public class IndexRDFTest {
                 .withFixture(
                         "CREATE (d1:Doc {field1:'dog blue', field2:'cat red dog'})" +
                                 "CREATE (d2:Doc {field1:'green, red', field2:'blue blue cat'})" +
-                                "CREATE (d3:Doc {field1:'dog rat rat'})")
+                                "CREATE (d3:Doc {field1:'dog rat rat rat'})")
                 .build();
     }
 

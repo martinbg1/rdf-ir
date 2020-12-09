@@ -46,10 +46,11 @@ def serialize_drug(drug):
     }
 
 def serialize_results(res):
+    node = json.loads(res['node'])
     return {
-        'name': res[0][0],
-        'description': res[0][1],
-        'altNames': res[0][2],
+        'name': node['name'],
+        'description': node['description'],
+        'altNames': node['altNames'],
         'score': res['score']
     }
 
@@ -64,7 +65,7 @@ def get_search():
         print(q)
         # db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
         # call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease'],['name','description','altNames'], {analyzer: "english"})
-        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +"^3 OR altNames:" + q + "^2 OR description:" + q + "') "
+        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +" OR altNames:" + q + " OR description:" + q + "') "
          "YIELD node,score " 
          "RETURN node,score limit 20"
         )

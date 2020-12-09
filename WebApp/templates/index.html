@@ -65,7 +65,8 @@
                 if(!data) return;
                 $("#disease-data").empty();
                 data.forEach(function (disease) {
-                    $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data");
+                    $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
+                    .click(function() { showSymptom(disease.name), showDrug(disease.name)});
                 });
             }, "json");
             return false;

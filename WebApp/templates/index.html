@@ -8,13 +8,11 @@
 <div class="header">
     <h1>Search for diseases</h1>
 </div>
-<form role="search" id="search">
-    <input type="text" placeholder="Search.." name="search">
-    <button type="submit"><i class="fa fa-search"></i></button>
-</form>
+
 <form role="search" id="searchTest">
     <input type="text" placeholder="Search.." name="searchTest">
-    <button type="submit"><i class="fa fa-search"></i></button>
+    <button type="submit" value="fulltext" onclick="return search()">Fulltext<i class="fa fa-search"></i></button>
+    <button type="submit" value="BM25" onclick="return test_search()">BM25<i class="fa fa-search"></i></button>
 </form>
 
 <div class="grid-container">
@@ -29,77 +27,73 @@
         <div id="drug-text">No drugs</div>
     </div>
 </div>
+
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript">
-    $(function () {
-        function showSymptom(disease) {
-            $("#symptom-text").empty()
-            $.get("symptom?d=" + encodeURIComponent(disease), 
-            function (data) {
-                if(!data) return
-                let symp = []
-                data.forEach(function (symptom) {
-                    symp.push(symptom.name)
-                })
-                $("#symptom-text").append('<p>' + symp.join(', ') + '</p>');
-            }, "json");
-            return false
-        }
+    function showSymptom(disease) {
+        $("#symptom-text").empty()
+        $.get("symptom?d=" + encodeURIComponent(disease),
+        function (data) {
+            if(!data) return
+            let symp = []
+            data.forEach(function (symptom) {
+                symp.push(symptom.name)
+            })
+            $("#symptom-text").append('<p>' + symp.join(', ') + '</p>');
+        }, "json");
+        return false
+    }
 
-        function showDrug(disease){
-            $("#drug-text").empty()
-            $.get("drug?d=" + encodeURIComponent(disease), 
-            function (data) {
-                if(!data) return
-                let dr = []
-                data.forEach(function (drug) {
-                    dr.push(drug.name)
-                })
-                $("#drug-text").append('<p>' + dr.join(', ') + '</p>');
-            }, "json");
-            return false
-        }
+    function showDrug(disease){
+        $("#drug-text").empty()
+        $.get("drug?d=" + encodeURIComponent(disease),
+        function (data) {
+            if(!data) return
+            let dr = []
+            data.forEach(function (drug) {
+                dr.push(drug.name)
+            })
+            $("#drug-text").append('<p>' + dr.join(', ') + '</p>');
+        }, "json");
+        return false
+    }
 
-        function test_search(){
-            var query=$("#searchTest").find("input[name=searchTest]").val();
-            console.log(query);
-            $.get("/test?q=" + encodeURIComponent(query),
-            function (data) {
-                console.log(data);
-                if(!data) return;
-                $("#disease-data").empty();
-                data.forEach(function (disease) {
-                    $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
-                    .click(function() { showSymptom(disease.name), showDrug(disease.name)});
-                });
-            }, "json");
-            return false;
-        }
-        $("#searchTest").submit(test_search);
-        test_search();
+    function test_search(){
+        var query=$("#searchTest").find("input[name=searchTest]").val();
+        console.log("bm");
+        console.log(query);
+        $.get("/test?q=" + encodeURIComponent(query),
+        function (data) {
+            console.log(data);
+            if(!data) return;
+            $("#disease-data").empty();
+            data.forEach(function (disease) {
+                $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
+                .click(function() { showSymptom(disease.name), showDrug(disease.name)});
+            });
+        }, "json");
+        return false;
+    }
 
-        function search() {
-            var query=$("#search").find("input[name=search]").val();
-            $.get("/search?q=" + encodeURIComponent(query),
-            function (data) {
-                console.log(data);
-                if(!data) return;
-                //var $list = $("#data").empty();       
-                //data.forEach(function (disease) {
-                //            $list.append($("<li style='list-style-type: none'>" + "<b> Name: </b>" + disease.name + " <b> Description: </b>" + disease.description + " " + '<b> alias: </b>' + disease.altNames +"</li>"));
-                //        });
-                $("#disease-data").empty();
-                $("#symptom-text").empty();
-                $("#drug-text").empty();
-                data.forEach(function (disease) {
-                    $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
-                            .click(function() { showSymptom(disease.name), showDrug(disease.name)});
-                });
-            }, "json");
-            return false;
-        }
-        $("#search").submit(search);
-        search();
-    })
+
+    function search() {
+        var query=$("#searchTest").find("input[name=searchTest]").val();
+        console.log("full");
+        $.get("/search?q=" + encodeURIComponent(query),
+        function (data) {
+            console.log(data);
+            if(!data) return;
+            $("#disease-data").empty();
+            $("#symptom-text").empty();
+            $("#drug-text").empty();
+            data.forEach(function (disease) {
+                $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
+                        .click(function() { showSymptom(disease.name), showDrug(disease.name)});
+            });
+        }, "json");
+        return false;
+    }
+
 </script>
-{% endblock %} 
+
+{% endblock %}

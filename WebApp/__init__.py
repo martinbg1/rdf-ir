@@ -46,7 +46,10 @@ def serialize_drug(drug):
     }
 
 def serialize_results(res):
-    node = json.loads(res['node'])
+    try:
+        node = json.loads(res['node'])
+    except:
+        return 'no data'
     return {
         'name': node['name'],
         'description': node['description'],

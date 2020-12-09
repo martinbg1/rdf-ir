@@ -122,10 +122,7 @@ def get_test():
         """
         yield og return blir nok annerledes her..
         """
-        results = db.run('CALL improvedSearch.bm25Search("'+ q +'") '
-        "YIELD node,score "
-        "RETURN node,score "
-        )
+        results = db.run('CALL improvedSearch.bm25Search("'+ q +'") ')
 
         return Response(json.dumps([serialize_results(record) for record in results]),
                                 mimetype="application/json")

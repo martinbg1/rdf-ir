@@ -86,7 +86,11 @@ public class BM25FF {
                         fieldLength.put(removeSuffix(k,"Length"),(int) v);
                     }
                 });
-                result.put((Long)node.getProperty("ref"),bm25ffScore(terms, TF, IDF, fieldLength,fieldAvgLength, qDoc));
+
+                double score = bm25ffScore(terms, TF, IDF, fieldLength, fieldAvgLength, qDoc);
+                if (score > 0.0) {
+                    result.put((Long)node.getProperty("ref"), score);
+                }
             }
         }
 

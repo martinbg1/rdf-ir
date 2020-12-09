@@ -45,16 +45,21 @@ public class BM25 {
             double meanDocumentLength = (double) tx.execute("MATCH (n:DataStats) return n.meanDocumentLength").columnAs("n.meanDocumentLength").next();
 
             // fill result with a node and its corresponding BM25 score
-            res.forEachRemaining(n -> result.put((Long)((Node) n).getProperty("ref"), bm25Score(
-                    (String[])((Node) n).getProperty("terms"),
-                    (double[])((Node) n).getProperty("idf"),
-                    (double[])((Node) n).getProperty("tf"),
-                    (int)((Node) n).getProperty("dl"),
-                    meanDocumentLength,
-                    (double) params.getProperty("k1"),
-                    (double) params.getProperty("b"),
-                    qDoc)));
+            res.forEachRemaining(n -> {
+                        double score = bm25Score(
+                                (String[])((Node) n).getProperty("terms"),
+                                (double[])((Node) n).getProperty("idf"),
+                                (double[])((Node) n).getProperty("tf"),
+                                (int)((Node) n).getProperty("dl"),
+                                meanDocumentLength,
+                                (double) params.getProperty("k1"),
+                                (double) params.getProperty("b"),
+                                qDoc);
 
+                        if (score > 0.0) {
+                            result.put((Long)((Node) n).getProperty("ref"), score);
+                        }
+                    });
             };
             Map<String, Double> nodeMap = sortResultInfo(result, db, 10);
             return nodeMap.entrySet().stream().map(ResultInfo::new);

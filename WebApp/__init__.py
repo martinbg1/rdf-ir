@@ -45,6 +45,13 @@ def serialize_drug(drug):
         'altNames': drug['altNames']
     }
 
+def serialize_results(res):
+    return {
+        'name': res[0][0],
+        'description': res[0][1],
+        'altNames': res[0][2],
+        'score': res['score']
+    }
 
 @app.route('/search')
 def get_search():
@@ -119,7 +126,8 @@ def get_test():
         "RETURN node,score "
         )
 
-        return Response(json.dumps(results.single()[0]))
+        return Response(json.dumps([serialize_results(record) for record in results]),
+                                mimetype="application/json")
     return 'No data'
 
 #@app.route('/search')

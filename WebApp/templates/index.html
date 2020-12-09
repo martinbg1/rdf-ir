@@ -9,10 +9,12 @@
     <h1>Search for diseases</h1>
 </div>
 
-<form role="search" id="searchTest">
-    <input type="text" placeholder="Search.." name="searchTest">
-    <button type="submit" value="fulltext" onclick="return search()">Fulltext<i class="fa fa-search"></i></button>
-    <button type="submit" value="BM25" onclick="return test_search()">BM25<i class="fa fa-search"></i></button>
+<form role="search" id="searchForm">
+    <input type="text" placeholder="Search.." name="searchInput">
+    <button type="submit" onclick="return fulltext_search()">Fulltext<i class="fa fa-search"></i></button>
+    <button type="submit" onclick="return BM25_search()">BM25<i class="fa fa-search"></i></button>
+    <button type="submit" onclick="return BM25F_search()">BM25F<i class="fa fa-search"></i></button>
+    <!-- <button type="submit" onclick="return BM25FF_search()">BM25FF<i class="fa fa-search"></i></button> -->
 </form>
 
 <div class="grid-container">
@@ -58,11 +60,9 @@
         return false
     }
 
-    function test_search(){
-        var query=$("#searchTest").find("input[name=searchTest]").val();
-        console.log("bm");
-        console.log(query);
-        $.get("/test?q=" + encodeURIComponent(query),
+    function BM25_search(){
+        var query=$("#searchForm").find("input[name=searchInput]").val();
+        $.get("/BM25Search?q=" + encodeURIComponent(query),
         function (data) {
             console.log(data);
             if(!data) return;
@@ -75,11 +75,39 @@
         return false;
     }
 
+    function BM25F_search(){
+        var query=$("#searchForm").find("input[name=searchInput]").val();
+        $.get("/BM25FSearch?q=" + encodeURIComponent(query),
+        function (data) {
+            console.log(data);
+            if(!data) return;
+            $("#disease-data").empty();
+            data.forEach(function (disease) {
+                $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
+                .click(function() { showSymptom(disease.name), showDrug(disease.name)});
+            });
+        }, "json");
+        return false;
+    }
 
-    function search() {
-        var query=$("#searchTest").find("input[name=searchTest]").val();
-        console.log("full");
-        $.get("/search?q=" + encodeURIComponent(query),
+    // function BM25FF_search(){
+    //     var query=$("#searchForm").find("input[name=searchInput]").val();
+    //     $.get("/BM25FFSearch?q=" + encodeURIComponent(query),
+    //     function (data) {
+    //         console.log(data);
+    //         if(!data) return;
+    //         $("#disease-data").empty();
+    //         data.forEach(function (disease) {
+    //             $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
+    //             .click(function() { showSymptom(disease.name), showDrug(disease.name)});
+    //         });
+    //     }, "json");
+    //     return false;
+    // }
+
+    function fulltext_search() {
+        var query=$("#searchForm").find("input[name=searchInput]").val();
+        $.get("/fulltextSearch?q=" + encodeURIComponent(query),
         function (data) {
             console.log(data);
             if(!data) return;

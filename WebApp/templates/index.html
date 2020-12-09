@@ -8,12 +8,14 @@
 <div class="header">
     <h1>Search for diseases</h1>
 </div>
-<div class="search">
-    <form role="search" id="search">
-        <input type="text" placeholder="Search.." name="search">
-        <button type="submit" class="btn-search"><i class="fa fa-search"></i></button>
-    </form>
-</div>
+<form role="search" id="search">
+    <input type="text" placeholder="Search.." name="search">
+    <button type="submit"><i class="fa fa-search"></i></button>
+</form>
+<form role="search" id="searchTest">
+    <input type="text" placeholder="Search.." name="searchTest">
+    <button type="submit"><i class="fa fa-search"></i></button>
+</form>
 
 <div class="grid-container">
     <div id="disease-data">
@@ -58,11 +60,29 @@
             return false
         }
 
+        function test_search(){
+            var query=$("#searchTest").find("input[name=searchTest]").val();
+            console.log(query);
+            $.get("/test?q=" + encodeURIComponent(query),
+            function (data) {
+                console.log(data);
+                if(!data) return;
+                $("#disease-data").empty();
+                data.forEach(function (disease) {
+                    $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
+                    .click(function() { showSymptom(disease.name), showDrug(disease.name)});
+                });
+            }, "json");
+            return false;
+        }
+        $("#searchTest").submit(test_search);
+        test_search();
+
         function search() {
             var query=$("#search").find("input[name=search]").val();
-            console.log(query)
             $.get("/search?q=" + encodeURIComponent(query),
             function (data) {
+                console.log(data);
                 if(!data) return;
                 //var $list = $("#data").empty();       
                 //data.forEach(function (disease) {

@@ -45,6 +45,17 @@ def serialize_drug(drug):
         'altNames': drug['altNames']
     }
 
+def serialize_results(res):
+    try:
+        node = json.loads(res['node'])
+    except:
+        return 'no data'
+    return {
+        'name': node['name'],
+        'description': node['description'],
+        'altNames': node['altNames'],
+        'score': res['score']
+    }
 
 @app.route('/search')
 def get_search():
@@ -57,7 +68,7 @@ def get_search():
         print(q)
         # db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
         # call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease'],['name','description','altNames'], {analyzer: "english"})
-        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +"^3 OR altNames:" + q + "^2 OR description:" + q + "') "
+        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +" OR altNames:" + q + " OR description:" + q + "') "
          "YIELD node,score " 
          "RETURN node,score limit 20"
         )
@@ -98,6 +109,27 @@ def get_drug():
         return Response(json.dumps([serialize_drug(record['dr']) for record in results]),
                             mimetype="application/json")
     return 'No drugs'
+
+"""
+Test for bruk av våre procedures :)
+"""
+@app.route('/test')
+def get_test():
+    try:
+        q = request.args["q"]
+    except KeyError:
+        return render_template('index.html')
+    if q:
+        db = get_db()
+        print(q)
+        """
+        yield og return blir nok annerledes her..
+        """
+        results = db.run('CALL improvedSearch.bm25Search("'+ q +'") ')
+
+        return Response(json.dumps([serialize_results(record) for record in results]),
+                                mimetype="application/json")
+    return 'No data'
 
 #@app.route('/search')
 #def get_disease_symptom():

@@ -57,8 +57,8 @@ def serialize_results(res):
         'score': res['score']
     }
 
-@app.route('/search')
-def get_search():
+@app.route('/fulltextSearch')
+def get_fulltext_search():
     try:
         q = request.args["q"]
     except KeyError:
@@ -85,7 +85,6 @@ def get_symptom():
     except KeyError:
         return render_template('index.html')
     if disease:
-        #print(disease)
         db = get_db()
         results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
                     "where d.name = $disease "
@@ -101,7 +100,6 @@ def get_drug():
     except KeyError:
         return render_template('index.html')
     if disease:
-        #print(disease)
         db = get_db()
         results = db.run("match (d:Disease)-[:usesDrug]->(dr:Drug) "
                     "where d.name = $disease "
@@ -113,23 +111,48 @@ def get_drug():
 """
 Test for bruk av våre procedures :)
 """
-@app.route('/test')
-def get_test():
+@app.route('/BM25Search')
+def get_BM25_search():
     try:
         q = request.args["q"]
     except KeyError:
         return render_template('index.html')
     if q:
         db = get_db()
-        print(q)
-        """
-        yield og return blir nok annerledes her..
-        """
         results = db.run('CALL improvedSearch.bm25Search("'+ q +'") ')
 
         return Response(json.dumps([serialize_results(record) for record in results]),
                                 mimetype="application/json")
     return 'No data'
+
+@app.route('/BM25FSearch')
+def get_BM25F_search():
+    try:
+        q = request.args["q"]
+    except KeyError:
+        return render_template('index.html')
+    if q:
+        db = get_db()
+        results = db.run('CALL improvedSearch.bm25fSearch("'+ q +'") ')
+
+        return Response(json.dumps([serialize_results(record) for record in results]),
+                                mimetype="application/json")
+    return 'No data'
+
+# @app.route('/BM25FFSearch')
+# def get_BM25F_search():
+#     try:
+#         q = request.args["q"]
+#     except KeyError:
+#         return render_template('index.html')
+#     if q:
+#         db = get_db()
+#         results = db.run('CALL improvedSearch.bm25ffSearch("'+ q +'") ')
+
+#         return Response(json.dumps([serialize_results(record) for record in results]),
+#                                 mimetype="application/json")
+#     return 'No data'
+
 
 #@app.route('/search')
 #def get_disease_symptom():

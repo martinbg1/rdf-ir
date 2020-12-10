@@ -31,6 +31,7 @@ form {
     background-color: #0099CC; /* Blue background color */
     border-radius: 5px; /* Curve of border corners */
     border-style: none;
+    font-weight: bold;
     color: white; /* Text color */
 }
 

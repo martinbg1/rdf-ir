@@ -1,7 +1,7 @@
 package improvedSearch;
 
+import model.CardKeyword;
 import result.ResultInfo;
-import model.corpus.CardKeyword;
 import model.Document;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -45,16 +45,21 @@ public class BM25 {
             double meanDocumentLength = (double) tx.execute("MATCH (n:DataStats) return n.meanDocumentLength").columnAs("n.meanDocumentLength").next();
 
             // fill result with a node and its corresponding BM25 score
-            res.forEachRemaining(n -> result.put((Long)((Node) n).getProperty("ref"), bm25Score(
-                    (String[])((Node) n).getProperty("terms"),
-                    (double[])((Node) n).getProperty("idf"),
-                    (int[])((Node) n).getProperty("tf"),
-                    (int)((Node) n).getProperty("dl"),
-                    meanDocumentLength,
-                    (double) params.getProperty("k1"),
-                    (double) params.getProperty("b"),
-                    qDoc)));
+            res.forEachRemaining(n -> {
+                        double score = bm25Score(
+                                (String[])((Node) n).getProperty("terms"),
+                                (double[])((Node) n).getProperty("idf"),
+                                (double[])((Node) n).getProperty("tf"),
+                                (int)((Node) n).getProperty("dl"),
+                                meanDocumentLength,
+                                (double) params.getProperty("k1"),
+                                (double) params.getProperty("b"),
+                                qDoc);
 
+                        if (score > 0.0) {
+                            result.put((Long)((Node) n).getProperty("ref"), score);
+                        }
+                    });
             };
             Map<String, Double> nodeMap = sortResultInfo(result, db, 10);
             return nodeMap.entrySet().stream().map(ResultInfo::new);
@@ -73,7 +78,7 @@ public class BM25 {
      * @param query - (Document) query document with query terms as keywords
      * @return - (double) returns the summed bm25 score for all the terms in a document (node)
      */
-    public static double bm25Score(String[] docTerms, double[] idf, int[] tf, int dl, double avgDl, double k1, double b, Document query){
+    public static double bm25Score(String[] docTerms, double[] idf, double[] tf, int dl, double avgDl, double k1, double b, Document query){
 
         // Map with term (String) as key and index of term (Integer) as value
         Map<String, Integer> termPosition = new HashMap<>();
@@ -90,7 +95,7 @@ public class BM25 {
         for(CardKeyword kw : query.keywords){
             if(termsStartsWith(docTerms, kw.getStem())){
                 double tempIdf = idf[termPosition.get(CURRENT_TERM)];
-                int tempTf = tf[termPosition.get(CURRENT_TERM)];
+                double tempTf = tf[termPosition.get(CURRENT_TERM)];
                 sum += tempIdf*((tempTf*(k1+1))/(tempTf+k1*(1-b+(b*(dl/avgDl)))));
 
             }

@@ -38,7 +38,7 @@ public class VectorModel {
             while (res.hasNext()) {
                 Node tempNode = (Node) res.next();
                 String[] indexTerms = (String[]) tempNode.getProperty("terms");
-                int[] indexTF = (int[]) tempNode.getProperty("tf");
+                double[] indexTF = (double[]) tempNode.getProperty("tf");
                 double[] indexIDF = (double[]) tempNode.getProperty("idf");
                 Long nodeID = (Long) tempNode.getProperty("ref");
                 double[] documentVector = setDocumentVector(queryDoc, indexTerms, indexTF, indexIDF);
@@ -78,7 +78,7 @@ public class VectorModel {
         }
     }
 
-    public static double[] setDocumentVector(Document query, String[] terms, int[] tf, double[] idf) {
+    public static double[] setDocumentVector(Document query, String[] terms, double[] tf, double[] idf) {
         double[] documentVector = new double[query.keywords.size()];
 
         for (int i = 0; i < query.keywords.size(); i++) {

@@ -1,5 +1,7 @@
 package util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -60,12 +62,21 @@ public class ResultUtil {
             } else {
                 topRes = sortedResult;
             }
+
+            ObjectMapper objectMapper = new ObjectMapper();
             // loop through top results and query result Node
             for(Map.Entry<Long, Double> entry : topRes){
                 HashMap<String, Object> params = new HashMap<>();
                 params.put("nodeId", entry.getKey());
                 Node tempNode = (Node)(tx1.execute("MATCH (n) WHERE ID(n) =$nodeId return n", params).columnAs("n").next());
-                nodeMap.put(tempNode.getAllProperties().toString(), entry.getValue());
+                String jsonResult = "";
+                try {
+                    jsonResult = objectMapper.writeValueAsString(tempNode.getAllProperties());
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+
+                nodeMap.put(jsonResult, entry.getValue());
             }
         }
         return nodeMap;

@@ -45,9 +45,20 @@ def serialize_drug(drug):
         'altNames': drug['altNames']
     }
 
+def serialize_results(res):
+    try:
+        node = json.loads(res['node'])
+    except:
+        return 'no data'
+    return {
+        'name': node['name'],
+        'description': node['description'],
+        'altNames': node['altNames'],
+        'score': res['score']
+    }
 
-@app.route('/search')
-def get_search():
+@app.route('/fulltextSearch')
+def get_fulltext_search():
     try:
         q = request.args["q"]
     except KeyError:
@@ -57,7 +68,7 @@ def get_search():
         print(q)
         # db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
         # call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease'],['name','description','altNames'], {analyzer: "english"})
-        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +"^3 OR altNames:" + q + "^2 OR description:" + q + "') "
+        results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +" OR altNames:" + q + " OR description:" + q + "') "
          "YIELD node,score " 
          "RETURN node,score limit 20"
         )
@@ -74,7 +85,6 @@ def get_symptom():
     except KeyError:
         return render_template('index.html')
     if disease:
-        #print(disease)
         db = get_db()
         results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
                     "where d.name = $disease "
@@ -90,7 +100,6 @@ def get_drug():
     except KeyError:
         return render_template('index.html')
     if disease:
-        #print(disease)
         db = get_db()
         results = db.run("match (d:Disease)-[:usesDrug]->(dr:Drug) "
                     "where d.name = $disease "
@@ -98,6 +107,52 @@ def get_drug():
         return Response(json.dumps([serialize_drug(record['dr']) for record in results]),
                             mimetype="application/json")
     return 'No drugs'
+
+"""
+Test for bruk av våre procedures :)
+"""
+@app.route('/BM25Search')
+def get_BM25_search():
+    try:
+        q = request.args["q"]
+    except KeyError:
+        return render_template('index.html')
+    if q:
+        db = get_db()
+        results = db.run('CALL improvedSearch.bm25Search("'+ q +'") ')
+
+        return Response(json.dumps([serialize_results(record) for record in results]),
+                                mimetype="application/json")
+    return 'No data'
+
+@app.route('/BM25FSearch')
+def get_BM25F_search():
+    try:
+        q = request.args["q"]
+    except KeyError:
+        return render_template('index.html')
+    if q:
+        db = get_db()
+        results = db.run('CALL improvedSearch.bm25fSearch("'+ q +'") ')
+
+        return Response(json.dumps([serialize_results(record) for record in results]),
+                                mimetype="application/json")
+    return 'No data'
+
+# @app.route('/BM25FFSearch')
+# def get_BM25F_search():
+#     try:
+#         q = request.args["q"]
+#     except KeyError:
+#         return render_template('index.html')
+#     if q:
+#         db = get_db()
+#         results = db.run('CALL improvedSearch.bm25ffSearch("'+ q +'") ')
+
+#         return Response(json.dumps([serialize_results(record) for record in results]),
+#                                 mimetype="application/json")
+#     return 'No data'
+
 
 #@app.route('/search')
 #def get_disease_symptom():

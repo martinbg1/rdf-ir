@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="header">
+    <h1>Thank you for participating!</h1>
+</div>
+<h3>Query keywords: {{query[0]}}. Query description: {{query[1]}} </h3>
+
+
+{% for result in query_result %} 
+<div> 
+    <h3> {{result.name}} </h3> 
+    <p>{{result.description}}<p>
+    <p>{{result.altNames}} <p>
+    <p>{{result.score}} </p>
+</div>
+{% endfor %} 
+{% endblock %}

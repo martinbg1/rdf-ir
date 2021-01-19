@@ -8,9 +8,9 @@ CREATE TABLE Tester (
 
 CREATE TABLE Query (
    query_id INTEGER PRIMARY KEY AUTOINCREMENT,
-   dataset TEXT NOT NULL,
    query_text TEXT NOT NULL,
-   query_description TEXT NOT NULL
+   query_description TEXT NOT NULL,
+   dataset TEXT NOT NULL
 );
 
 CREATE TABLE DataDisease (
@@ -40,3 +40,7 @@ CREATE TABLE DataMovie (
     FOREIGN KEY (tester_id) REFERENCES Tester(tester_id) 
         ON DELETE CASCADE
 );
+
+INSERT INTO Query(query_text, query_description, dataset) values ("covid", "Find disease named covid", "Disease");
+INSERT INTO Query(query_text, query_description, dataset) values ("leukemia", "Find disease named leukemia", "Disease");
+INSERT INTO Query(query_text, query_description, dataset) values ("matrix", "Find movies in the matrix franchise", "Movie");

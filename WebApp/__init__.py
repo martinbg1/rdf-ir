@@ -11,7 +11,7 @@ url = os.getenv("NEO4J_URL","bolt://localhost")
 password = os.getenv("NEO4J_PASSWORD", "test")
 driver = GraphDatabase.driver(url,auth=basic_auth("neo4j", '123'),encrypted=False)
 
-def get_db():
+def get_neo_db():
     if not hasattr(g, 'neo4j_db'):
         g.neo4j_db = driver.session()
     return g.neo4j_db

@@ -46,10 +46,22 @@ def add_test_result_disease(conn, method, result_rank, relevancy, query_id, test
     conn.commit()
 
 
+def get_disease_query(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT query_text, query_description FROM Query WHERE dataset='Disease' LIMIT 1")
+    return cur.fetchall()
+
+
 # current working directory is ./WebApp/db
 if __name__ == '__main__':
     build_path = "scripts/dbBuildTableScript.sql"
     drop_path = "scripts/dbDropTableScript.sql"
 
     conn = db_connect("rdf-ir.db")
+
+    # rows = get_disease_query(conn)
+    rows = get_disease_query(conn)
+
+    print(rows)
+
     conn.close()

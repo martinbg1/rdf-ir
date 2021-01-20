@@ -5,7 +5,7 @@ from WebApp.util.serialize_search import *
 from WebApp.forms import RadioForm
 
 
-@app.route('/home')
+@app.route('/home', methods=['GET','POST'])
 def home():
     # connect to sqlite3 db
     conn = db_connect("./db/rdf-ir.db")
@@ -16,6 +16,10 @@ def home():
     results = db.run('CALL improvedSearch.bm25Search("'+ query[0] +'") ')
     serialized_result = [serialize_results(record) for record in results]
     form = RadioForm()
+
+    if form.is_submitted():
+        result = request.form
+        return render_template('result.html', result=result)
 
     return render_template('home.html', query=query, query_result=serialized_result, form=form)
 
@@ -28,4 +32,4 @@ def index():
 
 @app.route('/landing')
 def landing():
-    return render_template('landing.html')
+    return render_template("landing.html")

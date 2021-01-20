@@ -19,4 +19,17 @@
     <p>{{result.score}} </p>
 </div>
 {% endfor %} 
+
+<form action="" method="POST" novalidate>
+
+    {% for result in query_result %}
+    <p>
+        {{ form.label }}
+        {{ form.score }}
+    </p>
+    {% endfor %}
+
+<!--Mulig dette ikke fungerer med submit på denne måten... må testes og greier-->
+<!--{{ form.submit }}-->
+</form>
 {% endblock %}

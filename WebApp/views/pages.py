@@ -2,6 +2,7 @@ from flask import Flask, g, Response, jsonify, render_template, request
 from WebApp import app, get_neo_db
 from WebApp.db.db_util import *
 from WebApp.util.serialize_search import *
+from WebApp.forms import RadioForm
 
 
 @app.route('/home')
@@ -14,8 +15,9 @@ def home():
     db = get_neo_db()
     results = db.run('CALL improvedSearch.bm25Search("'+ query[0] +'") ')
     serialized_result = [serialize_results(record) for record in results]
+    form = RadioForm()
 
-    return render_template('home.html', query=query, query_result=serialized_result)
+    return render_template('home.html', query=query, query_result=serialized_result, form=form)
 
 
 # render index
@@ -23,3 +25,7 @@ def home():
 def index():
     return render_template('index.html')
 
+
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')

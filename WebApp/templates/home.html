@@ -20,7 +20,7 @@
 </div>
 {% endfor %} 
 
-<form action="\handleForm?queryId={{query[0]}}" method="post" novalidate>
+<form action="/handleForm/?queryId={{query[0]}}" method="post" novalidate>
     {% for result in query_result %}
     <p>
         <input type='radio' value="0" name='{{loop.index0}}'>0 - not relevant</input>
@@ -33,6 +33,6 @@
     {% endfor %}
 <!--Mulig dette ikke fungerer med submit på denne måten... må testes og greier-->
 <!--{{ form.submit }}-->
-<input type="submit">Submit</input>
+<input type="submit"/>
 </form>
 {% endblock %}

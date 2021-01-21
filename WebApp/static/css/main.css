@@ -21,10 +21,16 @@ body {
     grid-template-columns: 800px 500px;
 }
 
-form {
-    padding: 20px 0 0px 0px;
-    text-align:center;
+
+.container {
+    display: flex;
 }
+
+fieldset{
+    display: inline-block;
+    line-height: 2;
+}
+
 
 .submit{
     padding: 7px;
@@ -46,4 +52,8 @@ input {
 
 #disease-data > div {
     padding: 5px 10px 5px 10px;
+}
+
+#qr, #f {
+    flex: 1;
 }

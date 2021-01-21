@@ -52,6 +52,18 @@ def get_disease_query(conn):
     return cur.fetchall()
 
 
+def get_random_disease_queries(conn, n):
+    cur = conn.cursor()
+    cur.execute("SELECT query_text, query_description FROM Query WHERE dataset='Disease' ORDER BY RANDOM() LIMIT ?", (n,))
+    return cur.fetchall()
+
+
+def get_random_movie_queries(conn, n):
+    cur = conn.cursor()
+    cur.execute("SELECT query_text, query_description FROM Query WHERE dataset='Movie' ORDER BY RANDOM() LIMIT ?", (n,))
+    return cur.fetchall()
+
+
 # current working directory is ./WebApp/db
 if __name__ == '__main__':
     build_path = "scripts/dbBuildTableScript.sql"

@@ -72,3 +72,7 @@ input {
     border-width: 1px;
     border-radius: 3px;
 }
+
+input:required:invalid{
+    border-color: #c00000;
+}

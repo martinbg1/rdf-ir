@@ -6,33 +6,30 @@
 
 {% block body %}
 <div class="header">
-    <h1>Thank you for participating!</h1>
+    <h3>Query keywords: {{query[1]}}</h3>
+    <h3>Query description: {{query[2]}}</h3>
 </div>
-<h3>Query keywords: {{query[1]}}. Query description: {{query[2]}} </h3>
 
-
-{% for result in query_result %} 
-<div> 
-    <h3> {{result.name}} </h3> 
-    <p>{{result.description}}<p>
-    <p>{{result.altNames}} <p>
-    <p>{{result.score}} </p>
+<div class="expl">
+    <p>Rate each result given from 0-3 based on its relevance to the query keyword and its described information need.</p>
+    <p>Submit the ratings once all results have been evaluated.</p>
 </div>
-{% endfor %} 
 
-<form action="/handleForm/?queryId={{query[0]}}" method="post" novalidate>
-    {% for result in query_result %}
-    <p>
-        <input type='radio' value="0" name='{{loop.index0}}'>0 - not relevant</input>
-        <input type='radio' value="1" name='{{loop.index0}}'>1 - somewhat irrelevant</input>
-        <input type='radio' value="2" name='{{loop.index0}}'>2 - somewhat relevant</input>
-        <input type='radio' value="3" name='{{loop.index0}}'>3 - relevant</input>
-        <!--{{ result.name }}
-        {{ form.score }}-->
-    </p>
-    {% endfor %}
-<!--Mulig dette ikke fungerer med submit på denne måten... må testes og greier-->
-<!--{{ form.submit }}-->
-<input type="submit"/>
+<form class="container" action="/handleForm?queryId={{query[0]}}" method="post" novalidate>
+    {% for result in query_result %} 
+        <div class="qr"> 
+            <h3>{{result.name}}</h3> 
+            <p>{{result.description}}<p>
+            <p>{{result.altNames}} <p>
+            <p>{{result.score}} </p>
+        </div>
+        <fieldset class="f">
+            <label><input type='radio' value="0" name='{{loop.index0}}' required/>0 - not relevant</label>
+            <label><input type='radio' value="1" name='{{loop.index0}}' required/>1 - somewhat irrelevant</label>
+            <label><input type='radio' value="2" name='{{loop.index0}}' required/>2 - somewhat relevant</label>
+            <label><input type='radio' value="3" name='{{loop.index0}}' required/>3 - relevant</label>
+        </fieldset>
+    {% endfor %} 
+    <input class ="submit" type="submit"/>
 </form>
 {% endblock %}

@@ -10,9 +10,8 @@
 </div>
 <h3>Query keywords: {{query[1]}}. Query description: {{query[2]}} </h3>
 
-<div class="container">
-    <form action="/handleForm/?queryId={{query[0]}}" method="post" novalidate></form>
-        {% for result in query_result %} 
+<form class="container" action="/handleForm?queryId={{query[0]}}" method="post" novalidate>
+    {% for result in query_result %} 
         <div class="qr"> 
             <h3>{{result.name}}</h3> 
             <p>{{result.description}}<p>
@@ -25,9 +24,7 @@
             <input type='radio' value="2" name='{{loop.index0}}'>2 - somewhat relevant</input>
             <input type='radio' value="3" name='{{loop.index0}}'>3 - relevant</input>
         </fieldset>
-        {% endfor %} 
-        <input type="submit"/>
-    </form>
-
-</div>
+    {% endfor %} 
+    <input class ="submit" type="submit"/>
+</form>
 {% endblock %}

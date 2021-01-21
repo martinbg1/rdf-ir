@@ -34,10 +34,11 @@ def run_sql_script(conn, sql_file_path):
     conn.commit()
     
 
-def add_test_result_disease(conn, method, result_rank, relevancy, query_id, tester_id):
+def add_test_result_disease(method, result_rank, relevancy, query_id, tester_id):
     """
     Function to store test result from a query result in the db
     """
+    conn = db_connect("db/rdf-ir.db")
     cur = conn.cursor()
     cur.execute(
         "insert into DataDisease(method, result_rank, relevancy, query_id, tester_id) values (?, ?, ?, ?, ?)", 
@@ -46,19 +47,22 @@ def add_test_result_disease(conn, method, result_rank, relevancy, query_id, test
     conn.commit()
 
 
-def get_disease_query(conn):
+def get_disease_query():
+    conn = db_connect("db/rdf-ir.db")
     cur = conn.cursor()
     cur.execute("SELECT * FROM Query WHERE dataset='Disease' LIMIT 1")
     return cur.fetchall()
 
 
-def get_random_disease_queries(conn, n):
+def get_random_disease_queries(n):
+    conn = db_connect("db/rdf-ir.db")
     cur = conn.cursor()
     cur.execute("SELECT * FROM Query WHERE dataset='Disease' ORDER BY RANDOM() LIMIT ?", (n,))
     return cur.fetchall()
 
 
-def get_random_movie_queries(conn, n):
+def get_random_movie_queries(n):
+    conn = db_connect("db/rdf-ir.db")
     cur = conn.cursor()
     cur.execute("SELECT query_text, query_description FROM Query WHERE dataset='Movie' ORDER BY RANDOM() LIMIT ?", (n,))
     return cur.fetchall()

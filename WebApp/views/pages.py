@@ -7,9 +7,9 @@ import re
 
 @app.route('/home/', methods=['GET','POST'])
 def home():
-    query = request.args['query']
-    query_id = request.args['query_id']
-    query_description = request.args['query_description']
+    query = session['query']
+    query_id = session['query_id']
+    query_description = session['query_description']
     rest_queries = session['rest_queries']
 
     # connect to neo4j db
@@ -28,8 +28,7 @@ def index():
 
 @app.route('/landing', methods=['GET','POST'])
 def landing():
-    conn = db_connect("./db/rdf-ir.db")
-    queries = get_random_disease_queries(conn, 2)
+    queries = get_random_disease_queries(2)
     return render_template("landing.html", queries=queries)
 
 
@@ -43,8 +42,11 @@ def handleQuery():
     
     query = parsed_queries.pop(0)
     session['rest_queries'] = parsed_queries
+    session['query_id'] = query[0]
+    session['query'] = query[1]
+    session['query_description'] = query[2]
 
-    return redirect(url_for('.home', query_id=query[0], query=query[1], query_description=query[2]))
+    return redirect(url_for('.home'))
 
 
 @app.route('/handleForm', methods=['GET', 'POST'])
@@ -59,9 +61,8 @@ def handleForm():
 
 
     query_id = int(query_id.replace("'", ""))
-    # connect to sqlite3 db
-    conn = db_connect("./db/rdf-ir.db")
     for key,value in request.form.items():
-        add_test_result_disease(conn, 'BM25', key, value, query_id, 7)
+        add_test_result_disease('BM25', key, value, query_id, 7)
+
 
     return redirect(url_for('.handleQuery', queries=rest_queries))

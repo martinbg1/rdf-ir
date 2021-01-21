@@ -48,7 +48,7 @@ def add_test_result_disease(conn, method, result_rank, relevancy, query_id, test
 
 def get_disease_query(conn):
     cur = conn.cursor()
-    cur.execute("SELECT query_text, query_description FROM Query WHERE dataset='Disease' LIMIT 1")
+    cur.execute("SELECT * FROM Query WHERE dataset='Disease' LIMIT 1")
     return cur.fetchall()
 
 

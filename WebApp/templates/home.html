@@ -16,7 +16,7 @@
     <p>Submit the ratings once all results have been evaluated.</p>
 </div>
 
-<form class="container" action="/handleForm?query_id={{query_id}}&rest_queries={{rest_queries}}&method={{method}}" method="post" novalidate>
+<form class="container" action="/handleForm?query_id={{query_id}}&method={{method}}" method="post" novalidate>
     {% for result in query_result %} 
         <div class="qr"> 
             <h3>{{result.name}}</h3> 

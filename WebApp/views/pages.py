@@ -3,7 +3,6 @@ from WebApp import app, get_neo_db
 from WebApp.db.sqlite_util import *
 from WebApp.db.neo_util import *
 from WebApp.util.serialize_search import *
-import re
 import uuid
 
 
@@ -41,7 +40,6 @@ def landing():
     
     # continue unfinished survey
     if session.get('queries') is None:
-        print("new")
         queries = get_random_disease_queries(2)
         session["queries"] = queries
         session['methods'] = ['BM25', 'BM25F']
@@ -50,7 +48,6 @@ def landing():
         user_id = uuid.uuid4()
         session['user_id'] = user_id
         add_new_user(str(user_id))
-        print(user_id)
 
     return render_template("landing.html")
 
@@ -67,11 +64,8 @@ def handleQuery():
 
 @app.route('/handleForm', methods=['GET', 'POST'])
 def handleForm():
-    query_id = ''
-    rest_queries = ''
     try:
         query_id = request.args['query_id']
-        rest_queries = request.args['rest_queries']
         method = request.args['method']
         user_id = str(session['user_id'])
         query_id = int(query_id)

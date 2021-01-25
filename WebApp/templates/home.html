@@ -16,6 +16,7 @@
     <p>Submit the ratings once all results have been evaluated.</p>
 </div>
 
+<!--TODO: remove novalidate before release :)-->
 <form class="container" action="/handleForm?query_id={{query_id}}&method={{method}}" method="post" novalidate>
     {% for result in query_result %} 
         <div class="qr"> 

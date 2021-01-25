@@ -6,8 +6,9 @@
 
 {% block body %}
 <div class="header">
-    <h3>Query keywords: {{query[1]}}</h3>
-    <h3>Query description: {{query[2]}}</h3>
+    <h3>Query keywords: {{query}}</h3>
+    <h3>Query description: {{query_description}}</h3>
+    <h3>{{method}}</h3>
 </div>
 
 <div class="expl">
@@ -15,7 +16,7 @@
     <p>Submit the ratings once all results have been evaluated.</p>
 </div>
 
-<form class="container" action="/handleForm?queryId={{query[0]}}" method="post" novalidate>
+<form class="container" action="/handleForm?query_id={{query_id}}&method={{method}}" method="post" novalidate>
     {% for result in query_result %} 
         <div class="qr"> 
             <h3>{{result.name}}</h3> 

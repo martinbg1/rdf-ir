@@ -67,17 +67,28 @@ def get_random_movie_queries(n):
     cur.execute("SELECT query_text, query_description FROM Query WHERE dataset='Movie' ORDER BY RANDOM() LIMIT ?", (n,))
     return cur.fetchall()
 
+def add_new_user(user_id):
+    conn = db_connect("db/rdf-ir.db")
+    cur = conn.cursor()
+    cur.execute("INSERT INTO Tester(tester_id, answered) VALUES (?, 0)", (user_id,))
+    conn.commit()
 
+
+def user_finished(user_id):
+    conn = db_connect("db/rdf-ir.db")
+    cur = conn.cursor()
+    cur.execute("UPDATE Tester SET answered = ? WHERE tester_id = ?", (1, user_id))
+    conn.commit()
+
+
+    
 # current working directory is ./WebApp/db
 if __name__ == '__main__':
     build_path = "scripts/dbBuildTableScript.sql"
     drop_path = "scripts/dbDropTableScript.sql"
 
     conn = db_connect("rdf-ir.db")
-
-    # rows = get_disease_query(conn)
-    rows = get_disease_query(conn)
-
-    print(rows)
+    run_sql_script(conn, drop_path)
+    run_sql_script(conn, build_path)
 
     conn.close()

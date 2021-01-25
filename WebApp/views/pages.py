@@ -4,20 +4,30 @@ from WebApp.db.sqlite_util import *
 from WebApp.db.neo_util import *
 from WebApp.util.serialize_search import *
 import re
+import uuid
 
 
 @app.route('/home/', methods=['GET','POST'])
 def home():
-    query = session['query']
-    query_id = session['query_id']
-    query_description = session['query_description']
-    rest_queries = session['rest_queries']
+    serialized_result = []
+
+
+    query = session["queries"][0]
+    query_id = query[0]
+    q = query[1]
+    query_description = query[2]
 
     # connect to neo4j db
     db = get_neo_db()
-    serialized_result = bm25_search(db, query)
 
-    return render_template('home.html', query=query, query_id=query_id, query_result=serialized_result, query_description=query_description, rest_queries=rest_queries)
+    method = session['methods'][session['index']]
+
+    if method == "BM25":
+        serialized_result = bm25_search(db, q)
+    elif method == "BM25F":
+        serialized_result = bm25f_search(db, q)
+
+    return render_template('home.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method)
 
 
 # render index
@@ -28,36 +38,30 @@ def index():
 
 @app.route('/landing', methods=['GET','POST'])
 def landing():
-    queries = []
     
     # continue unfinished survey
-    if not session.get('rest_queries') is None:
-        queries = session['rest_queries']
-        next_query = (session['query_id'], session['query'], session['query_description'])
-        queries.insert(0, next_query)
-        
-    # start new
-    else:
+    if session.get('queries') is None:
+        print("new")
         queries = get_random_disease_queries(2)
+        session["queries"] = queries
+        session['methods'] = ['BM25', 'BM25F']
+        session['index'] = 0
 
-    return render_template("landing.html", queries=queries)
+        user_id = uuid.uuid4()
+        session['user_id'] = user_id
+        add_new_user(str(user_id))
+        print(user_id)
+
+    return render_template("landing.html")
 
 
 @app.route('/handleQuery', methods=['GET','POST'])
 def handleQuery():
-    queries = request.args['queries']
-
-    parsed_queries = [tuple(x.replace("'", "").split(',')) for x in re.findall("\((.*?)\)", queries)]
-    if not parsed_queries:
+    # TODO ikke clear session og ha en sjekk om user_id har answered = 0
+    if not session['queries']:
+        user_finished(str(session['user_id']))
         session.clear()
         return redirect('/')
-    
-    query = parsed_queries.pop(0)
-    session['rest_queries'] = parsed_queries
-    session['query_id'] = query[0]
-    session['query'] = query[1]
-    session['query_description'] = query[2]
-
     return redirect(url_for('.home'))
 
 
@@ -68,13 +72,20 @@ def handleForm():
     try:
         query_id = request.args['query_id']
         rest_queries = request.args['rest_queries']
+        method = request.args['method']
+        user_id = str(session['user_id'])
+        query_id = int(query_id)
+
+        for key,value in request.form.items():
+            add_test_result_disease(method, key, value, query_id, user_id)
+
+        session['index'] += 1
+        if session['index'] > len(session['methods']) - 1:
+            session['index'] = 0
+            session['queries'] = session['queries'][1:]
+
+
     except KeyError:
         return redirect('/error')
 
-
-    query_id = int(query_id.replace("'", ""))
-    for key,value in request.form.items():
-        add_test_result_disease('BM25', key, value, query_id, 7)
-
-
-    return redirect(url_for('.handleQuery', queries=rest_queries))
+    return redirect(url_for('.handleQuery'))

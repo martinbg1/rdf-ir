@@ -1,7 +1,7 @@
 -- Generates empty tables
 
 CREATE TABLE Tester (
-   tester_id INTEGER PRIMARY KEY AUTOINCREMENT,
+   tester_id Text PRIMARY KEY,
    answered BOOLEAN NOT NULL CHECK (answered IN (0,1))
 );
 

@@ -1,6 +1,7 @@
 from flask import Flask, g, Response, jsonify, render_template, request, redirect, url_for, session
 from WebApp import app, get_neo_db
-from WebApp.db.db_util import *
+from WebApp.db.sqlite_util import *
+from WebApp.db.neo_util import *
 from WebApp.util.serialize_search import *
 import re
 
@@ -14,10 +15,9 @@ def home():
 
     # connect to neo4j db
     db = get_neo_db()
-    results = db.run('CALL improvedSearch.bm25Search("'+ query +'") ')
-    serialized_result = [serialize_results(record) for record in results]
+    serialized_result = bm25_search(db, query)
 
-    return render_template('home.html', query=query, query_id = query_id, query_result=serialized_result, query_description=query_description, rest_queries=rest_queries)
+    return render_template('home.html', query=query, query_id=query_id, query_result=serialized_result, query_description=query_description, rest_queries=rest_queries)
 
 
 # render index

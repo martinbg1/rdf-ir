@@ -25,9 +25,11 @@ def home():
         serialized_result = bm25_search(db, q)
     elif method == "BM25F":
         serialized_result = bm25f_search(db, q)
+    elif method == "fulltext":
+        serialized_result = fulltext_search(db, q)
 
     return render_template('home.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method)
-
+ 
 
 # render index
 @app.route('/')
@@ -42,7 +44,7 @@ def landing():
     if session.get('queries') is None:
         queries = get_random_disease_queries(2)
         session["queries"] = queries
-        session['methods'] = ['BM25', 'BM25F']
+        session['methods'] = ['BM25', 'BM25F','fulltext']
         session['index'] = 0
 
         user_id = uuid.uuid4()

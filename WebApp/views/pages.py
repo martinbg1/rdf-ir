@@ -28,7 +28,18 @@ def index():
 
 @app.route('/landing', methods=['GET','POST'])
 def landing():
-    queries = get_random_disease_queries(2)
+    queries = []
+    
+    # continue unfinished survey
+    if not session.get('rest_queries') is None:
+        queries = session['rest_queries']
+        next_query = (session['query_id'], session['query'], session['query_description'])
+        queries.insert(0, next_query)
+        
+    # start new
+    else:
+        queries = get_random_disease_queries(2)
+
     return render_template("landing.html", queries=queries)
 
 
@@ -38,6 +49,7 @@ def handleQuery():
 
     parsed_queries = [tuple(x.replace("'", "").split(',')) for x in re.findall("\((.*?)\)", queries)]
     if not parsed_queries:
+        session.clear()
         return redirect('/')
     
     query = parsed_queries.pop(0)

@@ -10,8 +10,10 @@
 
 <p>In this survey you will rank query result between 0-3. </p>
 
-<form action="/handleQuery" method="post">
-    <input class="submit" type="submit" value="Let's start!" />
+<form action="/handleQuery?dataset=disease" method="post">
+    <input class="submit" type="submit" value="Disease dataset" />
 </form>
-
+<form action="/handleQuery?dataset=movie" method="post">
+    <input class="submit" type="submit" value="Movie dataset" />
+</form>
 {% endblock %}

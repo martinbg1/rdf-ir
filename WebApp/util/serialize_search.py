@@ -8,6 +8,14 @@ def serialize_disease(disease):
         'score':disease['score']
     }
 
+def serialize_fulltext(node):
+    return {
+        'name': node["node"]['name'],
+        'description': node["node"]['description'],
+        'altNames':node["node"]['altNames'],
+        'score':node['score']
+    }
+
 
 def serialize_symptom(symptom):
     return {

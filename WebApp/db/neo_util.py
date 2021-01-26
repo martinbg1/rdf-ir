@@ -1,4 +1,4 @@
-from WebApp.util.serialize_search import serialize_results, serialize_disease
+from WebApp.util.serialize_search import serialize_results, serialize_fulltext
 
 
 def bm25_search(db, q):
@@ -14,4 +14,4 @@ def fulltext_search(db, q):
     results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +" OR altNames:" + q + " OR description:" + q + "')"+
     " YIELD node, score " +
     "RETURN node, score limit 10")
-    return [serialize_disease(record) for record in results]
+    return [serialize_fulltext(record) for record in results]

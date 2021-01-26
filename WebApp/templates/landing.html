@@ -16,8 +16,12 @@
     blabla
 </p>
 
-<form action="/handleQuery" method="post">
-    <input class="submit" type="submit" value="Let's start!" />
+<form action="/handleQuery?dataset=disease" method="post">
+    <input class="submit" type="submit" value="Disease dataset" />
 </form>
+<form action="/handleQuery?dataset=movie" method="post">
+    <input class="submit" type="submit" value="Movie dataset" />
+</form>
+
 
 {% endblock %}

@@ -46,6 +46,18 @@ def add_test_result_disease(method, result_rank, relevancy, query_id, tester_id)
         )
     conn.commit()
 
+def add_test_result_movie(method, result_rank, relevancy, query_id, tester_id):
+    """
+    Function to store test result from a query result in the db
+    """
+    conn = db_connect("db/rdf-ir.db")
+    cur = conn.cursor()
+    cur.execute(
+        "insert into DataMovie(method, result_rank, relevancy, query_id, tester_id) values (?, ?, ?, ?, ?)", 
+        (method, result_rank, relevancy, query_id, tester_id)
+        )
+    conn.commit()
+
 
 def get_disease_query():
     conn = db_connect("db/rdf-ir.db")
@@ -64,20 +76,20 @@ def get_random_disease_queries(n):
 def get_random_movie_queries(n):
     conn = db_connect("db/rdf-ir.db")
     cur = conn.cursor()
-    cur.execute("SELECT query_text, query_description FROM Query WHERE dataset='Movie' ORDER BY RANDOM() LIMIT ?", (n,))
+    cur.execute("SELECT * FROM Query WHERE dataset='Movie' ORDER BY RANDOM() LIMIT ?", (n,))
     return cur.fetchall()
 
 def add_new_user(user_id):
     conn = db_connect("db/rdf-ir.db")
     cur = conn.cursor()
-    cur.execute("INSERT INTO Tester(tester_id, answered) VALUES (?, 0)", (user_id,))
+    cur.execute("INSERT INTO Tester(tester_id, answered_disease, answered_movie) VALUES (?, 0, 0)", (user_id,))
     conn.commit()
 
 
-def user_finished(user_id):
+def user_finished(user_id, dataset):
     conn = db_connect("db/rdf-ir.db")
     cur = conn.cursor()
-    cur.execute("UPDATE Tester SET answered = ? WHERE tester_id = ?", (1, user_id))
+    cur.execute("UPDATE Tester SET %s = ? WHERE tester_id = ?" %("answered_"+dataset), (1, user_id))
     conn.commit()
 
 

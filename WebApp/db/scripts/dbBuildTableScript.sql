@@ -2,7 +2,8 @@
 
 CREATE TABLE Tester (
    tester_id Text PRIMARY KEY,
-   answered BOOLEAN NOT NULL CHECK (answered IN (0,1))
+   answered_disease BOOLEAN NOT NULL CHECK (answered_disease IN (0,1)),
+   answered_movie BOOLEAN NOT NULL CHECK (answered_movie IN (0,1))
 );
 
 
@@ -32,7 +33,7 @@ CREATE TABLE DataMovie (
     data_id INTEGER PRIMARY KEY AUTOINCREMENT,
     method TEXT NOT NULL,
     result_rank INTEGER NOT NULL,
-    score INTEGER NOT NULL,
+    relevancy INTEGER NOT NULL,
     query_id INTEGER,
     tester_id INTEGER,
     FOREIGN KEY (query_id) REFERENCES Query(query_id) 

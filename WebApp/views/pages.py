@@ -23,7 +23,6 @@ def home():
         query = session["movie_queries"][0]
         method = session['methods'][session['movie_index']]
 
-    print(query) 
     query_id = query[0]
     q = query[1]
     query_description = query[2]

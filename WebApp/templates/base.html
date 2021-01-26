@@ -8,6 +8,18 @@
     <title>RDF-IR</title>
 </head>
 <body>
+    <div class="header">
+        {% block header %}{% endblock %} 
+    </div>
+    <div class="container">
+        <a href="/" class="header_menu" id="first">
+            <div>Home</div>
+        </a>
+        <div>   -   </div>
+        <a href="/searchbar" class="header_menu" id="second">
+            <div>Searchbar</div>
+        </a>
+    </div>
    {% block body %}{% endblock %} 
 </body>
 </html>

@@ -4,13 +4,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 {% endblock %}
 
-{% block body %}
+{% block header %}
 <div class="header">
     <h3>Query keywords: {{query}}</h3>
     <h3>Query description: {{query_description}}</h3>
     <h3>{{method}}</h3>
 </div>
+{% endblock %}
 
+
+{% block body %}
 <div class="expl">
     <p>Rate each result given from 0-3 based on its relevance to the query keyword and its described information need.</p>
     <p>Submit the ratings once all results have been evaluated.</p>

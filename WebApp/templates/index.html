@@ -10,14 +10,6 @@
 
 <p>In this survey you will rank query result between 0-3. </p>
 
-<div>
-    <p>
-        {{disease_queries}}
-    </p>
-    <p>
-        {{movie_queries}}
-    </p>
-</div>
 {% if disease_queries %}
     <form action="/handleQuery?dataset=disease" method="post">
         <input class="submit" type="submit" value="Disease dataset" />

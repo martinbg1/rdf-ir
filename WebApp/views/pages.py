@@ -51,9 +51,11 @@ def searchbar():
 
 @app.route('/', methods=['GET','POST'])
 def index():
-    session.clear()
-    # continue unfinished survey
-    if session.get('queries') is None:
+    # session.clear()
+    disease_queries = []
+    movie_queries = []
+
+    if session.get('disease_queries') is None:
         disease_queries = get_random_disease_queries(2)
         movie_queries = get_random_movie_queries(2)
         session['disease_queries'] = disease_queries
@@ -65,18 +67,23 @@ def index():
         user_id = uuid.uuid4()
         session['user_id'] = user_id
         add_new_user(str(user_id))
+    else:
+        disease_queries = session['disease_queries']
+        movie_queries = session['movie_queries']
 
-    return render_template("index.html")
+    return render_template("index.html", disease_queries = disease_queries, movie_queries = movie_queries)
 
 
 @app.route('/handleQuery', methods=['GET','POST'])
 def handleQuery():
     dataset = request.args['dataset']
     # TODO ikke clear session og ha en sjekk om user_id har answered = 0
-    if not session['disease_queries'] or not session['movie_queries']:
+    if (not session['disease_queries'] and dataset=="disease") or (not session['movie_queries'] and dataset=="movie"):
         user_finished(str(session['user_id']),dataset)
-        session.clear()
-        return redirect('/')
+        disease_queries = session['disease_queries']
+        movie_queries = session['movie_queries']
+        # session.clear()
+        return redirect(url_for('.index', disease_queries = disease_queries, movie_queries = movie_queries))
 
     return redirect(url_for('.survey', dataset=dataset))
 

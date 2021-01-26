@@ -6,8 +6,8 @@ from WebApp.util.serialize_search import *
 import uuid
 
 
-@app.route('/home/', methods=['GET','POST'])
-def home():
+@app.route('/survey', methods=['GET','POST'])
+def survey():
     serialized_result = []
 
     dataset = request.args['dataset']
@@ -36,17 +36,21 @@ def home():
     elif method == "fulltext":
         serialized_result = fulltext_search(db, q)
 
-    return render_template('home.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method, dataset=dataset)
+    return render_template('survey.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method, dataset=dataset)
  
 
 # render index
-@app.route('/')
+@app.route('/searchbar')
+def searchbar():
+    return render_template('searchbar.html')
+
+
+# @app.route('/searchBar', methods=['GET','POST'])
+# def index():
+#     return render_template("searchBar.html")
+
+@app.route('/', methods=['GET','POST'])
 def index():
-    return render_template('index.html')
-
-
-@app.route('/landing', methods=['GET','POST'])
-def landing():
     session.clear()
     # continue unfinished survey
     if session.get('queries') is None:
@@ -62,7 +66,7 @@ def landing():
         session['user_id'] = user_id
         add_new_user(str(user_id))
 
-    return render_template("landing.html")
+    return render_template("index.html")
 
 
 @app.route('/handleQuery', methods=['GET','POST'])
@@ -74,7 +78,7 @@ def handleQuery():
         session.clear()
         return redirect('/')
 
-    return redirect(url_for('.home', dataset=dataset))
+    return redirect(url_for('.survey', dataset=dataset))
 
 
 @app.route('/handleForm', methods=['GET', 'POST'])

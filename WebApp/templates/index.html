@@ -1,127 +1,19 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% block header %}
+
+<h1>Information Retrieval with various methods</h1>
 {% endblock %}
-
 {% block body %}
-<div class="header">
-    <h1>Search for diseases</h1>
-</div>
 
-<form role="search" id="searchForm">
-    <input type="text" placeholder="Search.." name="searchInput">
-    <button class="submit" type="submit" onclick="return fulltext_search()">Fulltext <i class="fa fa-search"></i></button>
-    <button class="submit" type="submit" onclick="return BM25_search()">BM25 <i class="fa fa-search"></i></button>
-    <button class="submit" type="submit" onclick="return BM25F_search()">BM25F <i class="fa fa-search"></i></button>
-    <!-- <button type="submit" onclick="return BM25FF_search()">BM25FF<i class="fa fa-search"></i></button> -->
+<h3>Information Retrieval in RDF-Data Survey</h3>
+
+<p>In this survey you will rank query result between 0-3. </p>
+
+<form action="/handleQuery?dataset=disease" method="post">
+    <input class="submit" type="submit" value="Disease dataset" />
 </form>
-
-<div class="grid-container">
-    <div id="disease-data">
-        <h3>Diseases</h3>
-        <p id="data-para">No data</p>
-    </div>
-    <div id="symptom-data">
-        <h3>Symptoms</h3>
-        <div id="symptom-text">No symptoms</div>
-        <h3>Drugs</h3>
-        <div id="drug-text">No drugs</div>
-    </div>
-</div>
-
-<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<script type="text/javascript">
-    function showSymptom(disease) {
-        $("#symptom-text").empty()
-        $.get("symptom?d=" + encodeURIComponent(disease),
-        function (data) {
-            if(!data) return
-            let symp = []
-            data.forEach(function (symptom) {
-                symp.push(symptom.name)
-            })
-            $("#symptom-text").append('<p>' + symp.join(', ') + '</p>');
-        }, "json");
-        return false
-    }
-
-    function showDrug(disease){
-        $("#drug-text").empty()
-        $.get("drug?d=" + encodeURIComponent(disease),
-        function (data) {
-            if(!data) return
-            let dr = []
-            data.forEach(function (drug) {
-                dr.push(drug.name)
-            })
-            $("#drug-text").append('<p>' + dr.join(', ') + '</p>');
-        }, "json");
-        return false
-    }
-
-    function BM25_search(){
-        var query=$("#searchForm").find("input[name=searchInput]").val();
-        $.get("/BM25Search?q=" + encodeURIComponent(query),
-        function (data) {
-            console.log(data);
-            if(!data) return;
-            $("#disease-data").empty();
-            data.forEach(function (disease) {
-                $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
-                .click(function() { showSymptom(disease.name), showDrug(disease.name)});
-            });
-        }, "json");
-        return false;
-    }
-
-    function BM25F_search(){
-        var query=$("#searchForm").find("input[name=searchInput]").val();
-        $.get("/BM25FSearch?q=" + encodeURIComponent(query),
-        function (data) {
-            console.log(data);
-            if(!data) return;
-            $("#disease-data").empty();
-            data.forEach(function (disease) {
-                $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
-                .click(function() { showSymptom(disease.name), showDrug(disease.name)});
-            });
-        }, "json");
-        return false;
-    }
-
-    // function BM25FF_search(){
-    //     var query=$("#searchForm").find("input[name=searchInput]").val();
-    //     $.get("/BM25FFSearch?q=" + encodeURIComponent(query),
-    //     function (data) {
-    //         console.log(data);
-    //         if(!data) return;
-    //         $("#disease-data").empty();
-    //         data.forEach(function (disease) {
-    //             $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
-    //             .click(function() { showSymptom(disease.name), showDrug(disease.name)});
-    //         });
-    //     }, "json");
-    //     return false;
-    // }
-
-    function fulltext_search() {
-        var query=$("#searchForm").find("input[name=searchInput]").val();
-        $.get("/fulltextSearch?q=" + encodeURIComponent(query),
-        function (data) {
-            console.log(data);
-            if(!data) return;
-            $("#disease-data").empty();
-            $("#symptom-text").empty();
-            $("#drug-text").empty();
-            data.forEach(function (disease) {
-                $('<div> <h3>'+disease.name + '</h3>'+ '<p>'+disease.description +'<p>'+'<p>'+disease.altNames +'<p>'+ '<p>' + disease.score + '</p>' +'</div>').appendTo("#disease-data")
-                        .click(function() { showSymptom(disease.name), showDrug(disease.name)});
-            });
-        }, "json");
-        return false;
-    }
-
-</script>
-
+<form action="/handleQuery?dataset=movie" method="post">
+    <input class="submit" type="submit" value="Movie dataset" />
+</form>
 {% endblock %}

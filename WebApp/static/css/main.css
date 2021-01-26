@@ -76,3 +76,7 @@ input {
 input:required:invalid{
     border-color: #c00000;
 }
+
+.header_menu {
+    text-decoration: underline;
+}

@@ -9,6 +9,15 @@
   opacity:0.9;
 }
 
+header {
+    padding: 10px;
+    text-align: center;
+    background: #0185b1;
+    color: white;
+    font-size: 20px;
+    opacity:0.9;
+  }
+
 .under_header {
     color: white;
     font-size: 20px;
@@ -105,11 +114,11 @@ fieldset{
     border-width: 0;
 }
 
-.submit{
+.submit_container{
     text-align: center;
 }
 
-.submit input{
+.submit{
     padding: 7px;
     background-color: #0099CC; /* Blue background color */
     border-radius: 5px; /* Curve of border corners */

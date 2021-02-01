@@ -102,3 +102,7 @@ input:required:invalid{
 .header_menu {
     text-decoration: underline;
 }
+
+label {
+    display: block;
+}

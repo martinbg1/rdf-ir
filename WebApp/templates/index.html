@@ -6,19 +6,28 @@
 {% endblock %}
 {% block body %}
 
-<h3>Information Retrieval in RDF-Data Survey</h3>
+<h3 class="text_center">Information Retrieval in RDF-Data Survey</h3>
+    
+<p class="text_center">In this survey you will rank query result between 0-3. </p>
+    
+<div class="index_container">
+    {% if disease_queries %}
 
-<p>In this survey you will rank query result between 0-3. </p>
-
-{% if disease_queries %}
-    <form action="/handleQuery?dataset=disease" method="post">
-        <input class="submit" type="submit" value="Disease dataset" />
-    </form>
-{% endif %}
-{% if movie_queries %}
-    <form action="/handleQuery?dataset=movie" method="post">
-        <input class="submit" type="submit" value="Movie dataset" />
-    </form>
-{% endif %}
+    <div id="survey_start">
+        <p>In this survey you will rank relevant diseases and symptoms to a given query</p>
+        <form action="/handleQuery?dataset=disease" method="post">
+            <input class="submit" type="submit" value="Disease dataset" />
+        </form>
+    </div>
+    {% endif %}
+    {% if movie_queries %}
+    <div id="survey_start">
+        <p>In this survey you will rank relevant movies and directors to a given query</p>
+        <form action="/handleQuery?dataset=movie" method="post" valign="value">
+            <input class="submit" type="submit" value="Movie dataset" />
+        </form>
+    </div>
+    {% endif %}
+</div>
 
 {% endblock %}

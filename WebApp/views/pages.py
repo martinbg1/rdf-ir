@@ -6,6 +6,12 @@ from WebApp.util.serialize_search import *
 import uuid
 
 
+# render index
+@app.route('/searchbar')
+def searchbar():
+    return render_template('searchbar.html')
+
+
 @app.route('/survey', methods=['GET','POST'])
 def survey():
     serialized_result = []
@@ -39,16 +45,6 @@ def survey():
     return render_template('survey.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method, dataset=dataset)
  
 
-# render index
-@app.route('/searchbar')
-def searchbar():
-    return render_template('searchbar.html')
-
-
-# @app.route('/searchBar', methods=['GET','POST'])
-# def index():
-#     return render_template("searchBar.html")
-
 @app.route('/', methods=['GET','POST'])
 def index():
     # session.clear()
@@ -77,7 +73,6 @@ def index():
 @app.route('/handleQuery', methods=['GET','POST'])
 def handleQuery():
     dataset = request.args['dataset']
-    # TODO ikke clear session og ha en sjekk om user_id har answered = 0
     if (not session['disease_queries'] and dataset=="disease") or (not session['movie_queries'] and dataset=="movie"):
         user_finished(str(session['user_id']),dataset)
         disease_queries = session['disease_queries']

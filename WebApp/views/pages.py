@@ -82,8 +82,11 @@ def handleQuery():
         user_finished(str(session['user_id']),dataset)
         disease_queries = session['disease_queries']
         movie_queries = session['movie_queries']
+        if(not disease_queries and not movie_queries):
+            return render_template('finished.html')
         # session.clear()
         return redirect(url_for('.index', disease_queries = disease_queries, movie_queries = movie_queries))
+    
 
     return redirect(url_for('.survey', dataset=dataset))
 

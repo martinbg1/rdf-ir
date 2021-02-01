@@ -105,6 +105,10 @@ fieldset{
 }
 
 .submit{
+    text-align: center;
+}
+
+.submit input{
     padding: 7px;
     background-color: #0099CC; /* Blue background color */
     border-radius: 5px; /* Curve of border corners */

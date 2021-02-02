@@ -5,12 +5,15 @@
 {% endblock %}
 
 {% block header %}
-<div class="header">
-    <h3>Query keywords: {{query}}</h3>
-    <h3>Query description: {{query_description}}</h3>
-    <h3>{{method}}</h3>
-    <h3>{{dataset}}</h3>
+<div class="top_header">
+    <h3>{{method}} - {{dataset}}</h3>
+    <h3></h3>
 </div>
+<div class="under_header">
+    <h5>Query keywords: {{query}}</h5>
+    <h5>Query description: {{query_description}}</h5>
+</div>
+
 {% endblock %}
 
 
@@ -21,8 +24,9 @@
 </div>
 
 <!--TODO: remove novalidate before release :)-->
-<form class="container" action="/handleForm?query_id={{query_id}}&method={{method}}&dataset={{dataset}}" method="post" novalidate>
+<form class="padding" action="/handleForm?query_id={{query_id}}&method={{method}}&dataset={{dataset}}" method="post" novalidate>
     {% for result in query_result %} 
+    <div class="container background">
         <div class="qr"> 
             <h3>{{result.name}}</h3> 
             <p>{{result.description}}<p>
@@ -35,7 +39,10 @@
             <label><input type='radio' value="1" name='{{loop.index0}}' required/>1 - somewhat irrelevant</label>
             <label><input type='radio' value="0" name='{{loop.index0}}' required/>0 - not relevant</label>
         </fieldset>
+    </div>
     {% endfor %} 
-    <input class ="submit" type="submit"/>
+    <div class="submit_container">
+        <input class ="submit" type="submit"/>
+    </div>
 </form>
 {% endblock %}

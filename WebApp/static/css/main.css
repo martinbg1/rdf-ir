@@ -10,7 +10,7 @@
 }
 
 .under_header {
-    color: #00536e;
+    color: #000000;
     font-size: 20px;
     padding: 1px;
     text-align: center;
@@ -26,6 +26,7 @@ body {
     margin: 0;
     padding-bottom: 10px;
     font-family: Arial, Helvetica, sans-serif;
+    background-color: rgb(247, 247, 247);
 }
 
 .grid-container {
@@ -54,7 +55,7 @@ body {
 }
 
 .background {
-    background-color: rgba(202, 210, 255, 0.151);
+    background-color: rgb(255, 255, 255);
 }
 
 
@@ -97,7 +98,6 @@ p{
 }
 
 
-
 /*
     Form styling
 */
@@ -110,7 +110,7 @@ form{
 .border {
     border-style: solid;
     border-width: 2px;
-    border-color: #2abcec3a;    
+    border-color: #2abbec96;    
 }
 
 fieldset{

@@ -6,43 +6,43 @@
 
 {% block header %}
 <div class="top_header">
-    <h3>{{method}} - {{dataset}}</h3>
+    <h3>{{method}} - {{dataset}}-dataset</h3>
     <h3></h3>
-</div>
-<div class="under_header">
-    <h5>Query keywords: {{query}}</h5>
-    <h5>Query description: {{query_description}}</h5>
 </div>
 
 {% endblock %}
 
 
 {% block body %}
-<div class="expl">
-    <p>Rate each result given from 0-3 based on its relevance to the query keyword and its described information need.</p>
-    <p>Submit the ratings once all results have been evaluated.</p>
+<div class="under_header">
+    <div>
+        <h3>Query keywords: {{query}}</h3>
+    </div>
+    <div>
+        <h3>Description: {{query_description}}</h3>
+    </div>
 </div>
-
 <!--TODO: remove novalidate before release :)-->
 <form class="padding" action="/handleForm?query_id={{query_id}}&method={{method}}&dataset={{dataset}}" method="post" novalidate>
     {% for result in query_result %} 
-    <div class="container background">
+    <div class="container background border">
         <div class="qr"> 
-            <h3>{{result.name}}</h3> 
-            <p>{{result.description}}<p>
-            <p>{{result.altNames}} <p>
-            <p>{{result.score}} </p>
+            <h3>{{result.name}}</h3>
+            <p><i>Description:</i> {{result.description}}<p>
+            <p><i>Alternative names:</i> {{result.altNames}} <p> 
+            
+            <!-- <p>{{result.score}} </p> -->
         </div>
         <fieldset class="f">
             <label><input type='radio' value="3" name='{{loop.index0}}' required/>3 - relevant</label>
             <label><input type='radio' value="2" name='{{loop.index0}}' required/>2 - somewhat relevant</label>
-            <label><input type='radio' value="1" name='{{loop.index0}}' required/>1 - somewhat irrelevant</label>
+            <label><input type='radio' value="1" name='{{loop.index0}}' required/>1 - marginally relevant</label>
             <label><input type='radio' value="0" name='{{loop.index0}}' required/>0 - not relevant</label>
         </fieldset>
     </div>
     {% endfor %} 
     <div class="submit_container">
-        <input class ="submit" type="submit"/>
+        <input class ="button button_big" type="submit"/>
     </div>
 </form>
 {% endblock %}

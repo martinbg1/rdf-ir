@@ -46,7 +46,7 @@ def survey():
  
 
 @app.route('/', methods=['GET','POST'])
-def index():
+def about():
     # session.clear()
     disease_queries = []
     movie_queries = []
@@ -67,6 +67,13 @@ def index():
         disease_queries = session['disease_queries']
         movie_queries = session['movie_queries']
 
+    return render_template("about.html")
+
+@app.route('/home', methods=['GET','POST'])
+def home():
+    disease_queries = session['disease_queries'] 
+    movie_queries = session['movie_queries']
+
     return render_template("index.html", disease_queries = disease_queries, movie_queries = movie_queries)
 
 
@@ -79,8 +86,8 @@ def handleQuery():
         movie_queries = session['movie_queries']
         if(not disease_queries and not movie_queries):
             return render_template('finished.html')
-        # session.clear()
-        return redirect(url_for('.index', disease_queries = disease_queries, movie_queries = movie_queries))
+            
+        return redirect(url_for('.home', disease_queries = disease_queries, movie_queries = movie_queries))
     
 
     return redirect(url_for('.survey', dataset=dataset))

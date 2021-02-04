@@ -86,6 +86,12 @@ p{
     justify-content: center;
 }
 
+.button_box{
+    margin: auto;
+    width: 50em;
+    padding-bottom: 0.5em;
+}
+
 .index_container > div {
     border: 1px solid black;
     padding: 5px 10px 5px 10px;
@@ -97,6 +103,11 @@ p{
     display: block;
 }
 
+.about_text_container{
+    text-align: left;
+    margin: auto;
+    width: 50%;
+}
 
 /*
     Form styling

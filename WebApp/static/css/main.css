@@ -73,7 +73,7 @@ p{
 
 .f{
     float: right;
-    width: 25%;
+    width: 80%;
 }
 
 .text_center {
@@ -164,4 +164,58 @@ input[type=radio]{
 
 label {
     display: block;
+}
+
+.content {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+  }
+
+
+.collapsible {
+    cursor: pointer;
+    border: none;
+    text-align: left;
+    outline: none;
+}
+
+.active, .collapsible:hover {
+    background-color: rgb(158, 158, 158);
+}
+
+.collapsible:after {
+    content: '\002B';
+    color: black;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.active:after {
+    content: "\2212";
+}
+
+.wrapper {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 10% 30% 30% 20% 10%;
+    background-color: #fff;
+    color: #444;
+  }
+
+.a {
+    grid-column: 2 / 4;
+    grid-row: 1;
+}
+
+.b {
+    grid-column: 2 / 4;
+    grid-row: 2;
+}
+
+.c {
+    grid-column: 4 ;
+    grid-row: 1 / 3;
 }

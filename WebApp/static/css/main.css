@@ -199,8 +199,7 @@ label {
 
 .wrapper {
     display: grid;
-    grid-gap: 10px;
-    grid-template-columns: 10% 30% 30% 20% 10%;
+    grid-template-columns: 3% 30% 30% 30% 5%;
     background-color: #fff;
     color: #444;
   }

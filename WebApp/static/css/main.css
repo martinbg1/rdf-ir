@@ -156,6 +156,7 @@ input[type=radio]{
     border: 0px;
     width: 20%;
     height: 23px;
+    vertical-align:sub;
 }
 
 .header_menu {

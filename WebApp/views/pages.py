@@ -6,6 +6,12 @@ from WebApp.util.serialize_search import *
 import uuid
 
 
+# render index
+@app.route('/searchbar')
+def searchbar():
+    return render_template('searchbar.html')
+
+
 @app.route('/survey', methods=['GET','POST'])
 def survey():
     serialized_result = []
@@ -39,18 +45,8 @@ def survey():
     return render_template('survey.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method, dataset=dataset)
  
 
-# render index
-@app.route('/searchbar')
-def searchbar():
-    return render_template('searchbar.html')
-
-
-# @app.route('/searchBar', methods=['GET','POST'])
-# def index():
-#     return render_template("searchBar.html")
-
 @app.route('/', methods=['GET','POST'])
-def index():
+def about():
     # session.clear()
     disease_queries = []
     movie_queries = []
@@ -71,19 +67,28 @@ def index():
         disease_queries = session['disease_queries']
         movie_queries = session['movie_queries']
 
+    return render_template("about.html")
+
+@app.route('/home', methods=['GET','POST'])
+def home():
+    disease_queries = session['disease_queries'] 
+    movie_queries = session['movie_queries']
+
     return render_template("index.html", disease_queries = disease_queries, movie_queries = movie_queries)
 
 
 @app.route('/handleQuery', methods=['GET','POST'])
 def handleQuery():
     dataset = request.args['dataset']
-    # TODO ikke clear session og ha en sjekk om user_id har answered = 0
     if (not session['disease_queries'] and dataset=="disease") or (not session['movie_queries'] and dataset=="movie"):
         user_finished(str(session['user_id']),dataset)
         disease_queries = session['disease_queries']
         movie_queries = session['movie_queries']
-        # session.clear()
-        return redirect(url_for('.index', disease_queries = disease_queries, movie_queries = movie_queries))
+        if(not disease_queries and not movie_queries):
+            return render_template('finished.html')
+            
+        return redirect(url_for('.home', disease_queries = disease_queries, movie_queries = movie_queries))
+    
 
     return redirect(url_for('.survey', dataset=dataset))
 

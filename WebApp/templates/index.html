@@ -15,18 +15,18 @@
 <div class="index_container">
     {% if disease_queries %}
 
-    <div id="survey_start">
+    <div id="survey_start" class="background">
         <p>In this survey you will rank relevant diseases and symptoms to a given query</p>
         <form action="/handleQuery?dataset=disease" method="post">
-            <input class="submit" type="submit" value="Disease dataset" />
+            <input class="button_small button" type="submit" value="Disease dataset" />
         </form>
     </div>
     {% endif %}
     {% if movie_queries %}
-    <div id="survey_start">
+    <div id="survey_start" class="background">
         <p>In this survey you will rank relevant movies and directors to a given query</p>
         <form action="/handleQuery?dataset=movie" method="post" valign="value">
-            <input class="submit" type="submit" value="Movie dataset" />
+            <input class="button_small button" type="submit" value="Movie dataset" />
         </form>
     </div>
     {% endif %}

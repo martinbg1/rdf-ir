@@ -29,6 +29,11 @@ body {
     background-color: rgb(247, 247, 247);
 }
 
+#searchForm{
+    padding-left: 20px;
+    padding-top: 10px;
+}
+
 .grid-container {
     display: grid;
     padding: 20px;
@@ -113,7 +118,7 @@ p{
     Form styling
 */
 
-form{
+.form_padding{
     padding-left: 5%;
     padding-right: 5%;
 }
@@ -142,6 +147,10 @@ fieldset{
     font-weight: bold;
     color: white; /* Text color */
     margin-top: 5px;
+}
+
+.button_mini{
+    padding: 3px 3px;
 }
 
 .button_small{

@@ -103,12 +103,17 @@ p{
     margin: 50px;
 }
 
+.information_title{
+    margin-bottom: 0;
+}
+
 .index_container input {
     margin: 0 auto;
     display: block;
 }
 
 .about_text_container{
+padding-bottom: 20px;
     text-align: left;
     margin: auto;
     width: 50%;

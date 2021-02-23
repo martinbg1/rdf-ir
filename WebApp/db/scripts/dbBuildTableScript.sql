@@ -42,6 +42,8 @@ CREATE TABLE DataMovie (
         ON DELETE CASCADE
 );
 
-INSERT INTO Query(query_text, query_description, dataset) values ("covid", "Find disease named covid", "Disease");
-INSERT INTO Query(query_text, query_description, dataset) values ("leukemia", "Find disease named leukemia", "Disease");
+INSERT INTO Query(query_text, query_description, dataset) values ("Covid-19", "Find disease named covid-19", "Disease");
+INSERT INTO Query(query_text, query_description, dataset) values ("Leukemia", "Find different variations of leukemia", "Disease");
+INSERT INTO Query(query_text, query_description, dataset) values ("Yellow fever", "Find the disease named yellow fever", "Disease");
+--INSERT INTO Query(query_text, query_description, dataset) values ("Headache", "Find the symptom headache and/or diseases related to having a headache", "Disease");
 INSERT INTO Query(query_text, query_description, dataset) values ("matrix", "Find movies in the matrix franchise", "Movie");

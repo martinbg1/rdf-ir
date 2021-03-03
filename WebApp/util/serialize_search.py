@@ -40,6 +40,7 @@ def serialize_results(res):
         try:
             processed = re.sub(r'([A-Za-z0-9_.\-/:\s,]+)', r'"\1"', res['node']).replace('=', ':').replace(', name', '", "name').replace(', description', '", "description').replace(', uri', '", "uri')
 
+            processed = json.loads(processed)
             return {
                 'name': processed['name'],
                 'description': processed['description'],

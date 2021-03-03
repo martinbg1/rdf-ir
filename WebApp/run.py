@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 from WebApp import app
 
 if __name__ == '__main__':

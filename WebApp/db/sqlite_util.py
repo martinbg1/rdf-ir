@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import Error
+from WebApp import sqlite_path
 
 
 def db_connect(db_file):
@@ -38,7 +39,7 @@ def add_test_result_disease(method, result_rank, relevancy, query_id, tester_id)
     """
     Function to store test result from a query result in the db
     """
-    conn = db_connect("db/rdf-ir.db")
+    conn = db_connect(sqlite_path)
     cur = conn.cursor()
     cur.execute(
         "insert into DataDisease(method, result_rank, relevancy, query_id, tester_id) values (?, ?, ?, ?, ?)", 
@@ -50,7 +51,7 @@ def add_test_result_movie(method, result_rank, relevancy, query_id, tester_id):
     """
     Function to store test result from a query result in the db
     """
-    conn = db_connect("db/rdf-ir.db")
+    conn = db_connect(sqlite_path)
     cur = conn.cursor()
     cur.execute(
         "insert into DataMovie(method, result_rank, relevancy, query_id, tester_id) values (?, ?, ?, ?, ?)", 
@@ -60,34 +61,34 @@ def add_test_result_movie(method, result_rank, relevancy, query_id, tester_id):
 
 
 def get_disease_query():
-    conn = db_connect("db/rdf-ir.db")
+    conn = db_connect(sqlite_path)
     cur = conn.cursor()
     cur.execute("SELECT * FROM Query WHERE dataset='Disease' LIMIT 1")
     return cur.fetchall()
 
 
 def get_random_disease_queries(n):
-    conn = db_connect("db/rdf-ir.db")
+    conn = db_connect(sqlite_path)
     cur = conn.cursor()
     cur.execute("SELECT * FROM Query WHERE dataset='Disease' ORDER BY RANDOM() LIMIT ?", (n,))
     return cur.fetchall()
 
 
 def get_random_movie_queries(n):
-    conn = db_connect("db/rdf-ir.db")
+    conn = db_connect(sqlite_path)
     cur = conn.cursor()
     cur.execute("SELECT * FROM Query WHERE dataset='Movie' ORDER BY RANDOM() LIMIT ?", (n,))
     return cur.fetchall()
 
 def add_new_user(user_id):
-    conn = db_connect("db/rdf-ir.db")
+    conn = db_connect(sqlite_path)
     cur = conn.cursor()
     cur.execute("INSERT INTO Tester(tester_id, answered_disease, answered_movie) VALUES (?, 0, 0)", (user_id,))
     conn.commit()
 
 
 def user_finished(user_id, dataset):
-    conn = db_connect("db/rdf-ir.db")
+    conn = db_connect(sqlite_path)
     cur = conn.cursor()
     cur.execute("UPDATE Tester SET %s = ? WHERE tester_id = ?" %("answered_"+dataset), (1, user_id))
     conn.commit()

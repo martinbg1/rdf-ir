@@ -19,6 +19,9 @@ driver_movie = GraphDatabase.driver(url_movie, auth=basic_auth(user, password),e
 
 app.config['SECRET_KEY'] = "secretkey"
 
+sqlite_path = os.getenv("SQLITE_PATH", "db/rdf-ir.db")
+# print(sqlite_path)
+
 def get_neo_db():
     if not hasattr(g, 'neo4j_db'):
         g.neo4j_db = driver_disease.session()

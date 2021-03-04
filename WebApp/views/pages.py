@@ -4,6 +4,8 @@ from WebApp.db.sqlite_util import *
 from WebApp.db.neo_util import *
 from WebApp.util.serialize_search import *
 import uuid
+import random
+import sys
 
 
 # render index
@@ -18,7 +20,6 @@ def survey():
 
     dataset = request.args['dataset']
     
-
     # connect to neo4j db
     db = get_neo_db()
 
@@ -56,7 +57,11 @@ def about():
         movie_queries = get_random_movie_queries(2)
         session['disease_queries'] = disease_queries
         session['movie_queries'] = movie_queries
-        session['methods'] = ['BM25', 'BM25F','fulltext']
+        # randomize method order when initializing 
+        methodlist = ['BM25', 'BM25F','fulltext']
+        random.shuffle(methodlist)
+        session['methods'] = methodlist
+
         session['disease_index'] = 0
         session['movie_index'] = 0
 
@@ -106,6 +111,11 @@ def handleForm():
             session['disease_index'] += 1
             if session['disease_index'] > len(session['methods']) - 1:
                 session['disease_index'] = 0
+                # randomize order when index is set to 0
+                methodlist = session['methods']
+                random.shuffle(methodlist)
+                session['methods']=methodlist
+                
                 session['disease_queries'] = session['disease_queries'][1:]
 
             for key,value in request.form.items():
@@ -115,6 +125,11 @@ def handleForm():
             session['movie_index'] +=1
             if session['movie_index'] > len(session['methods']) - 1:
                 session['movie_index'] = 0
+                # randomize order when index is set to 0
+                methodlist = session['methods']
+                random.shuffle(methodlist)
+                session['methods']=methodlist
+
                 session['movie_queries'] = session['movie_queries'][1:]
 
             for key,value in request.form.items():

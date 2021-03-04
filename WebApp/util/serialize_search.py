@@ -1,4 +1,5 @@
 import json
+import re
 
 def serialize_disease(disease):
     return {
@@ -36,7 +37,18 @@ def serialize_results(res):
     try:
         node = json.loads(res['node'])
     except:
-        return 'no data'
+        try:
+            processed = re.sub(r'([A-Za-z0-9_.\-/:\s,\w()]+)', r'"\1"', res['node']).replace('=', ':').replace(', name', '", "name').replace(', description', '", "description').replace(', uri', '", "uri')
+
+            processed = json.loads(processed)
+            return {
+                'name': processed['name'],
+                'description': processed['description'],
+                'altNames': processed['altNames']
+                # 'score': res['score']
+            }
+        except:
+            return "no data"
     return {
         'name': node['name'],
         'description': node['description'],

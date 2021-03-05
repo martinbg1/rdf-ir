@@ -1,4 +1,4 @@
-from WebApp import app, get_neo_db
+from WebApp import app, get_neo_disease_db
 from flask import Flask, g, Response, jsonify, render_template, request
 from WebApp.util.serialize_search import *
 from neo4j import GraphDatabase, basic_auth
@@ -12,7 +12,7 @@ def get_fulltext_search():
     except KeyError:
         return render_template('index.html')
     if q:
-        db = get_neo_db()
+        db = get_neo_disease_db()
         print(q)
         # db.run("call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease','Symptom'],['name','description','altNames']) " )
         # call db.index.fulltext.createNodeIndex('NameDescAlias',['Disease'],['name','description','altNames'], {analyzer: "english"})
@@ -33,7 +33,7 @@ def get_symptom():
     except KeyError:
         return render_template('index.html')
     if disease:
-        db = get_neo_db()
+        db = get_neo_disease_db()
         results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
                     "where d.name = $disease "
                     "return s", {"disease": disease})
@@ -48,7 +48,7 @@ def get_drug():
     except KeyError:
         return render_template('index.html')
     if disease:
-        db = get_neo_db()
+        db = get_neo_disease_db()
         results = db.run("match (d:Disease)-[:usesDrug]->(dr:Drug) "
                     "where d.name = $disease "
                     "return dr", {"disease": disease})
@@ -66,7 +66,7 @@ def get_BM25_search():
     except KeyError:
         return render_template('index.html')
     if q:
-        db = get_neo_db()
+        db = get_neo_disease_db()
         results = db.run('CALL improvedSearch.bm25Search("'+ q +'") ')
 
         return Response(json.dumps([serialize_results(record) for record in results]),
@@ -80,7 +80,7 @@ def get_BM25F_search():
     except KeyError:
         return render_template('index.html')
     if q:
-        db = get_neo_db()
+        db = get_neo_disease_db()
         results = db.run('CALL improvedSearch.bm25fSearch("'+ q +'") ')
 
         return Response(json.dumps([serialize_results(record) for record in results]),
@@ -94,7 +94,7 @@ def get_BM25F_search():
 #     except KeyError:
 #         return render_template('index.html')
 #     if q:
-#         db = get_neo_db()
+#         db = get_neo_disease_db()
 #         results = db.run('CALL improvedSearch.bm25ffSearch("'+ q +'") ')
 
 #         return Response(json.dumps([serialize_results(record) for record in results]),
@@ -109,7 +109,7 @@ def get_BM25F_search():
 #    except KeyError:
 #        return render_template('index.html')
 #    if q:
-#        db = get_neo_db()
+#        db = get_neo_disease_db()
 #        results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
 #                    "where d.name =~ $disease "
 #                    "return d, s", {"disease": "(?i).*" + q + ".*"}
@@ -134,7 +134,7 @@ def get_search_alt():
     except KeyError:
         return render_template('index.html')
     if q:
-        db = get_neo_db()
+        db = get_neo_disease_db()
         results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
                     "where d.name =~ $disease "
                     "return d, s", {"disease": "(?i).*" + q + ".*"}

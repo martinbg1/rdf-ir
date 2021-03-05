@@ -20,11 +20,16 @@ driver_movie = GraphDatabase.driver(url_movie, auth=basic_auth(user, password),e
 app.config['SECRET_KEY'] = "secretkey"
 
 sqlite_path = os.getenv("SQLITE_PATH", "db/rdf-ir.db")
-# print(sqlite_path)
 
-def get_neo_db():
+def get_neo_disease_db():
     if not hasattr(g, 'neo4j_db'):
         g.neo4j_db = driver_disease.session()
+    return g.neo4j_db
+
+
+def get_neo_movie_db():
+    if not hasattr(g, 'neo4j_db'):
+        g.neo4j_db = driver_movie.session()
     return g.neo4j_db
 
 # import views after app and neo4j db is initialized

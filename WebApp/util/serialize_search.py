@@ -41,7 +41,6 @@ def serialize_drug(drug):
 
 
 def serialize_results(res, dataset="disease"):
-    print(res)
     try:
         node = json.loads(res['node'])
     except:
@@ -64,6 +63,7 @@ def serialize_results(res, dataset="disease"):
                     # 'score': res['score']
                 }
         except:
+            print(res)
             return "no data"
     if dataset == "disease":
             return {

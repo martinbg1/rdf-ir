@@ -1,5 +1,5 @@
 from flask import Flask, g, Response, jsonify, render_template, request, redirect, url_for, session
-from WebApp import app, get_neo_db
+from WebApp import app, get_neo_disease_db, get_neo_movie_db
 from WebApp.db.sqlite_util import *
 from WebApp.db.neo_util import *
 from WebApp.util.serialize_search import *
@@ -17,16 +17,15 @@ def searchbar():
 @app.route('/survey', methods=['GET','POST'])
 def survey():
     serialized_result = []
-
     dataset = request.args['dataset']
-    
-    # connect to neo4j db
-    db = get_neo_db()
+    db = None
 
     if dataset == "disease":
+        db = get_neo_disease_db()
         query = session["disease_queries"][0]
         method = session['methods'][session['disease_index']]
     elif dataset == "movie":
+        db = get_neo_movie_db()
         query = session["movie_queries"][0]
         method = session['methods'][session['movie_index']]
 

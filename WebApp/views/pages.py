@@ -36,11 +36,11 @@ def survey():
 
 
     if method == "BM25":
-        serialized_result = bm25_search(db, q)
+        serialized_result = bm25_search(db, q, dataset)
     elif method == "BM25F":
-        serialized_result = bm25f_search(db, q)
+        serialized_result = bm25f_search(db, q, dataset)
     elif method == "fulltext":
-        serialized_result = fulltext_search(db, q)
+        serialized_result = fulltext_search(db, q, dataset)
 
     return render_template('survey.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method, dataset=dataset)
  

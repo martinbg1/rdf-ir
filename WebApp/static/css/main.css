@@ -22,6 +22,20 @@
     margin-left: 5%;
 }
 
+.progressbar > p{
+    vertical-align: top;
+    display: inline-block;
+    margin-left: 5%;
+}
+
+.progressbar{
+    margin-top: -20px;
+    margin-left: 40%;
+    margin-right: 40%;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
 body {
     margin: 0;
     padding-bottom: 10px;

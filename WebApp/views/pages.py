@@ -26,14 +26,20 @@ def survey():
     if dataset == "disease":
         query = session["disease_queries"][0]
         method = session['methods'][session['disease_index']]
+        index = session['disease_index']
+        query_length = session['disease_query_length']
+        query_index= query_length - len(session['disease_queries'])
+        print(query_index)
     elif dataset == "movie":
         query = session["movie_queries"][0]
         method = session['methods'][session['movie_index']]
+        index = session['movie_index']
+        query_length = session['movie_query_length']
+        query_index= query_length - len(session['movie_queries'])
 
     query_id = query[0]
     q = query[1]
     query_description = query[2]
-
 
 
     if method == "BM25":
@@ -43,7 +49,7 @@ def survey():
     elif method == "fulltext":
         serialized_result = fulltext_search(db, q)
 
-    return render_template('survey.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method, dataset=dataset)
+    return render_template('survey.html', query=q, query_id=query_id, query_result=serialized_result, query_description=query_description, method=method, dataset=dataset, index=index, query_length=query_length, query_index=query_index)
  
 
 @app.route('/', methods=['GET','POST'])
@@ -55,6 +61,8 @@ def about():
     if session.get('disease_queries') is None:
         disease_queries = get_random_disease_queries(2)
         movie_queries = get_random_movie_queries(2)
+        session['disease_query_length']=len(disease_queries)
+        session['movie_query_length']=len(movie_queries)
         session['disease_queries'] = disease_queries
         session['movie_queries'] = movie_queries
         # randomize method order when initializing 

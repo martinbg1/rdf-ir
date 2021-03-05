@@ -17,6 +17,10 @@
       <h3>Description: {{query_description}}</h3>
    </div>
 </div>
+<div class="progressbar text_center">
+   <p><b>Method:</b> {{index+1}} / 3 </p>
+   <p><b>Query:</b> {{query_index+1}} / {{query_length}}</p>
+</div>
 <!--TODO: remove novalidate before release :)-->
 <form class="padding form_padding" action="/handleForm?query_id={{query_id}}&method={{method}}&dataset={{dataset}}" method="post" novalidate>
    {% for result in query_result %} 

@@ -27,7 +27,6 @@ def survey():
         index = session['disease_index']
         query_length = session['disease_query_length']
         query_index= query_length - len(session['disease_queries'])
-        print(query_index)
     elif dataset == "movie":
         db = get_neo_movie_db()
         query = session["movie_queries"][0]

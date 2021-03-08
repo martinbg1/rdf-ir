@@ -11,7 +11,7 @@ def bm25f_search(db, q, dataset):
     return [serialize_results(record, dataset) for record in results]
 
 def fulltext_search(db, q, dataset):
-    results = db.run("call db.index.fulltext.queryNodes('NameDescAlias','name:"+ q +" OR altNames:" + q + " OR description:" + q + "')"+
+    results = db.run("call db.index.fulltext.queryNodes('NameDescAlias', '" + q + "'" +
     " YIELD node, score " +
     "RETURN node, score limit 10")
     return [serialize_fulltext(record, dataset) for record in results]

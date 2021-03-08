@@ -1,5 +1,8 @@
 import sqlite3
 from sqlite3 import Error
+
+import sys
+sys.path.append('../')
 from WebApp import sqlite_path
 
 
@@ -27,7 +30,7 @@ def run_sql_script(conn, sql_file_path):
     :parm sql_file_path
         path to sql script file
      """
-    sql_script = open(sql_file_path)
+    sql_script = open(sql_file_path, encoding='UTF8')
     sql_as_string = sql_script.read()
 
     cur = conn.cursor()
@@ -97,10 +100,10 @@ def user_finished(user_id, dataset):
     
 # current working directory is ./WebApp/db
 if __name__ == '__main__':
-    build_path = "scripts/dbBuildTableScript.sql"
-    drop_path = "scripts/dbDropTableScript.sql"
+    build_path = "db/scripts/dbBuildTableScript.sql"
+    drop_path = "db/scripts/dbDropTableScript.sql"
 
-    conn = db_connect("rdf-ir.db")
+    conn = db_connect("db/rdf-ir.db")
     run_sql_script(conn, drop_path)
     run_sql_script(conn, build_path)
 

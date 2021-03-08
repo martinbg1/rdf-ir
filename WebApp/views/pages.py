@@ -58,8 +58,8 @@ def about():
     movie_queries = []
 
     if session.get('disease_queries') is None:
-        disease_queries = get_random_disease_queries(2)
-        movie_queries = get_random_movie_queries(2)
+        disease_queries = get_random_disease_queries(5)
+        movie_queries = get_random_movie_queries(5)
         session['disease_query_length']=len(disease_queries)
         session['movie_query_length']=len(movie_queries)
         session['disease_queries'] = disease_queries

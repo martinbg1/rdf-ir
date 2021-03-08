@@ -130,7 +130,7 @@ p{
 padding-bottom: 20px;
     text-align: left;
     margin: auto;
-    width: 50%;
+    width: 60%;
 }
 
 /*
@@ -239,10 +239,17 @@ label {
 
 .wrapper {
     display: grid;
-    grid-template-columns: 3% 30% 30% 30% 5%;
+    grid-template-columns: 3% 30% 25% 35% 5%;
     background-color: #fff;
     color: #444;
-  }
+}
+
+.wrapper_about {
+display: grid;
+grid-template-columns: 3% 30% 10% 50% 5%;
+background-color: #fff;
+color: #444;
+}
 
 .a {
     grid-column: 2 / 4;

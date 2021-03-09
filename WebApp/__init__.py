@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from flask import Flask, g, Response, jsonify, render_template, request
 from neo4j import GraphDatabase, basic_auth
 from .util.serialize_search import *
@@ -31,6 +32,10 @@ def get_neo_movie_db():
     if not hasattr(g, 'neo4j_db'):
         g.neo4j_db = driver_movie.session()
     return g.neo4j_db
+
+
+sys.stdin.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')
 
 # import views after app and neo4j db is initialized
 from .views import pages, search

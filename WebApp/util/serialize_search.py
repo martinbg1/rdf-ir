@@ -45,7 +45,7 @@ def serialize_results(res, dataset="disease"):
         node = json.loads(res['node'])
     except:
         try:
-            processed = re.sub(r'([A-Za-z0-9_.\-\–/:\s,\'\w()\[\]]+)', r'"\1"', res['node']).replace('=', ':').replace(', name', '", "name').replace(', description', '", "description').replace(', uri', '", "uri')
+            processed = re.sub(r'([A-Za-z0-9_.\-\–/:\s,\'\w()\[\]\\]+)', r'"\1"', res['node'].replace('"', "\\'")).replace('=', ':').replace(', name', '", "name').replace(', description', '", "description').replace(', uri', '", "uri').replace("\\'", '\\"')
 
             processed = json.loads(processed)
             if dataset == "disease":

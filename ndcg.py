@@ -101,7 +101,8 @@ def db_get_query_tester_result_movie(query_id, tester_id, models):
 def result_to_list(result):
     new_result = {}
     for k, v in result.items():
-        new_result[k] = [i[1] for i in v][:5]
+        new_result[k] = [i[1] for i in v]
+        # new_result[k] = [i[1] for i in v][:5]
     
     return new_result
 
@@ -203,8 +204,8 @@ if __name__ == '__main__':
             tmp = db_get_query_tester_result_disease(q_id, tester, models)
             rankings = result_to_list(tmp)
 
-            dcg_ideal = dcg_score(query_ideal_5[q_id])
-            # dcg_ideal = dcg_score(query_ideal_10[q_id])
+            # dcg_ideal = dcg_score(query_ideal_5[q_id])
+            dcg_ideal = dcg_score(query_ideal_10[q_id])
 
             tmp = {}
             for model in models:
@@ -222,8 +223,8 @@ if __name__ == '__main__':
             tmp = db_get_query_tester_result_movie(q_id, tester, models)
             rankings = result_to_list(tmp)
 
-            dcg_ideal = dcg_score(query_ideal_5[q_id])
-            # dcg_ideal = dcg_score(query_ideal_10[q_id])
+            # dcg_ideal = dcg_score(query_ideal_5[q_id])
+            dcg_ideal = dcg_score(query_ideal_10[q_id])
 
             tmp = {}
             for model in models:
@@ -235,6 +236,6 @@ if __name__ == '__main__':
     
     avg_movie = avg_ndcg_query(result["movie"])
     print(avg_movie)
-    avg_ndcg_dataset(avg_movie)
+    avg_ndcg_dataset(avg_disease)
 
-    graph(avg_movie)
+    graph(avg_disease)

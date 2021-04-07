@@ -57,6 +57,16 @@ for tester in disease_testers:
     result.append([n[1] for n in disease_result["fulltext"]])
     # for n in disease_result['fulltext'][1]:
 print(result)
+new = []
+for n in result:
+    tmp = []
+    for i in n:
+        if i > 1:
+            tmp.append(1)
+        else:
+            tmp.append(0)
+    new.append(tmp)
+print(new)
 
 def formatting(result):
     temp = []
@@ -65,7 +75,7 @@ def formatting(result):
         # print("i for loop: " + temp)
     return temp
 
-temp = formatting(result)
+temp = formatting(new)
 score_fleiss = agreement.AnnotationTask(data=temp)
 print(score_fleiss.multi_kappa())
 

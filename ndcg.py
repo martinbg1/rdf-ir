@@ -2,10 +2,12 @@ import numpy as np
 import sqlite3
 import math
 from statistics import mean
+import matplotlib
+import matplotlib.pyplot as plt
 
 SQLITE_PATH = "WebApp/db/rdf-ir.db"
-query_ideal= {
-    1: [3,3,2,2,1,1,0,0,0,0], # covid-19 (pandemic rated 1 maybe change to 2)
+query_ideal_10 = {
+    1: [3,3,2,2,2,2,0,0,0,0], # covid-19 (pandemic rated 1 maybe change to 2)
     2: [3,2,2,1,1,1,1,1,1,1], # yellow fever
     3: [3,3,3,3,3,3,3,3,2,0], # headache symptom
     4: [3,3,3,3,2,2,2,2,2,2], # influenza pandemix
@@ -15,6 +17,19 @@ query_ideal= {
     8: [3,3,3,3,3,3,3,2,1,1], # movies by Christopher Nolan
     9: [3,2,2,2,2,1,1,1,1,1], # the circus chaplin
     10: [3,3,3,2,2,2,1,1,1,1] # Wachowski directors
+}
+
+query_ideal_5 = {
+    1: [3,3,2,2,2], # covid-19 (pandemic rated 1 maybe change to 2)
+    2: [3,2,2,1,1], # yellow fever
+    3: [3,3,3,3,3], # headache symptom
+    4: [3,3,3,3,2], # influenza pandemix
+    5: [3,3,2,2,1], # fear of social interaction (fear of medical procedures satt til 1, kanskje 2)
+    6: [3,3,3,1,1], # matrix
+    7: [3,3,3,1,1], # lotr
+    8: [3,3,3,3,3], # movies by Christopher Nolan
+    9: [3,2,2,2,2], # the circus chaplin
+    10: [3,3,3,2,2] # Wachowski directors
 }
 
 
@@ -86,7 +101,8 @@ def db_get_query_tester_result_movie(query_id, tester_id, models):
 def result_to_list(result):
     new_result = {}
     for k, v in result.items():
-        new_result[k] = [i[1] for i in v]
+        new_result[k] = [i[1] for i in v][:5]
+    
     return new_result
 
 
@@ -134,6 +150,33 @@ def avg_ndcg_dataset(result):
     print(res)
 
 
+def graph(data):
+    ndcg_fulltext = []
+    ndcg_BM25 = []
+    ndcg_BM25F = []
+    for k, v in data.items():
+        ndcg_fulltext.append(v["fulltext"])
+        ndcg_BM25.append(v["BM25"])
+        ndcg_BM25F.append(v["BM25F"])
+
+
+    y = np.array(ndcg_fulltext)
+    x = np.array([6,7,8,9,10])
+    my_xticks = ["M_Q1", "M_Q2","M_Q3", "M_Q4", "M_Q5"]
+    # my_xticks = ["D_Q1", "D_Q2","D_Q3", "D_Q4", "D_Q5"]
+    plt.xticks(x, my_xticks)
+    plt.plot(x, ndcg_fulltext, marker='o',  linestyle='--', label='fulltext')
+    plt.plot(x, ndcg_BM25, marker='o',  linestyle='--', label='BM25')
+    plt.plot(x, ndcg_BM25F, marker='o',  linestyle='--', label='BM25F')
+    plt.xlabel('Query ID')
+    plt.ylabel('NDCG')
+    plt.title('Average NDCG scores for each movie query')
+    # plt.title('Average NDCG scores for each disease query')
+    plt.legend()
+    plt.show()
+
+
+
 if __name__ == '__main__':
     models = ["fulltext", "BM25", "BM25F"]
     query_disease = [1,2,3,4,5]
@@ -160,7 +203,8 @@ if __name__ == '__main__':
             tmp = db_get_query_tester_result_disease(q_id, tester, models)
             rankings = result_to_list(tmp)
 
-            dcg_ideal = dcg_score(query_ideal[q_id])
+            dcg_ideal = dcg_score(query_ideal_5[q_id])
+            # dcg_ideal = dcg_score(query_ideal_10[q_id])
 
             tmp = {}
             for model in models:
@@ -178,7 +222,8 @@ if __name__ == '__main__':
             tmp = db_get_query_tester_result_movie(q_id, tester, models)
             rankings = result_to_list(tmp)
 
-            dcg_ideal = dcg_score(query_ideal[q_id])
+            dcg_ideal = dcg_score(query_ideal_5[q_id])
+            # dcg_ideal = dcg_score(query_ideal_10[q_id])
 
             tmp = {}
             for model in models:
@@ -191,3 +236,5 @@ if __name__ == '__main__':
     avg_movie = avg_ndcg_query(result["movie"])
     print(avg_movie)
     avg_ndcg_dataset(avg_movie)
+
+    graph(avg_movie)

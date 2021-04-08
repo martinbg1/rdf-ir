@@ -115,14 +115,14 @@ def avg_fleiss(scores):
 
 #calculate for 4 levels (fungerer tror jeg, er kun for 1 modell nå, men er avg av alle queries)
 for q_id in query_disease:
-    calculate_feiss_four_disease(q_id,"fulltext")
+    calculate_feiss_four_disease(q_id,"BM25F")
 
 disease_avg_four=avg_fleiss(fleiss_scores_four)
 print("disease avg four: " + str(disease_avg_four))
 
 # caculate for 2 levels (fungerer kanksje?)
 for q_id in query_disease:
-    calculate_feiss_two_disease(q_id, "fulltext")
+    calculate_feiss_two_disease(q_id, "BM25F")
 
 disease_avg_two=avg_fleiss(fleiss_scores_two)
 print("disease avg two: " + str(disease_avg_two))
@@ -159,21 +159,34 @@ def calculate_feiss_two_movie(q_id, model):
         movie_result = db_get_query_tester_result_movie(q_id, tester, models)
         two_temp.append([n[1] for n in movie_result[model]])
     temp_movie_two = convert_to_two_level(two_temp)
-    print(temp_movie_two)
+    # print(temp_movie_two)
     formatted_movie= formatting(temp_movie_two)
     fleiss_agreement = agreement.AnnotationTask(data=formatted_movie)
     fleiss_scores_two_movie.append(fleiss_agreement.multi_kappa())
 
 #calculate for 4 levels (fungerer tror jeg, er kun for 1 modell nå, men er avg av alle queries)
 for q_id in query_movie:
-    calculate_feiss_four_movie(q_id,"fulltext")
+    calculate_feiss_four_movie(q_id,"BM25F")
 
 movie_avg_four=avg_fleiss(fleiss_scores_four_movie)
 print("movie avg four: " + str(movie_avg_four))
 
 # caculate for 2 levels (fungerer kanksje?)
 for q_id in query_movie:
-    calculate_feiss_two_movie(q_id, "fulltext")
+    calculate_feiss_two_movie(q_id, "BM25F")
 
 movie_avg_two=avg_fleiss(fleiss_scores_two_movie)
 print("movie avg two: " + str(movie_avg_two))
+
+
+def avg(n1, n2, n3):
+    sum = n1+n2+n3
+    return sum/3
+
+print("Disease avg four: " + str(avg(0.3268634116734088,0.34435414028662414,0.35109856680050605)))
+
+print("Disease avg two: " + str(avg(0.5516993174824929,0.5448305928195821,0.5415967073229971)))
+
+print("Movie avg four: " + str(avg(0.4909765225958793,0.5030554087455327,0.44309043163581696)))
+
+print("Movie avg two: " + str(avg(0.7727224533151049,0.9068409823934568,0.9345682366845919)))

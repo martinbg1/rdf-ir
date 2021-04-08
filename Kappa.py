@@ -78,12 +78,13 @@ def calculate_feiss_four_disease(q_id, model):
     for tester in disease_testers:
         disease_result = db_get_query_tester_result_disease(q_id, tester, models)
         temp_disease.append([n[1] for n in disease_result[model]])
+    # print(temp_disease)
     formatted_disease= formatting(temp_disease)
     fleiss_agreement = agreement.AnnotationTask(data=formatted_disease)
     fleiss_scores_four.append(fleiss_agreement.multi_kappa())
 
-temp_disease_two = []
 def convert_to_two_level(input):
+    temp_disease_two = []
     for n in input:
             tmp = []
             for i in n:
@@ -92,6 +93,7 @@ def convert_to_two_level(input):
                 else:
                     tmp.append(0)
             temp_disease_two.append(tmp)
+    return temp_disease_two
 
 fleiss_scores_two = []
 def calculate_feiss_two_disease(q_id, model):
@@ -99,7 +101,7 @@ def calculate_feiss_two_disease(q_id, model):
     for tester in disease_testers:
         disease_result = db_get_query_tester_result_disease(q_id, tester, models)
         two_temp.append([n[1] for n in disease_result[model]])
-    convert_to_two_level(two_temp)
+    temp_disease_two = convert_to_two_level(two_temp)
     formatted_disease= formatting(temp_disease_two)
     fleiss_agreement = agreement.AnnotationTask(data=formatted_disease)
     fleiss_scores_two.append(fleiss_agreement.multi_kappa())
@@ -139,16 +141,16 @@ def calculate_feiss_four_movie(q_id, model):
     fleiss_agreement = agreement.AnnotationTask(data=formatted_movie)
     fleiss_scores_four_movie.append(fleiss_agreement.multi_kappa())
 
-temp_movie_two = []
-def convert_to_two_level_movie(input):
-    for n in input:
-            tmp = []
-            for i in n:
-                if i > 1:
-                    tmp.append(1)
-                else:
-                    tmp.append(0)
-            temp_movie_two.append(tmp)
+# temp_movie_two = []
+# def convert_to_two_level_movie(input):
+#     for n in input:
+#             tmp = []
+#             for i in n:
+#                 if i > 1:
+#                     tmp.append(1)
+#                 else:
+#                     tmp.append(0)
+#             temp_movie_two.append(tmp)
 
 fleiss_scores_two_movie = []
 def calculate_feiss_two_movie(q_id, model):
@@ -156,7 +158,8 @@ def calculate_feiss_two_movie(q_id, model):
     for tester in movie_testers:
         movie_result = db_get_query_tester_result_movie(q_id, tester, models)
         two_temp.append([n[1] for n in movie_result[model]])
-    convert_to_two_level_movie(two_temp)
+    temp_movie_two = convert_to_two_level(two_temp)
+    print(temp_movie_two)
     formatted_movie= formatting(temp_movie_two)
     fleiss_agreement = agreement.AnnotationTask(data=formatted_movie)
     fleiss_scores_two_movie.append(fleiss_agreement.multi_kappa())

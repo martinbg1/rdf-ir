@@ -80,14 +80,9 @@ Then install dependencies for the app:
 pip install -r requirements.txt
 ```
 
-Give execute permission to the run script:
+run flask application
 ```
-chmod +x /bin/run-debug.sh
-```
-
-Make sure your database is running and start the app with:
-```
-bin/run-debug.sh
+python3 run.py
 ```
 
 Now the app should be available at http://localhost:8080

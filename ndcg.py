@@ -72,7 +72,7 @@ def db_get_query_ids():
     conn.close()
     return query_id
 
-def db_get_query_tester_result_disease(query_id, tester_id, models):
+def db_get_query_tester_result_disease(query_id, tester_id, models, n=10):
     conn = db_connect(SQLITE_PATH)
     cur = conn.cursor()
     result = {}
@@ -81,11 +81,11 @@ def db_get_query_tester_result_disease(query_id, tester_id, models):
             SELECT result_rank, relevancy
             FROM DataDisease 
             WHERE query_id=? AND tester_id=? AND method=?""", (query_id, tester_id, model))
-        result[model] = cur.fetchall()
+        result[model] = cur.fetchall()[:n]
     return result
 
 
-def db_get_query_tester_result_movie(query_id, tester_id, models):
+def db_get_query_tester_result_movie(query_id, tester_id, models, n=10):
     conn = db_connect(SQLITE_PATH)
     cur = conn.cursor()
     result = {}
@@ -94,7 +94,7 @@ def db_get_query_tester_result_movie(query_id, tester_id, models):
             SELECT result_rank, relevancy
             FROM DataMovie 
             WHERE query_id=? AND tester_id=? AND method=?""", (query_id, tester_id, model))
-        result[model] = cur.fetchall()
+        result[model] = cur.fetchall()[:n]
     return result
 
 
@@ -151,10 +151,43 @@ def avg_ndcg_dataset(result):
     print(res)
 
 
-def graph(data):
-    ndcg_fulltext = []
-    ndcg_BM25 = []
-    ndcg_BM25F = []
+def dcg_per_step(queries, testers, models=["fulltext", "BM25", "BM25F"]):
+    result = {
+        "ideal": {},
+        "fulltext": {},
+        "BM25": {},
+        "BM25F": {},
+    }
+
+    # Calculate ideal dcg per step
+    for i in range(1, 11):
+        tmp_dcg_ideal = []
+        for q_id in queries:
+            tmp_dcg_ideal.append(dcg_score(query_ideal_10[q_id][:i]))
+        result["ideal"][i] = mean(tmp_dcg_ideal)
+
+
+    # Calculate model's dcg per step
+    for i in range(1, 11):
+        tmp_dcg_model, tmp_dcg_ideal = [], []
+        for model in models:
+            for q_id in queries:
+                for tester in testers:
+                    if (queries[0] == 1):
+                        tmp = db_get_query_tester_result_disease(q_id, tester, [model], i)
+                    else:
+                        tmp = db_get_query_tester_result_movie(q_id, tester, [model], i)
+                    rankings = result_to_list(tmp)
+                    dcg = dcg_score(rankings[model])
+                    tmp_dcg_model.append(dcg)
+            result[model][i] = mean(tmp_dcg_model)
+    return result
+
+
+def plot_ndcg_graph(data):
+    ndcg_fulltext, ndcg_BM25, ndcg_BM25F = [], [], []
+
+    # unpack data
     for k, v in data.items():
         ndcg_fulltext.append(v["fulltext"])
         ndcg_BM25.append(v["BM25"])
@@ -177,6 +210,28 @@ def graph(data):
     plt.show()
 
 
+def plot_dcg_step_graph(data):
+    unpacked_data = {}
+
+    for k, v in data.items():
+        unpacked_data[k] = []
+        for k2, v2 in v.items():
+            unpacked_data[k].append(v2)
+
+    x = np.array([1,2,3,4,5,6,7,8,9,10])
+    my_xticks = [1,2,3,4,5,6,7,8,9,10]
+    plt.xticks(x, my_xticks)
+    plt.plot(x, unpacked_data["ideal"], marker='o',  linestyle='--', label='Ideal')
+    plt.plot(x, unpacked_data["fulltext"], marker='o',  linestyle='--', label='fulltext')
+    plt.plot(x, unpacked_data["BM25"], marker='o',  linestyle='--', label='BM25')
+    plt.plot(x, unpacked_data["BM25F"], marker='o',  linestyle='--', label='BM25F')
+
+    plt.xlabel('Entities returned')
+    plt.ylabel('DCG')
+    plt.title('Discounted cumulated gain (DCG) curves for the disease dataset')
+    # plt.title('Discounted cumulated gain (DCG) curves for the movie dataset')
+    plt.legend()
+    plt.show()
 
 if __name__ == '__main__':
     models = ["fulltext", "BM25", "BM25F"]
@@ -187,15 +242,11 @@ if __name__ == '__main__':
         "disease": {
         },
         "movie": {
-
         }
-            
     }
 
     testers_disease = db_get_disease_testers()
     testers_movie = db_get_movie_testers()
-    tester_test = '9fe4d10a-d11e-4bf9-9751-f8698c14651f'
-    query_id = 3
 
 
     for q_id in query_disease:
@@ -232,10 +283,22 @@ if __name__ == '__main__':
                 ndcg = ndcg_score(dcg_ideal, dcg)
                 tmp[model] = ndcg
             result["movie"][q_id].append(tmp)
-    
-    
-    avg_movie = avg_ndcg_query(result["movie"])
-    print(avg_movie)
-    avg_ndcg_dataset(avg_disease)
 
-    graph(avg_disease)
+    mean_average_ndcg = {}
+    mean_average_data_points = {
+        "fulltext": [],
+        "BM25": [],
+        "BM25F": []
+    }
+
+    dcg_steps = dcg_per_step(query_disease, testers_disease)
+
+    for k,v in dcg_steps.items():
+        print(k)
+        print(v)
+
+    plot_dcg_step_graph(dcg_steps)
+    # avg_movie = avg_ndcg_query(result["movie"])
+    # print(avg_movie)
+    # avg_ndcg_dataset(avg_disease)
+    # plot_ndcg_graph(avg_disease)

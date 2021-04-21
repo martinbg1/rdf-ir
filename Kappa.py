@@ -141,16 +141,7 @@ def calculate_feiss_four_movie(q_id, model):
     fleiss_agreement = agreement.AnnotationTask(data=formatted_movie)
     fleiss_scores_four_movie.append(fleiss_agreement.multi_kappa())
 
-# temp_movie_two = []
-# def convert_to_two_level_movie(input):
-#     for n in input:
-#             tmp = []
-#             for i in n:
-#                 if i > 1:
-#                     tmp.append(1)
-#                 else:
-#                     tmp.append(0)
-#             temp_movie_two.append(tmp)
+
 
 fleiss_scores_two_movie = []
 def calculate_feiss_two_movie(q_id, model):

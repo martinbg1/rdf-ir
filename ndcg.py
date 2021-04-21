@@ -228,8 +228,8 @@ def plot_dcg_step_graph(data):
 
     plt.xlabel('Entities returned')
     plt.ylabel('DCG')
-    plt.title('Discounted cumulated gain (DCG) curves for the disease dataset')
-    # plt.title('Discounted cumulated gain (DCG) curves for the movie dataset')
+    # plt.title('Discounted cumulated gain (DCG) curves for the disease dataset')
+    plt.title('Discounted cumulated gain (DCG) curves for the movie dataset')
     plt.legend()
     plt.show()
 
@@ -291,7 +291,7 @@ if __name__ == '__main__':
         "BM25F": []
     }
 
-    dcg_steps = dcg_per_step(query_disease, testers_disease)
+    dcg_steps = dcg_per_step(query_movie, testers_movie)
 
     for k,v in dcg_steps.items():
         print(k)

@@ -184,30 +184,76 @@ def dcg_per_step(queries, testers, models=["fulltext", "BM25", "BM25F"]):
     return result
 
 
-def plot_ndcg_graph(data):
-    ndcg_fulltext, ndcg_BM25, ndcg_BM25F = [], [], []
+def plot_ndcg_graph():
+
+    # movie 10
+    # ndcg_fulltext = [0.778, 0.857, 0.877, 0.841, 0.829]
+    # ndcg_BM25 = [0.697, 0.790, 0.941, 0.674, 0.535]
+    # ndcg_BM25F = [0.600, 0.494, 0.814, 0.651, 0.512]
+
+    # movie 5
+    # ndcg_fulltext = [0.842, 0.908, 0.774, 0.820, 0.933]
+    # ndcg_BM25 = [0.676, 0.853, 0.922, 0.628, 0.559]
+    # ndcg_BM25F = [0.672, 0.450, 0.670, 0.641, 0.436]
+
+    # disease 10
+    ndcg_fulltext = [0.868, 0.835, 0.717, 0.903, 0.622]
+    ndcg_BM25 = [0.868, 0.816, 0.831, 0.938, 0.703]
+    ndcg_BM25F = [0.914, 0.853, 0.792, 0.952, 0.779]
+
+    # disease 5
+    # ndcg_fulltext = [0.817, 0.846, 0.818, 0.910, 0.609]
+    # ndcg_BM25 = [0.830, 0.853, 0.908, 0.990, 0.696]
+    # ndcg_BM25F = [0.860, 0.882, 0.833, 0.997, 0.760]
+
 
     # unpack data
-    for k, v in data.items():
-        ndcg_fulltext.append(v["fulltext"])
-        ndcg_BM25.append(v["BM25"])
-        ndcg_BM25F.append(v["BM25F"])
+    # for k, v in data.items():
+    #     ndcg_fulltext.append(round(v["fulltext"], 3))
+    #     ndcg_BM25.append(round(v["BM25"], 3))
+    #     ndcg_BM25F.append(round(v["BM25F"], 3))
+    # print(ndcg_fulltext)
 
 
-    y = np.array(ndcg_fulltext)
-    x = np.array([6,7,8,9,10])
-    my_xticks = ["M_Q1", "M_Q2","M_Q3", "M_Q4", "M_Q5"]
-    # my_xticks = ["D_Q1", "D_Q2","D_Q3", "D_Q4", "D_Q5"]
-    plt.xticks(x, my_xticks)
-    plt.plot(x, ndcg_fulltext, marker='o',  linestyle='--', label='fulltext')
-    plt.plot(x, ndcg_BM25, marker='o',  linestyle='--', label='BM25')
-    plt.plot(x, ndcg_BM25F, marker='o',  linestyle='--', label='BM25F')
-    plt.xlabel('Query ID')
-    plt.ylabel('NDCG')
-    plt.title('Average NDCG scores for each movie query')
-    # plt.title('Average NDCG scores for each disease query')
-    plt.legend()
+    labels = ["M_Q1", "M_Q2","M_Q3", "M_Q4", "M_Q5"]
+    # labels = ["D_Q1", "D_Q2","D_Q3", "D_Q4", "D_Q5"]
+    x =  np.arange(len(labels))
+
+    width = 0.25
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width, ndcg_fulltext, width, label="fulltext")
+    rects2 = ax.bar(x, ndcg_BM25, width, label="BM25")
+    rects3 = ax.bar(x + width, ndcg_BM25F, width, label="BM25F")
+
+    ax.set_ylabel('NDCG')
+    # ax.set_title('Average NDCG scores for each movie query')
+    ax.set_title('Average NDCG scores for each disease query')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    ax.bar_label(rects1, padding=5)
+    ax.bar_label(rects2, padding=5)
+    ax.bar_label(rects3, padding=5)
+
+    fig.tight_layout()
     plt.show()
+
+    # y = np.array(ndcg_fulltext)
+    # x = np.array([6,7,8,9,10])
+    # # my_xticks = ["M_Q1", "M_Q2","M_Q3", "M_Q4", "M_Q5"]
+    # my_xticks = ["D_Q1", "D_Q2","D_Q3", "D_Q4", "D_Q5"]
+    # plt.xticks(x, my_xticks)
+    # plt.plot(x, ndcg_fulltext, marker='o',  linestyle='', label='fulltext')
+    # plt.plot(x, ndcg_BM25, marker='o',  linestyle='', label='BM25')
+    # plt.plot(x, ndcg_BM25F, marker='o',  linestyle='', label='BM25F')
+    # plt.xlabel('Query ID')
+    # plt.ylabel('NDCG')
+    # # plt.title('Average NDCG scores for each movie query')
+    # plt.title('Average NDCG scores for each disease query')
+    # plt.legend()
+    # plt.show()
 
 
 def plot_dcg_step_graph(data):
@@ -221,15 +267,15 @@ def plot_dcg_step_graph(data):
     x = np.array([1,2,3,4,5,6,7,8,9,10])
     my_xticks = [1,2,3,4,5,6,7,8,9,10]
     plt.xticks(x, my_xticks)
-    plt.plot(x, unpacked_data["ideal"], marker='o',  linestyle='--', label='Ideal')
+    plt.plot(x, unpacked_data["ideal"], marker='o',  linestyle='--', color="black", label='Ideal')
     plt.plot(x, unpacked_data["fulltext"], marker='o',  linestyle='--', label='fulltext')
     plt.plot(x, unpacked_data["BM25"], marker='o',  linestyle='--', label='BM25')
     plt.plot(x, unpacked_data["BM25F"], marker='o',  linestyle='--', label='BM25F')
 
-    plt.xlabel('Entities returned')
+    plt.xlabel('Entities Retrieved')
     plt.ylabel('DCG')
-    # plt.title('Discounted cumulated gain (DCG) curves for the disease dataset')
-    plt.title('Discounted cumulated gain (DCG) curves for the movie dataset')
+    plt.title('Discounted cumulated gain (DCG) curves for the disease dataset')
+    # plt.title('Discounted cumulated gain (DCG) curves for the movie dataset')
     plt.legend()
     plt.show()
 
@@ -291,14 +337,14 @@ if __name__ == '__main__':
         "BM25F": []
     }
 
-    dcg_steps = dcg_per_step(query_movie, testers_movie)
+    # dcg_steps = dcg_per_step(query_disease, testers_disease)
 
-    for k,v in dcg_steps.items():
-        print(k)
-        print(v)
+    # for k,v in dcg_steps.items():
+    #     print(k)
+    #     print(v)
 
-    plot_dcg_step_graph(dcg_steps)
-    # avg_movie = avg_ndcg_query(result["movie"])
-    # print(avg_movie)
-    # avg_ndcg_dataset(avg_disease)
-    # plot_ndcg_graph(avg_disease)
+    # plot_dcg_step_graph(dcg_steps)
+    avg_movie = avg_ndcg_query(result["movie"])
+    print(avg_movie)
+    # avg_ndcg_dataset(avg_movie)
+    plot_ndcg_graph()

@@ -10,7 +10,7 @@ query_ideal_10 = {
     1: [3,3,2,2,2,2,0,0,0,0], # covid-19 (pandemic rated 1 maybe change to 2)
     2: [3,2,2,1,1,1,1,1,1,1], # yellow fever
     3: [3,3,3,3,3,3,3,3,2,0], # headache symptom
-    4: [3,3,3,3,2,2,2,2,2,2], # influenza pandemix
+    4: [3,3,3,3,2,2,2,2,2,2], # influenza pandemic
     5: [3,3,2,2,1,1,1,1,1,1], # fear of social interaction (fear of medical procedures satt til 1, kanskje 2)
     6: [3,3,3,1,1,1,1,1,1,1], # matrix
     7: [3,3,3,1,1,1,1,1,1,1], # lotr
@@ -23,7 +23,7 @@ query_ideal_5 = {
     1: [3,3,2,2,2], # covid-19 (pandemic rated 1 maybe change to 2)
     2: [3,2,2,1,1], # yellow fever
     3: [3,3,3,3,3], # headache symptom
-    4: [3,3,3,3,2], # influenza pandemix
+    4: [3,3,3,3,2], # influenza pandemic
     5: [3,3,2,2,1], # fear of social interaction (fear of medical procedures satt til 1, kanskje 2)
     6: [3,3,3,1,1], # matrix
     7: [3,3,3,1,1], # lotr
@@ -239,21 +239,6 @@ def plot_ndcg_graph():
 
     fig.tight_layout()
     plt.show()
-
-    # y = np.array(ndcg_fulltext)
-    # x = np.array([6,7,8,9,10])
-    # # my_xticks = ["M_Q1", "M_Q2","M_Q3", "M_Q4", "M_Q5"]
-    # my_xticks = ["D_Q1", "D_Q2","D_Q3", "D_Q4", "D_Q5"]
-    # plt.xticks(x, my_xticks)
-    # plt.plot(x, ndcg_fulltext, marker='o',  linestyle='', label='fulltext')
-    # plt.plot(x, ndcg_BM25, marker='o',  linestyle='', label='BM25')
-    # plt.plot(x, ndcg_BM25F, marker='o',  linestyle='', label='BM25F')
-    # plt.xlabel('Query ID')
-    # plt.ylabel('NDCG')
-    # # plt.title('Average NDCG scores for each movie query')
-    # plt.title('Average NDCG scores for each disease query')
-    # plt.legend()
-    # plt.show()
 
 
 def plot_dcg_step_graph(data):

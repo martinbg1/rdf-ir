@@ -87,45 +87,10 @@ def get_BM25F_search():
                                 mimetype="application/json")
     return 'No data'
 
-# @app.route('/BM25FFSearch')
-# def get_BM25F_search():
-#     try:
-#         q = request.args["q"]
-#     except KeyError:
-#         return render_template('index.html')
-#     if q:
-#         db = get_neo_disease_db()
-#         results = db.run('CALL improvedSearch.bm25ffSearch("'+ q +'") ')
-
-#         return Response(json.dumps([serialize_results(record) for record in results]),
-#                                 mimetype="application/json")
-#     return 'No data'
-
-
-#@app.route('/search')
-#def get_disease_symptom():
-#    try:
-#        q = request.args["q"]
-#    except KeyError:
-#        return render_template('index.html')
-#    if q:
-#        db = get_neo_disease_db()
-#        results = db.run("match (d:Disease)-[:hasSymptom]->(s:Symptom) "
-#                    "where d.name =~ $disease "
-#                    "return d, s", {"disease": "(?i).*" + q + ".*"}
-
-#        )
-#        print(results.single())
-#        return Response(json.dumps([serialize_symptom(record['d']) for record in results]),
-#                        mimetype="application/json")
-#    else:
-#        return 'no data'
-
 
 """
 Alternativ til den andre søkefunksjonen. Her finner man disease og symptoms til disease i en spørring
 i steden for å splitte det opp i to spørringer.
-TODO: Finne ut hvordan man serialiserer resultatet.
 """
 @app.route('/searchAlt')
 def get_search_alt():

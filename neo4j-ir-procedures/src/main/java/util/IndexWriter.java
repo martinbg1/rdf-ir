@@ -32,12 +32,11 @@ public class IndexWriter {
         List<Double> tf = new ArrayList<>();
         doc.keywords.forEach((k) ->tf.add((double)k.getFrequency()));
         // log normalization tf
-//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_log_normalization(k.getFrequency())));
+        //field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_log_normalization(k.getFrequency())));
         // double normalization 0.5
-//        doc.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_05(k.getFrequency(), maxFrequency)));
+        //doc.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_05(k.getFrequency(), maxFrequency)));
         // double normalization K
-        // TODO: finne ut hva K kan være / pleier å være - legge til en bra måte å regulere denne
-//        doc.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
+        //doc.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
 
 
         HashMap<String, Object> params = new HashMap<>();
@@ -69,12 +68,11 @@ public class IndexWriter {
                     // raw frequency
                     field.keywords.forEach((k) ->tf.add((double)k.getFrequency()));
                     // log normalization tf
-//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_log_normalization(k.getFrequency())));
+                    //field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_log_normalization(k.getFrequency())));
                     // double normalization 0.5
-//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_05(k.getFrequency(), maxFrequency)));
+                    //field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_05(k.getFrequency(), maxFrequency)));
                     // double normalization K
-                    // TODO: finne ut hva K kan være / pleier å være - legge til en bra måte å regulere denne
-//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
+                    //field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
 
 
 
@@ -119,12 +117,11 @@ public class IndexWriter {
                     List<Double> tf = new ArrayList<>();
                     field.keywords.forEach((k) ->tf.add((double)k.getFrequency()));
                     // log normalization tf
-//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_log_normalization(k.getFrequency())));
+                    //field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_log_normalization(k.getFrequency())));
                     // double normalization 0.5
-//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_05(k.getFrequency(), maxFrequency)));
+                    //field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_05(k.getFrequency(), maxFrequency)));
                     // double normalization K
-                    // TODO: finne ut hva K kan være / pleier å være - legge til en bra måte å regulere denne
-//                    field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
+                    //field.keywords.forEach((k) ->tf.add(TFIDF_variations.TF_double_normalization_K(k.getFrequency(), maxFrequency, 1)));
 
                     HashMap<String, Object> paramsField = new HashMap<>();
                     paramsField.put("fieldLength", field.getDocLength());

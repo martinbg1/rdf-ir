@@ -49,7 +49,6 @@ public class CorpusFielded {
     }
 
 
-    //TODO delete me :)
     public CorpusFielded(Map<String, ArrayList<Document>> fields, ArrayList<String> fieldNames) {
         this.BoW = new HashMap<>();
         this.idf = new HashMap<>();

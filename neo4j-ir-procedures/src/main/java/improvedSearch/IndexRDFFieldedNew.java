@@ -44,7 +44,6 @@ public class IndexRDFFieldedNew {
             Result res = tx.execute(input);
             Iterator<Node> d_column = res.columnAs("d");
 
-            // TODO handle null values
             // process terms
             while (d_column.hasNext()) {
                 ArrayList<Document> tempArrayDocument = new ArrayList<>();
@@ -96,7 +95,6 @@ public class IndexRDFFieldedNew {
                 }
             });
 
-            // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
             Result res1 = tx.execute(input);
 
             // start of write operation

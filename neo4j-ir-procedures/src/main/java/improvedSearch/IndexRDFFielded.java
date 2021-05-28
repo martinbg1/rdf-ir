@@ -40,7 +40,6 @@ public class IndexRDFFielded {
             Result res = tx.execute(input);
             Iterator<Node> d_column_fielded = res.columnAs("d");
 
-            // TODO handle null values
             // process terms
             while (d_column_fielded.hasNext()) {
                 ArrayList<Document> tempArrayDocument = new ArrayList<>();
@@ -85,7 +84,6 @@ public class IndexRDFFielded {
             corpus.initCorpusValues(fieldNameCollection);
 
 
-            // TODO: fikse dette på en bedre måte annet enn å laste inn på nytt.
             Result res1 = tx.execute(input);
 
             // start of write operation

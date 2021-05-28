@@ -65,7 +65,7 @@ Ranking models and the procedure to run query:
 ## Search Engine Web Application
 The web application can be found in the [`WebApp/`](https://github.com/martinbg1/rdf-ir/tree/master/WebApp) directory.
 
-The web application serves as a user interface to query data from a Neo4j database using the procedures described above.
+The web application serves as a user interface to query data from a Neo4j database using the procedures described above. It's also serves as a survey to gather users' relevancy assessments.
 
 ### Setup
 First setup virtualenv:
